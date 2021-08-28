@@ -1,4 +1,4 @@
-systray is a cross-platform Go library to place an icon and menu in the notification area.
+systray is a cross-platform Go library to place an icon and menu in the notification area. The code has been borrowed from `getlantern/systray`.
 
 ## Features
 
