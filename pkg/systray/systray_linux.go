@@ -5,11 +5,16 @@ package systray
 */
 import "C"
 
+// old
+// func SetTemplateIcon(templateIconBytes []byte, regularIconBytes []byte) {
+// 	SetIcon(regularIconBytes)
+// }
+
 // SetTemplateIcon sets the systray icon as a template icon (on macOS), falling back
 // to a regular icon on other platforms.
 // templateIconBytes and iconBytes should be the content of .ico for windows and
 // .ico/.jpg/.png for other platforms.
-func SetTemplateIcon(templateIconBytes []byte, regularIconBytes []byte) {
+func SetTemplateIcon(regularIconBytes []byte) {
 	SetIcon(regularIconBytes)
 }
 

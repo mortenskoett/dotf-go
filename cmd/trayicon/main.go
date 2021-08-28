@@ -18,7 +18,6 @@ func init() {
 
 // Setup variables.
 var (
-	icon             = make([]byte, 0)
 	shouldAutoUpdate = false
 	lastUpdated      = time.Now().Format(time.Stamp)
 )
@@ -32,12 +31,6 @@ var (
 )
 
 func main() {
-	bytes, err := resources.Get("icons/d_pink_lower_case.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	icon = bytes
-
 	systray.Run(onReady, onExit)
 }
 
@@ -49,7 +42,7 @@ func onExit() {
 func onReady() {
 	fmt.Print("dotf tray manager starting up.")
 	systray.SetTitle("Dotf Tray Manager")
-	systray.SetTemplateIcon(icon, icon)
+	systray.SetTemplateIcon(getDefaultIcon())
 	mLastUpdated.Disable()
 
 	// Handle events.
@@ -80,4 +73,23 @@ func handleUpdateNowEvent() {
 	// Push/pull latest dotfiles
 	// When operation returns reset icon
 	fmt.Println("Updates")
+	systray.SetTemplateIcon(getLoadingIcon())
+	time.Sleep(time.Second * 10)
+	systray.SetTemplateIcon(getDefaultIcon())
+}
+
+func getDefaultIcon() []byte {
+	bytes, err := resources.Get("icons/d_pink_lower_case.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return bytes
+}
+
+func getLoadingIcon() []byte {
+	bytes, err := resources.Get("icons/d_pink_lower_case_dragon.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return bytes
 }
