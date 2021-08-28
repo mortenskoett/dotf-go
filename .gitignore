@@ -5,11 +5,6 @@
 *.so
 *.dylib
 
-# cmd binaries
-daemon
-trayicon
-example
-
 # Test binary, built with `go test -c`
 *.test
 
