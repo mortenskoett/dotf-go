@@ -4,6 +4,10 @@ Primary intended function is to keep local dotfiles and remote dotfiles up-to-da
 across two or more systems. Long-term goal is to also be able to maintain
 installed applications.
 
+Dependencies
+------------
+go, gotk, gcc, libappindicator-gtk3
+
 Functional requirements
 -----------------------
 1. Move a file or directory into a dotfiles dir and replace the file with a symbolic link pointing to this location
