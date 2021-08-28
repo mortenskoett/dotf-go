@@ -17,10 +17,3 @@ Functional requirements
 5. If the added files cannot be uploaded when they are added, an attempt to upload them should be made every X time.
 6. The application must then run in the background
 7. A systray icon should be visible to give status info and signal that the service is running.
-
-
-Strategy
---------
-1. Implement a loop that can run in background and check repo for changes every x time
-2. 
-
