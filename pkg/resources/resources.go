@@ -64,7 +64,7 @@ func (r *resourceContainer) get(path string) ([]byte, error) {
 	if f, ok := r.storage[path]; ok {
 		return f, nil
 	}
-	return nil, errors.New("resource could not be found in resource container")
+	return nil, errors.New("resource could not be found in resource container: " + path)
 }
 
 func (r *resourceContainer) contains(path string) bool {

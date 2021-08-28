@@ -87,7 +87,7 @@ func getDefaultIcon() []byte {
 }
 
 func getLoadingIcon() []byte {
-	bytes, err := resources.Get("icons/d_pink_lower_case_dragon.png")
+	bytes, err := resources.Get("icons/d_pink_lower_case_timeglass.png")
 	if err != nil {
 		log.Fatal(err)
 	}
