@@ -24,7 +24,6 @@ func main() {
 func onReady() {
 	systray.SetTemplateIcon(icon.Data, icon.Data)
 	systray.SetTitle("Awesome App")
-	systray.SetTooltip("Lantern")
 	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
 	go func() {
 		<-mQuitOrig.ClickedCh
@@ -37,7 +36,6 @@ func onReady() {
 	go func() {
 		systray.SetTemplateIcon(icon.Data, icon.Data)
 		systray.SetTitle("Awesome App")
-		systray.SetTooltip("Pretty awesome棒棒嗒")
 		mCheckbox := systray.AddMenuItemCheckbox("hello1", "hello2", false)
 		mChange := systray.AddMenuItem("Change Me", "Change Me")
 		mChecked := systray.AddMenuItemCheckbox("Unchecked", "Check Me", true)
@@ -54,9 +52,6 @@ func onReady() {
 
 		mUrl := systray.AddMenuItem("Open UI", "my home")
 		mQuit := systray.AddMenuItem("退出", "Quit the whole app")
-
-		// Sets the icon of a menu item. Only available on Mac.
-		mQuit.SetIcon(icon.Data)
 
 		systray.AddSeparator()
 		mToggle := systray.AddMenuItem("Toggle", "Toggle the Quit button")

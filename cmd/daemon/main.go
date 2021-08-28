@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"mskk/dotf-go/pkg/projectpath"
+	"time"
 )
 
 func init() {
@@ -14,12 +15,12 @@ func init() {
 }
 
 func main() {
-	// for {
-	fmt.Println("Daemon hello")
-
-	path := projectpath.Root
-	fmt.Println("Daemon started from", path)
-	// time.Sleep(time.Second * 3)
-	// }
+	for {
+		// TODO: Dummy implementation
+		fmt.Println("Daemon hello")
+		path := projectpath.Root
+		fmt.Println("Daemon started from", path)
+		time.Sleep(time.Second * 3)
+	}
 
 }
