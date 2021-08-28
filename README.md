@@ -1,4 +1,4 @@
-dotf-go - Dotfiles files handler written in go
+dotf-go - Dotfiles handler written in go
 -------------------------------------
 Primary intended function is to keep local dotfiles and remote dotfiles up-to-date
 across two or more systems. Long-term goal is to also be able to maintain
