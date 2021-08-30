@@ -5,6 +5,9 @@
 *.so
 *.dylib
 
+# mskk various
+deprecated
+
 # Test binary, built with `go test -c`
 *.test
 

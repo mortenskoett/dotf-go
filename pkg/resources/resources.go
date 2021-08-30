@@ -1,5 +1,5 @@
 /*
-Resources maintains pointers to all used resources.
+Package resources maintains filepaths to used resources e.g. icons.
 */
 package resources
 
@@ -7,11 +7,12 @@ import (
 	"errors"
 	"io/fs"
 	"log"
-	"mskk/dotf-go/pkg/projectpath"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/mortenskoett/dotf-go/pkg/projectpath"
 )
 
 var (
@@ -74,7 +75,7 @@ func (r *resourceContainer) contains(path string) bool {
 	return false
 }
 
-// Public resource manager.
+// Public resource manager singleton.
 var resourceManagerSingleton = newResourceContainer()
 
 // Get resource found at 'path' relative to resource dir.

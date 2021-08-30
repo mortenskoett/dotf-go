@@ -1,13 +1,14 @@
 /*
-main runs a daemon that listens for changes on a designated remote.
+Runs a daemon that listens for changes on a designated remote.
 */
 package main
 
 import (
 	"fmt"
 	"log"
-	"mskk/dotf-go/pkg/projectpath"
-	"time"
+
+	"github.com/mortenskoett/dotf-go/pkg/projectpath"
+	"github.com/mortenskoett/dotf-go/pkg/tomlparser"
 )
 
 func init() {
@@ -15,12 +16,18 @@ func init() {
 }
 
 func main() {
-	for {
-		// TODO: Dummy implementation
-		fmt.Println("Daemon hello")
-		path := projectpath.Root
-		fmt.Println("Daemon started from", path)
-		time.Sleep(time.Second * 3)
+	// for {
+	// 	// TODO: Dummy implementation
+	// 	fmt.Println("Daemon hello")
+	// 	path := projectpath.Root
+	// 	fmt.Println("Daemon started from", path)
+	// 	time.Sleep(time.Second * 3)
+	// }
+
+	conf, err := tomlparser.ReadConfigurationFile(projectpath.Root + "/config.toml")
+	if err != nil {
+		log.Fatal(err)
 	}
 
+	fmt.Println(conf)
 }

@@ -1,0 +1,3 @@
+RemoteURL = "https://www.github.com/mortenskoett/doesntexist"
+DotFilesDir = "Bla/MyDir/Test"
+UpdateIntervalSec = 30

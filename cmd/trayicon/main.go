@@ -8,8 +8,8 @@ import (
 	"log"
 	"time"
 
-	"mskk/dotf-go/pkg/resources"
-	"mskk/dotf-go/pkg/systray"
+	"github.com/mortenskoett/dotf-go/pkg/resources"
+	"github.com/mortenskoett/dotf-go/pkg/systray"
 )
 
 func init() {
@@ -19,7 +19,7 @@ func init() {
 // Setup variables.
 var (
 	shouldAutoUpdate = false
-	lastUpdated      = time.Now().Format(time.Stamp)
+	lastUpdated      = "N/A" //time.Now().Format(time.Stamp)
 )
 
 // Register components in order.
@@ -74,7 +74,7 @@ func handleUpdateNowEvent() {
 	// When operation returns reset icon
 	fmt.Println("Updates")
 	systray.SetTemplateIcon(getLoadingIcon())
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 6)
 	systray.SetTemplateIcon(getDefaultIcon())
 }
 

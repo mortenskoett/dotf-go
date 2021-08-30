@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"mskk/dotf-go/pkg/systray"
-	"mskk/dotf-go/pkg/systray/example/icon"
+	"github.com/mortenskoett/dotf-go/pkg/systray"
+	"github.com/mortenskoett/dotf-go/pkg/systray/example/icon"
 	// "github.com/skratchdot/open-golang/open"
 )
 
@@ -22,7 +22,7 @@ func main() {
 }
 
 func onReady() {
-	systray.SetTemplateIcon(icon.Data, icon.Data)
+	systray.SetTemplateIcon(icon.Data)
 	systray.SetTitle("Awesome App")
 	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
 	go func() {
@@ -34,7 +34,7 @@ func onReady() {
 
 	// We can manipulate the systray in other goroutines
 	go func() {
-		systray.SetTemplateIcon(icon.Data, icon.Data)
+		systray.SetTemplateIcon(icon.Data)
 		systray.SetTitle("Awesome App")
 		mCheckbox := systray.AddMenuItemCheckbox("hello1", "hello2", false)
 		mChange := systray.AddMenuItem("Change Me", "Change Me")

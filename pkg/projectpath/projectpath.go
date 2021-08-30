@@ -1,3 +1,4 @@
+/* Contains the absolute path to the project. */
 package projectpath
 
 import (
