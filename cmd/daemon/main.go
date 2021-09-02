@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"github.com/mortenskoett/dotf-go/pkg/projectpath"
+	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 	"github.com/mortenskoett/dotf-go/pkg/tomlparser"
 )
 
@@ -16,6 +17,7 @@ func init() {
 }
 
 func main() {
+	/* Testing infinite loop */
 	// for {
 	// 	// TODO: Dummy implementation
 	// 	fmt.Println("Daemon hello")
@@ -24,10 +26,20 @@ func main() {
 	// 	time.Sleep(time.Second * 3)
 	// }
 
+	/* Testing configuration parser */
 	conf, err := tomlparser.ReadConfigurationFile(projectpath.Root + "/config.toml")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(conf)
+	// For testing.
+	conf.DotFilesDir = "/home/mskk/MEGAsync/temp/git/example1"
+
+	/* Testing github module*/
+	sucess, err := terminalio.SyncLocalAndRemote(conf.DotFilesDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Mission accomplished:", sucess)
 }

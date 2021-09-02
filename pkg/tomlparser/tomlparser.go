@@ -19,9 +19,18 @@ type Configuration struct {
 	UpdateIntervalSec int
 }
 
-/* ReadConfigurationFile parses and returns a representation of the config.toml file found at 'absPath'. */
+/* Creates an empty Configuration with default values. */
+func NewConfiguration() Configuration {
+	return Configuration{
+		"https://www.github.de/someone/doesntexist",
+		"$HOME/dotfiles/",
+		10,
+	}
+}
+
+/* ReadConfigurationFile parses and returns a representation of a *.toml file found at 'absPath'. */
 func ReadConfigurationFile(absPath string) (Configuration, error) {
-	config := Configuration{}
+	config := NewConfiguration()
 
 	_, err := os.Stat(absPath)
 	if err != nil {
@@ -48,6 +57,7 @@ func ReadConfigurationFile(absPath string) (Configuration, error) {
 	return config, nil
 }
 
+/* parseTOMLFile parses the file found at 'file' and returns a key,value representation. */
 func parseTOMLFile(file *os.File) (map[string]string, error) {
 	parameterToValue := make(map[string]string)
 
@@ -56,13 +66,18 @@ func parseTOMLFile(file *os.File) (map[string]string, error) {
 		line := scanner.Text()
 		nameAndValue := strings.SplitN(line, "=", 2)
 
+		if strings.HasPrefix(nameAndValue[0], "#") {
+			// Ignore outcommented lines.
+			continue
+		}
+
 		if len(nameAndValue) < 2 {
 			return nil, errors.New("malformed parameter line in configuration on line: " + nameAndValue[0])
 		}
 
-		name := strings.Trim(nameAndValue[0], " ")
+		parameter := strings.Trim(nameAndValue[0], " ")
 		value := strings.Trim(nameAndValue[1], " ")
-		parameterToValue[name] = value
+		parameterToValue[parameter] = value
 	}
 
 	if err := scanner.Err(); err != nil {
