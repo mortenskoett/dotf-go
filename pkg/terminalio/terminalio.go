@@ -3,53 +3,47 @@ Handles interaction with the command line.
 */
 package terminalio
 
-import (
-	"fmt"
-	"log"
-	"os/exec"
-	"strings"
-)
-
 /* SyncLocalAndRemote will update both local repository and remote with newest changes.
-If it is not possible to merge changes or a command line call fails, an error will be returned. */
+If it is not possible to merge changes or if a commandline call fails, an error will be returned. */
 func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
-	status, err := executeCommand(gitStatus, absPathToLocalRepo)
+
+	// TODO
+	// Return somekind of custom error for the front end to handle e.g. if a merge conflict arises
+
+	noLocalChanges, err := gitStatus.executeWithExpectedResult(absPathToLocalRepo, nothingToCommit)
 	if err != nil {
 		return false, err
 	}
 
-	fmt.Println("info:", status)
+	if noLocalChanges {
+		return pullandMergeLatest(absPathToLocalRepo)
+	}
 
-	// TODO
-	// Return somekind of custom error for the front end to handle
-
-	// TODO
-	// 1. Commit local changes
-	// 2. Fetch status from server
-	// 2. 	If OK then push()
-	// 2. 	If DIFF then pull merge
-	// 2. 		if OK then push
-	// 2.			if CONFLICT then a) rollback merge + b) advise user somehow
-
-	return true, nil
-}
-
-func executeCommand(command GitCommandType, absDirPath string) (string, error) {
-	cmd, args := SeparateCommandAndArguments(command)
-	execCmd := exec.Command(cmd, args)
-	execCmd.Dir = absDirPath
-	output, err := execCmd.Output()
+	_, err = gitAddAll.execute(absPathToLocalRepo)
 	if err != nil {
-		log.Println("an error has occured running: ", cmd, args)
-		return "", err
+		return false, err
 	}
-	return string(output), nil
+
+	_, err = gitCommit.execute(absPathToLocalRepo)
+	if err != nil {
+		return false, err
+	}
+
+	return pullandMergeLatest(absPathToLocalRepo)
 }
 
-func SeparateCommandAndArguments(command GitCommandType) (string, string) {
-	cmdAndArgs := strings.SplitN(string(command), " ", 2)
-	if len(cmdAndArgs) < 2 {
-		return cmdAndArgs[0], ""
+/* Pulls latest and attempts a merge if possible otherwise reverts the merge and returns an error. */
+func pullandMergeLatest(path string) (bool, error) {
+	success, err := gitPullMerge.executeWithExpectedResult(path, mergeWasSuccesful)
+	if err != nil {
+		return false, err
 	}
-	return cmdAndArgs[0], cmdAndArgs[1]
+
+	if !success {
+		_, err = gitAbortMerge.execute(path)
+		if err != nil {
+			return false, err
+		}
+	}
+	return success, nil
 }

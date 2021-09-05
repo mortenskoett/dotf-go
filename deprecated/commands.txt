@@ -1,0 +1,74 @@
+
+//
+// func executeCommand(command terminalCommand, absDirPath string) (string, error) {
+// 	cmd, args := SeparateCommandAndArguments(command)
+// 	execCmd := exec.Command(cmd, args...)
+// 	execCmd.Dir = absDirPath
+// 	output, err := execCmd.Output()
+// 	if err != nil {
+// 		log.Println("an error has occured running: ", cmd, args)
+// 		return "", err
+// 	}
+// 	return string(output), nil
+// }
+
+// /* Separates the terminalCommand type into a process and a slice of arguments. */
+// func SeparateCommandAndArguments(command terminalCommand) (string, []string) {
+// 	cmdAndArgs := strings.Split(string(command), " ")
+// 	if len(cmdAndArgs) < 2 {
+// 		return cmdAndArgs[0], make([]string, 0)
+// 	}
+// 	return cmdAndArgs[0], cmdAndArgs[1:]
+// }
+
+func (tc *gitCommand) exec(path string) (string, error) {
+	// return execute(tc.command(), path)
+	args := append([]string{"-c"}, tc.command())
+	execCmd := exec.Command("sh", args...)
+	execCmd.Dir = absDirPath
+	output, err := execCmd.Output()
+	if err != nil {
+		log.Println("an error has occured running: ", command)
+		return "", err
+	}
+	return string(output), nil
+}
+
+
+type GitCommandType string
+
+var GitCommand = struct {
+	STATUS GitCommandType
+}{
+	STATUS: "git status",
+}
+
+// func status(path string) (string, error) {
+// 	cmd := "git"
+// 	args := "status"
+// 	return execCommand(path, cmd, args)
+// }
+
+// func commit(path string) (string, error) {
+// 	cmd := "git"
+// 	args := "pull"
+// 	return execCommand(path, cmd, args)
+// }
+
+// func pull(path string) (string, error) {
+// 	cmd := "git"
+// 	args := "pull"
+// 	return execCommand(path, cmd, args)
+// }
+
+// func fetch(path string) (string, error) {
+// 	cmd := "git"
+// 	args := "fetch"
+// 	return execCommand(path, cmd, args)
+// }
+
+// func push(path string) (string, error) {
+// 	cmd := "git"
+// 	args := "push"
+// 	return execCommand(path, cmd, args)
+// }
