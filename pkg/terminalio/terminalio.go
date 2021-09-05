@@ -29,12 +29,17 @@ func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
 		return false, err
 	}
 
-	return pullandMergeLatest(absPathToLocalRepo)
+	success, err := pullandMergeLatest(absPathToLocalRepo)
+	if err != nil || !success {
+		return false, err
+	}
+
+	return gitPush.executeWithExpectedResult(absPathToLocalRepo, pushWasSuccessful)
 }
 
 /* Pulls latest and attempts a merge if possible otherwise reverts the merge and returns an error. */
 func pullandMergeLatest(path string) (bool, error) {
-	success, err := gitPullMerge.executeWithExpectedResult(path, mergeWasSuccesful)
+	success, err := gitPullMerge.executeWithExpectedResult(path, mergeWasSuccessful, allUpToDate)
 	if err != nil {
 		return false, err
 	}
