@@ -3,18 +3,26 @@ package terminalio
 
 import "fmt"
 
-type resultsNotFoundError struct {
-	cmd *termCommand
+// type resultsNotFoundError struct {
+// 	command string
+// }
+
+// func (r *resultsNotFoundError) Error() string {
+// 	return fmt.Sprintf("results not found in output from command: %s", r.command)
+// }
+
+type ShellExecError struct {
+	command string
 }
 
-func (r *resultsNotFoundError) Error() string {
-	return fmt.Sprintf("results not found in output from command: %s", r.cmd.command)
+func (s *ShellExecError) Error() string {
+	return fmt.Sprintf("an error has occured executing '%s' in the shell", s.command)
 }
 
-type shellExecError struct {
-	cmd *termCommand
+type MergeFailError struct {
+	directory string
 }
 
-func (s *shellExecError) Error() string {
-	return fmt.Sprintf("an error has occured executing '%s' in the shell", s.cmd.command)
+func (m *MergeFailError) Error() string {
+	return fmt.Sprintf("merge was unsuccessful and rolled back (aborted). Manual intervention required in '%s'", m.directory)
 }

@@ -37,7 +37,7 @@ const (
 
 /* Executes the termCommand at 'path' and expects the result to contain one or more specific substrings.
 Returns a bool depicting whether the result contained any of the expected substrings 'expected'.*/
-func (tc *termCommand) executeWithExpectedResult(path string, expected ...commandReturn) (bool, error) {
+func (tc *termCommand) executeExpectedResult(path string, expected ...commandReturn) (bool, error) {
 	result, err := tc.execute(path)
 	if err != nil {
 		return false, err
@@ -48,7 +48,7 @@ func (tc *termCommand) executeWithExpectedResult(path string, expected ...comman
 			return true, nil
 		}
 	}
-	return false, &resultsNotFoundError{tc}
+	return false, nil
 }
 
 /* Executes the termCommand in the given location 'path'.
@@ -62,7 +62,7 @@ func (tc *termCommand) execute(path string) (string, error) {
 	execCmd.Dir = path
 	output, err := execCmd.CombinedOutput()
 	if err != nil {
-		return "", &shellExecError{tc}
+		return "", &ShellExecError{tc.command}
 	}
 	return string(output), nil
 }

@@ -38,7 +38,15 @@ func main() {
 	/* Testing github module*/
 	success, err := terminalio.SyncLocalAndRemote(conf.DotFilesDir)
 	if err != nil {
-		log.Fatal(err)
+		// log.Fatal(err)
+		switch e := err.(type) {
+		case *terminalio.ShellExecError:
+			fmt.Println("ShellExecError!!!" + e.Error())
+		case *terminalio.MergeFailError:
+			fmt.Println("MergeFailerror!!!" + e.Error())
+		default:
+			fmt.Println(e)
+		}
 	}
 
 	if success {

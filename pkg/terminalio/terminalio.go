@@ -3,8 +3,6 @@ Handles interaction with the command line.
 */
 package terminalio
 
-import "errors"
-
 /* SyncLocalAndRemote will update both local repository and remote with newest changes.
 If it is not possible to merge changes or if a commandline call fails, an error will be returned. */
 func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
@@ -12,36 +10,45 @@ func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
 	// TODO
 	// Return somekind of custom error for the front end to handle e.g. if a merge conflict arises
 
-	hasNoLocalChanges, err := gitStatus.executeWithExpectedResult(absPathToLocalRepo, nothingToCommit)
+	hasNoLocalChanges, err := gitStatus.executeExpectedResult(absPathToLocalRepo, nothingToCommit)
 	if err != nil {
 		return false, err
 	}
 
 	if hasNoLocalChanges {
-		return pullandMergeLatest(absPathToLocalRepo)
+		return pullMergeLatest(absPathToLocalRepo)
 	}
 
-	_, err = gitAddAll.execute(absPathToLocalRepo)
+	err = addCommitChanges(absPathToLocalRepo)
 	if err != nil {
 		return false, err
 	}
 
-	_, err = gitCommit.execute(absPathToLocalRepo)
+	_, err = pullMergeLatest(absPathToLocalRepo)
 	if err != nil {
 		return false, err
 	}
 
-	_, err = pullandMergeLatest(absPathToLocalRepo)
+	return gitPush.executeExpectedResult(absPathToLocalRepo, pushWasSuccessful)
+}
+
+/* Simply stages everything and creates a combined commit. */
+func addCommitChanges(path string) error {
+	_, err := gitAddAll.execute(path)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return gitPush.executeWithExpectedResult(absPathToLocalRepo, pushWasSuccessful)
+	_, err = gitCommit.execute(path)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 /* Pulls latest and attempts a merge if possible otherwise reverts the merge and returns an error. */
-func pullandMergeLatest(path string) (bool, error) {
-	success, err := gitPullMerge.executeWithExpectedResult(path, mergeWasSuccessful, allUpToDate)
+func pullMergeLatest(path string) (bool, error) {
+	success, err := gitPullMerge.executeExpectedResult(path, mergeWasSuccessful, allUpToDate)
 	if err != nil {
 		return false, err
 	}
@@ -49,7 +56,7 @@ func pullandMergeLatest(path string) (bool, error) {
 	if !success {
 		_, err = gitAbortMerge.execute(path)
 		if err != nil {
-			return false, errors.New("merge was aborted, manual intervention required: " + err.Error())
+			return false, &MergeFailError{path}
 		}
 	}
 
