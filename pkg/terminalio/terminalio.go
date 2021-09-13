@@ -3,6 +3,8 @@ Handles interaction with the command line.
 */
 package terminalio
 
+import "errors"
+
 /* SyncLocalAndRemote will update both local repository and remote with newest changes.
 If it is not possible to merge changes or if a commandline call fails, an error will be returned. */
 func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
@@ -10,12 +12,12 @@ func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
 	// TODO
 	// Return somekind of custom error for the front end to handle e.g. if a merge conflict arises
 
-	noLocalChanges, err := gitStatus.executeWithExpectedResult(absPathToLocalRepo, nothingToCommit)
+	hasNoLocalChanges, err := gitStatus.executeWithExpectedResult(absPathToLocalRepo, nothingToCommit)
 	if err != nil {
 		return false, err
 	}
 
-	if noLocalChanges {
+	if hasNoLocalChanges {
 		return pullandMergeLatest(absPathToLocalRepo)
 	}
 
@@ -29,8 +31,8 @@ func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
 		return false, err
 	}
 
-	success, err := pullandMergeLatest(absPathToLocalRepo)
-	if err != nil || !success {
+	_, err = pullandMergeLatest(absPathToLocalRepo)
+	if err != nil {
 		return false, err
 	}
 
@@ -47,8 +49,9 @@ func pullandMergeLatest(path string) (bool, error) {
 	if !success {
 		_, err = gitAbortMerge.execute(path)
 		if err != nil {
-			return false, err
+			return false, errors.New("merge was aborted, manual intervention required: " + err.Error())
 		}
 	}
-	return success, nil
+
+	return true, nil
 }

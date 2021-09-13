@@ -33,13 +33,17 @@ func main() {
 	}
 
 	// For testing.
-	conf.DotFilesDir = "/home/mskk/MEGAsync/temp/git/example1"
+	conf.DotFilesDir = "/home/mskk/Repos/temp/git/example1"
 
 	/* Testing github module*/
-	sucess, err := terminalio.SyncLocalAndRemote(conf.DotFilesDir)
+	success, err := terminalio.SyncLocalAndRemote(conf.DotFilesDir)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Mission accomplished:", sucess)
+	if success {
+		fmt.Println("Mission accomplished:", success)
+	} else {
+		fmt.Println("Mission FAILED:", success)
+	}
 }
