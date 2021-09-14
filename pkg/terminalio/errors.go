@@ -3,14 +3,6 @@ package terminalio
 
 import "fmt"
 
-// type resultsNotFoundError struct {
-// 	command string
-// }
-
-// func (r *resultsNotFoundError) Error() string {
-// 	return fmt.Sprintf("results not found in output from command: %s", r.command)
-// }
-
 type ShellExecError struct {
 	command string
 }
