@@ -16,6 +16,7 @@ func init() {
 	log.SetPrefix("daemon: ")
 }
 
+/* Currently this daemon is used for testing */
 func main() {
 	/* Testing infinite loop */
 	// for {

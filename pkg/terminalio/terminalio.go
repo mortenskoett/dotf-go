@@ -3,13 +3,15 @@ Handles interaction with the command line.
 */
 package terminalio
 
+const (
+	debug_print bool = true
+)
+
+// TODO: Remove these returned booleans. It doesn't really make a lot of sense.
+
 /* SyncLocalAndRemote will update both local repository and remote with newest changes.
 If it is not possible to merge changes or if a commandline call fails, an error will be returned. */
 func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
-
-	// TODO
-	// Return somekind of custom error for the front end to handle e.g. if a merge conflict arises
-
 	hasNoLocalChanges, err := gitStatus.executeExpectedResult(absPathToLocalRepo, nothingToCommit)
 	if err != nil {
 		return false, err
