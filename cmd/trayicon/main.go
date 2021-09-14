@@ -6,12 +6,14 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/mortenskoett/dotf-go/pkg/projectpath"
 	"github.com/mortenskoett/dotf-go/pkg/resources"
 	"github.com/mortenskoett/dotf-go/pkg/systray"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 	"github.com/mortenskoett/dotf-go/pkg/tomlparser"
+	"github.com/mortenskoett/dotf-go/pkg/worker"
 )
 
 func init() {
@@ -21,11 +23,12 @@ func init() {
 // Setup variables.
 var (
 	shouldAutoUpdate bool                     = false
-	lastUpdated      string                   = "N/A" //time.Now().Format(time.Stamp)
-	latestReadConf   tomlparser.Configuration = tomlparser.NewConfiguration()
+	lastUpdated      string                   = "N/A"
+	latestReadConf   tomlparser.Configuration = tomlparser.NewConfiguration() // Configuration currently loaded.
+	updateWorker     worker.Worker            = *worker.NewWorker()           // Worker handles background updates.
 )
 
-// Register components in order.
+// Register components in order seen in the trayicon dropdown.
 var (
 	mLastUpdated  = systray.AddMenuItem("Last Updated: "+lastUpdated, "Time the dotfiles were last updated.")
 	mError        = systray.AddMenuItem("No error.", "If an error happens, it pops up here.")
@@ -36,6 +39,7 @@ var (
 
 func main() {
 	latestReadConf = readConfiguration()
+	updateWorker = *worker.NewWorkerParam(time.Minute*2, handleUpdateNowEvent)
 	systray.Run(onReady, onExit)
 }
 
@@ -59,7 +63,7 @@ func onReady() {
 	systray.SetTitle("Dotf Tray Manager")
 	systray.SetTemplateIcon(getDefaultIcon())
 	mLastUpdated.Disable()
-	mError.Disable()
+	// mError.Disable()
 	mError.Hide()
 
 	// Handle events.
@@ -70,36 +74,45 @@ func onReady() {
 		case <-mToggleUpdate.ClickedCh:
 			handleToggleUpdateEvent()
 		case <-mUpdateNow.ClickedCh:
-			handleUpdateNowEvent(&latestReadConf)
+			handleUpdateNowEvent()
+		case <-mError.ClickedCh:
+			mError.Hide()
 		}
 	}
 }
 
 func handleToggleUpdateEvent() {
 	shouldAutoUpdate = !shouldAutoUpdate
+
 	if mToggleUpdate.Checked() {
+		log.Println("Toggle auto-update OFF.")
 		mToggleUpdate.Uncheck()
+		updateWorker.Stop()
+
 	} else {
+		log.Println("Toggle auto-update ON.")
 		mToggleUpdate.Check()
+		updateWorker.Start()
 	}
 }
 
-func handleUpdateNowEvent(conf *tomlparser.Configuration) {
+func handleUpdateNowEvent() {
 	log.Println("Updating now")
 	systray.SetTemplateIcon(getLoadingIcon())
 
-	_, err := terminalio.SyncLocalAndRemote(conf.DotFilesDir)
-
+	_, err := terminalio.SyncLocalAndRemote(latestReadConf.DotFilesDir)
 	if err != nil {
 		showError(err.Error())
+		return
 	}
 
-	// Show normal icon
+	lastUpdated = time.Now().Format(time.Stamp)
 	systray.SetTemplateIcon(getDefaultIcon())
 	log.Println("Updating done")
 }
 
 func showError(err string) {
+	log.Print(err)
 	systray.SetTemplateIcon(getErrorIcon())
 	mError.SetTitle(err)
 	mError.Show()
