@@ -4,7 +4,6 @@ Starts a running process by putting an icon in the systray.
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -54,12 +53,12 @@ func readConfiguration() tomlparser.Configuration {
 }
 
 func onExit() {
-	fmt.Println("dotf tray manager shutdown.")
+	log.Println("dotf tray manager shutdown.")
 }
 
 // Main event loop.
 func onReady() {
-	fmt.Print("dotf tray manager starting up.")
+	log.Print("dotf tray manager starting up.")
 	systray.SetTitle("Dotf Tray Manager")
 	systray.SetTemplateIcon(getDefaultIcon())
 	mLastUpdated.Disable()
