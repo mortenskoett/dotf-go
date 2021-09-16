@@ -14,12 +14,12 @@ Prerequisites to use dotf-go
 ------------
 - It is required that a remote repository is setup with ssh keys so that both push/pull does not require user/pass.
 
-Original functional requirements
+Original functional requirements (milestone 1)
 -----------------------
 - [ ] Move a file or directory into a dotfiles dir and replace the file with a symbolic link pointing to this location
+- [ ] It should be possible to configure the settings of the application
 - [x] When new files are pushed to the remote from sys A, they should immediately be downloaded down into the dotfiles dir of sys B
 - [x] When a file is added locally to the dotfiles dir, it should be uploaded as soon as possible to the remote
-- [ ] It should be possible to configure the settings of the application
 - [x] If the added files cannot be uploaded when they are added, an attempt to upload them should be made every X time.
 - [x] The application must then run in the background
 - [x] A systray icon should be visible to give status info and signal that the service is running.
