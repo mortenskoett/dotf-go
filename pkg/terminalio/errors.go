@@ -4,7 +4,7 @@ import "fmt"
 
 /* Exported */
 
-/* The MergeFailError is returned if the remote could not be merged into the local data without interaction. */
+// The MergeFailError is returned if the remote could not be merged into the local data without interaction.
 type MergeFailError struct {
 	directory string
 }

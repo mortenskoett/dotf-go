@@ -8,7 +8,7 @@ The dotf-go project consists of the following components:
 
 Dependencies
 ------------
-go, gotk, gcc, libappindicator-gtk3
+go, gotk, gcc, libappindicator-gtk3, git
 
 Prerequisites to use dotf-go
 ------------

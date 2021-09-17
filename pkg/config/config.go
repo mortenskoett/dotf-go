@@ -36,7 +36,7 @@ func ReadFromFile(absPath string) (Configuration, error) {
 
 	_, err := os.Stat(absPath)
 	if err != nil {
-		fmt.Println("config.toml missing at", absPath)
+		fmt.Println("configuration missing at", absPath)
 		return config, err
 	}
 

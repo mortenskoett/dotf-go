@@ -14,11 +14,7 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
-func init() {
-	log.SetPrefix("trayicon: ")
-}
-
-// Setup variables.
+// State used by the event loop of the tray icon UI.
 var (
 	shouldAutoUpdate bool                       = false
 	lastUpdated      string                     = "N/A"
@@ -26,7 +22,7 @@ var (
 	updateWorker     concurrency.IntervalWorker = *concurrency.NewIntervalWorker() // Worker handles background updates.
 )
 
-// Register components in order seen in the trayicon dropdown.
+// Components registered in order seen in the trayicon dropdown.
 var (
 	mLastUpdated  = systray.AddMenuItem("Last Updated: "+lastUpdated, "Time the dotfiles were last updated.")
 	mError        = systray.AddMenuItem("No error.", "If an error happens, it pops up here.")
@@ -36,6 +32,7 @@ var (
 )
 
 func main() {
+	log.SetPrefix("trayicon: ")
 	latestReadConf = readConfiguration()
 	updateWorker = *concurrency.NewIntervalWorkerParam(time.Minute*2, handleUpdateNowEvent)
 	systray.Run(onReady, onExit)
@@ -98,7 +95,7 @@ func handleUpdateNowEvent() {
 	log.Println("Updating now")
 	systray.SetTemplateIcon(getLoadingIcon())
 
-	err := terminalio.SyncLocalAndRemote(latestReadConf.DotFilesDir)
+	err := terminalio.SyncLocalRemote(latestReadConf.DotFilesDir)
 	if err != nil {
 		showError(err.Error())
 		return
