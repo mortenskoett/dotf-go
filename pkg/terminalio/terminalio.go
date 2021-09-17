@@ -3,64 +3,50 @@ Handles interaction with the command line.
 */
 package terminalio
 
-const (
-	debug_print bool = true
+import (
+	"log"
+	"os/exec"
+	"strings"
 )
 
-// TODO: Remove these returned booleans. It doesn't really make a lot of sense.
+/* termCommand is a command that can be executed in the shell. */
+type termCommand string
 
-/* SyncLocalAndRemote will update both local repository and remote with newest changes.
-If it is not possible to merge changes or if a commandline call fails, an error will be returned. */
-func SyncLocalAndRemote(absPathToLocalRepo string) (bool, error) {
-	hasNoLocalChanges, err := gitStatus.executeExpectedResult(absPathToLocalRepo, nothingToCommit)
+/* commandReturn is the expected output to STDERR or STDOUT from executing a termCommand. */
+type commandReturn string
+
+/* Executes 'command' at 'path' and expects the result to contain one or more specific substrings 'expected'.
+Returns a bool and an optional error. The bool depicts whether the result contains any of the expected
+commandReturns. If the error is not nil then the boolean should be ignored. */
+func executeExpectedResult(command termCommand, path string, expected ...commandReturn) (bool, error) {
+	result, err := execute(command, path)
 	if err != nil {
 		return false, err
 	}
 
-	if hasNoLocalChanges {
-		return pullMergeLatest(absPathToLocalRepo)
-	}
-
-	err = addCommitChanges(absPathToLocalRepo)
-	if err != nil {
-		return false, err
-	}
-
-	_, err = pullMergeLatest(absPathToLocalRepo)
-	if err != nil {
-		return false, err
-	}
-
-	return gitPush.executeExpectedResult(absPathToLocalRepo, pushWasSuccessful)
-}
-
-/* Simply stages everything and creates a combined commit. */
-func addCommitChanges(path string) error {
-	_, err := gitAddAll.execute(path)
-	if err != nil {
-		return err
-	}
-
-	_, err = gitCommit.execute(path)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-/* Pulls latest and attempts a merge if possible otherwise reverts the merge and returns an error. */
-func pullMergeLatest(path string) (bool, error) {
-	success, err := gitPullMerge.executeExpectedResult(path, mergeWasSuccessful, allUpToDate)
-	if err != nil {
-		return false, err
-	}
-
-	if !success {
-		_, err = gitAbortMerge.execute(path)
-		if err != nil {
-			return false, &MergeFailError{path}
+	for _, str := range expected {
+		if strings.Contains(result, string(str)) {
+			return true, nil
 		}
 	}
+	return false, nil
+}
 
-	return true, nil
+/* Executes the termCommand in the given location 'path'.
+Returns the output of the operation or an error.
+WARNING! because the command is executed as a string in the shell in order to handle
+more advaned arguments used in the called commands, this function can be used for
+malicious operations. */
+func execute(command termCommand, path string) (string, error) {
+	args := append([]string{"-c"}, string(command)) // Prepend sh -c to give cmd as string directly to shell.
+	execCmd := exec.Command("sh", args...)
+	execCmd.Dir = path
+	output, err := execCmd.CombinedOutput()
+
+	log.Println("debug: ", strings.ReplaceAll(string(output), "\n", " "))
+
+	if err != nil {
+		return "", &shellExecError{command}
+	}
+	return string(output), nil
 }

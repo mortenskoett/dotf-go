@@ -1,8 +1,9 @@
 /*
-Very basic TOML parser. See https://toml.io/en/ for format details.
+Package config contains functionality relating to the configuration file of dotf.
+The parser is inspired by the TOML layout. See https://toml.io/en/ for format details.
 Only a microscopic subset of the TOML v1.0.0 specification is implemented.
 */
-package tomlparser
+package config
 
 import (
 	"bufio"
@@ -21,15 +22,16 @@ type Configuration struct {
 
 /* Creates an empty Configuration with default values. */
 func NewConfiguration() Configuration {
+
 	return Configuration{
-		"https://www.github.de/someone/doesntexist",
-		"$HOME/dotfiles/",
-		10,
+		RemoteURL:         "N/A",
+		DotFilesDir:       "N/A",
+		UpdateIntervalSec: 120,
 	}
 }
 
-/* ReadConfigurationFile parses and returns a representation of a *.toml file found at 'absPath'. */
-func ReadConfigurationFile(absPath string) (Configuration, error) {
+/* ReadFromFile parses and returns a representation of a *.toml file found at 'absPath'. */
+func ReadFromFile(absPath string) (Configuration, error) {
 	config := NewConfiguration()
 
 	_, err := os.Stat(absPath)

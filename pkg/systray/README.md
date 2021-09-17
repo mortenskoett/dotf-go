@@ -96,7 +96,7 @@ SystrayApp.app/
     Info.plist
     MacOS/
       go-executable
-    Resources/
+    resource/
       SystrayApp.icns
 ```
 

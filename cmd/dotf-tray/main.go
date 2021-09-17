@@ -1,5 +1,5 @@
 /*
-Starts a running process by putting an icon in the systray.
+Starts a running process visualized as an icon in the systray.
 */
 package main
 
@@ -7,12 +7,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/mortenskoett/dotf-go/pkg/projectpath"
-	"github.com/mortenskoett/dotf-go/pkg/resources"
+	"github.com/mortenskoett/dotf-go/pkg/concurrency"
+	"github.com/mortenskoett/dotf-go/pkg/config"
+	"github.com/mortenskoett/dotf-go/pkg/resource"
 	"github.com/mortenskoett/dotf-go/pkg/systray"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
-	"github.com/mortenskoett/dotf-go/pkg/tomlparser"
-	"github.com/mortenskoett/dotf-go/pkg/worker"
 )
 
 func init() {
@@ -21,10 +20,10 @@ func init() {
 
 // Setup variables.
 var (
-	shouldAutoUpdate bool                     = false
-	lastUpdated      string                   = "N/A"
-	latestReadConf   tomlparser.Configuration = tomlparser.NewConfiguration() // Configuration currently loaded.
-	updateWorker     worker.Worker            = *worker.NewWorker()           // Worker handles background updates.
+	shouldAutoUpdate bool                       = false
+	lastUpdated      string                     = "N/A"
+	latestReadConf   config.Configuration       = config.NewConfiguration()        // Configuration currently loaded.
+	updateWorker     concurrency.IntervalWorker = *concurrency.NewIntervalWorker() // Worker handles background updates.
 )
 
 // Register components in order seen in the trayicon dropdown.
@@ -38,12 +37,12 @@ var (
 
 func main() {
 	latestReadConf = readConfiguration()
-	updateWorker = *worker.NewWorkerParam(time.Minute*2, handleUpdateNowEvent)
+	updateWorker = *concurrency.NewIntervalWorkerParam(time.Minute*2, handleUpdateNowEvent)
 	systray.Run(onReady, onExit)
 }
 
-func readConfiguration() tomlparser.Configuration {
-	conf, err := tomlparser.ReadConfigurationFile(projectpath.Root + "/config.toml")
+func readConfiguration() config.Configuration {
+	conf, err := config.ReadFromFile(resource.ProjectRoot + "/config.toml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,7 +98,7 @@ func handleUpdateNowEvent() {
 	log.Println("Updating now")
 	systray.SetTemplateIcon(getLoadingIcon())
 
-	_, err := terminalio.SyncLocalAndRemote(latestReadConf.DotFilesDir)
+	err := terminalio.SyncLocalAndRemote(latestReadConf.DotFilesDir)
 	if err != nil {
 		showError(err.Error())
 		return
@@ -118,7 +117,7 @@ func showError(err string) {
 }
 
 func getDefaultIcon() []byte {
-	bytes, err := resources.Get("icons/d_pink_lower_case.png")
+	bytes, err := resource.Get("icons/d_pink_lower_case.png")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -126,7 +125,7 @@ func getDefaultIcon() []byte {
 }
 
 func getLoadingIcon() []byte {
-	bytes, err := resources.Get("icons/d_pink_lower_case_timeglass.png")
+	bytes, err := resource.Get("icons/d_pink_lower_case_timeglass.png")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,7 +134,7 @@ func getLoadingIcon() []byte {
 
 func getErrorIcon() []byte {
 	// TODO: Change icon to white exclamation mark
-	bytes, err := resources.Get("icons/d_pink_lower_case_dragon.png")
+	bytes, err := resource.Get("icons/d_pink_lower_case_dragon.png")
 	if err != nil {
 		log.Fatal(err)
 	}

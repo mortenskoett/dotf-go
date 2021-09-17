@@ -4,66 +4,42 @@ Runs a daemon that listens for changes on a designated remote.
 package main
 
 import (
-	"fmt"
 	"log"
-	"time"
-
-	"github.com/mortenskoett/dotf-go/pkg/worker"
+	"os"
 )
 
 func init() {
-	log.SetPrefix("daemon: ")
+	log.SetPrefix("dotf-cli: ")
 }
 
-/* Currently this daemon is used for testing */
+type ColorANSI string
+
+const (
+	ColorBlack  ColorANSI = "\u001b[30m"
+	ColorRed              = "\u001b[31m"
+	ColorGreen            = "\u001b[32m"
+	ColorYellow           = "\u001b[33m"
+	ColorBlue             = "\u001b[34m"
+	ColorReset            = "\u001b[0m"
+)
+
+func colorize(message string, color ColorANSI) string {
+	return string(color) + message + string(ColorReset)
+}
+
 func main() {
-	/* Testing infinite loop */
-	// for {
-	// 	// TODO: Dummy implementation
-	// 	fmt.Println("Daemon hello")
-	// 	path := projectpath.Root
-	// 	fmt.Println("Daemon started from", path)
-	// 	time.Sleep(time.Second * 3)
-	// }
+	numargs := len(os.Args)
+	args := os.Args[1:]
 
-	/* Testing configuration parser */
-	// conf, err := tomlparser.ReadConfigurationFile(projectpath.Root + "/config.toml")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	if numargs > 1 {
+		handleInput(args)
+	}
+}
 
-	// // For testing.
-	// conf.DotFilesDir = "/home/mskk/Repos/temp/git/example1"
+func handleInput(args []string) {
+	// Commandline arg parser
+	// Must parse:
+	// command 	arg1
+	// add			path_to_file
 
-	// /* Testing github module*/
-	// success, err := terminalio.SyncLocalAndRemote(conf.DotFilesDir)
-	// if err != nil {
-	// 	// log.Fatal(err)
-	// 	switch e := err.(type) {
-	// 	case *terminalio.ShellExecError:
-	// 		fmt.Println("ShellExecError!!!" + e.Error())
-	// 	case *terminalio.MergeFailError:
-	// 		fmt.Println("MergeFailerror!!!" + e.Error())
-	// 	default:
-	// 		fmt.Println(e)
-	// 	}
-	// }
-
-	// if success {
-	// 	fmt.Println("Mission accomplished:", success)
-	// } else {
-	// 	fmt.Println("Mission FAILED:", success)
-	// }
-
-	/* worker */
-	w := worker.NewWorkerParam(time.Second*2, func() {
-		fmt.Println("hello")
-		// time.Sleep(2 * time.Second)
-	})
-
-	w.Start()
-
-	time.Sleep(5 * time.Hour)
-
-	// w.Stop()
 }

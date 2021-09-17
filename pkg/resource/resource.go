@@ -1,7 +1,7 @@
 /*
-Package resources maintains filepaths to used resources e.g. icons.
+Package resource maintains filepaths to used resource e.g. icons.
 */
-package resources
+package resource
 
 import (
 	"errors"
@@ -11,12 +11,10 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/mortenskoett/dotf-go/pkg/projectpath"
 )
 
 var (
-	resourcesDirName = path.Join(projectpath.Root, "assets")
+	resourcesDirName = path.Join(ProjectRoot, "assets")
 )
 
 /* Get resource found at 'path' relative to resource dir. */
@@ -71,7 +69,7 @@ func (r *resourceContainer) loadResources(resourcePath string) {
 	})
 
 	if err != nil {
-		log.Fatal("Fatal error encountered while parsing resources:", err)
+		log.Fatal("Fatal error encountered while parsing resource:", err)
 	}
 }
 

@@ -1,37 +1,37 @@
-/* The worker package contains an implementation of a worker that can be used
+/* The concurrency package contains an implementation of a worker that can be used
 to run and manage background goroutines that should run with intervals. */
-package worker
+package concurrency
 
 import (
 	"log"
 	"time"
 )
 
-type Worker struct {
+type IntervalWorker struct {
 	Interval time.Duration // Interval between Action is executed.
 	Action   func()        // Action is a simple function that is called at every interval.
 	shutdown chan string   // Channel used to indicate when to shutdown the worker.
 }
 
-func NewWorker() *Worker {
-	return &Worker{
+func NewIntervalWorker() *IntervalWorker {
+	return &IntervalWorker{
 		shutdown: make(chan string),
 	}
 }
 
-func NewWorkerParam(interval time.Duration, action func()) *Worker {
-	return &Worker{
+func NewIntervalWorkerParam(interval time.Duration, action func()) *IntervalWorker {
+	return &IntervalWorker{
 		Interval: interval,
 		Action:   action,
 		shutdown: make(chan string),
 	}
 }
 
-func (w *Worker) Start() {
+func (w *IntervalWorker) Start() {
 	go runWorker(w)
 }
 
-func runWorker(w *Worker) {
+func runWorker(w *IntervalWorker) {
 	ticker := time.NewTicker(w.Interval)
 
 	for {
@@ -46,7 +46,7 @@ func runWorker(w *Worker) {
 	}
 }
 
-func (w *Worker) Stop() {
+func (w *IntervalWorker) Stop() {
 	log.Println("Worker stopping")
 	w.shutdown <- "Shutdown"
 }
