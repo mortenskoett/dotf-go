@@ -23,3 +23,7 @@ Original functional requirements (milestone 1)
 - [x] If the added files cannot be uploaded when they are added, an attempt to upload them should be made every X time.
 - [x] The application must then run in the background
 - [x] A systray icon should be visible to give status info and signal that the service is running.
+
+Notes
+-----
+- Web app used to generate ASCII font: https://texteditor.com/ascii-art/
