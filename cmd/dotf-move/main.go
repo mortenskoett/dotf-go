@@ -12,10 +12,20 @@ import (
 )
 
 const (
-		colorReset = "\033[0m"
-		colorRed = "\033[31m"
-    colorGreen = "\033[32m"
-    colorYellow = "\033[33m"
+	colorReset = "\033[0m"
+	colorRed = "\033[31m"
+	colorGreen = "\033[32m"
+	colorYellow = "\033[33m"
+	colorBlue = "\033[34m"
+	logo = `
+	 ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄   ▄▄ ▄▄▄▄▄▄▄ ▄▄   ▄▄ ▄▄▄▄▄▄▄ 
+	█      ██       █       █       █  █  █▄█  █       █  █ █  █       █
+	█  ▄    █   ▄   █▄     ▄█    ▄▄▄█  █       █   ▄   █  █▄█  █    ▄▄▄█
+	█ █ █   █  █ █  █ █   █ █   █▄▄▄   █       █  █ █  █       █   █▄▄▄ 
+	█ █▄█   █  █▄█  █ █   █ █    ▄▄▄█  █       █  █▄█  █       █    ▄▄▄█
+	█       █       █ █   █ █   █      █ ██▄██ █       ██     ██   █▄▄▄ 
+	█▄▄▄▄▄▄██▄▄▄▄▄▄▄█ █▄▄▄█ █▄▄▄█      █▄█   █▄█▄▄▄▄▄▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█
+	`
 )
 
 
@@ -114,14 +124,23 @@ func isFileSymlink(file string) bool {
 }
 
 func printDefaults() {
+	fmt.Println(color(logo, colorBlue))
 	fmt.Println(
-		`In case the dotfiles directory has been moved, it is necessary to update all symlinks
-		pointing back to the old location, to point to the new location. 
-		This application will iterate through all directories and files in 'from' and attempt to locate
-		a matching symlink in the same location relative to the given argument 'to'. The given path 'to' 
-		is used as root for the user space hierachy.
-		It is expected that the dotfiles dir has already been moved and that 'from' is the new location dir`)
+`In case the dotfiles directory has been moved, it is necessary to update all symlinks
+pointing back to the old location, to point to the new location. 
+This application will iterate through all directories and files in 'from' and attempt to locate
+a matching symlink in the same location relative to the given argument 'to'. The given path 'to' 
+is the root of the user space, e.g. root of '~/' aka the home folder.
 
+Notes:
+- It is expected that the Dotfiles directory has already been moved and that 'from' is the new location directory.
+- User space describes where the symlinks are placed.
+- Dotfiles directory is where the actual files are placed.
+- The user space and the dotfiles directory must match in terms of file hierachy.
+- Obs: currently if a symlink is not found in the user space, then it will not be touched, however a warning
+will be shown.`)
+
+	fmt.Println("")
 	fmt.Println("Usage:")
 	flag.PrintDefaults()
 }
