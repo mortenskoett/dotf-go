@@ -14,10 +14,29 @@ Prerequisites to use dotf-go
 ------------
 - It is required that a remote repository is setup with ssh keys so that both push/pull does not require user/pass.
 
-Original functional requirements (milestone 1)
------------------------
+Todo
+----
+
+### Basic dotf functionality already implemented in bash script
 - [ ] Move a file or directory into a dotfiles dir and replace the file with a symbolic link pointing to this location
-- [ ] It should be possible to configure the settings of the application
+
+### New features
+- [ ] It should be possible to change the location of a dotfile in user space
+			and by updating symlinks and file location in dotfiles dir, e.g. `dotf move <current_symlink_location> <new_symlink_location>`
+
+- [ ] It should be possible to install downloaded dotfiles, i.e. create symlinks for specific files in the dotfiles repo to that 
+			same location in user space. (logic from dotf-move can be used here)
+
+- [ ] It should be possible to move the dotfiles dir and update all symlinks 
+			(this needs only to integrated into code base. It is implemented already in the dotf-move CLI.)
+
+- [ ] A CLI UI should be implemented to give an overview of the status of both dotfiles and user space w. functionality:
+	- Install specific dotfile.
+	- Move specific dotfile.
+	- See dotfiles that are not installed.
+	- Revert a dotfile back to its original location.
+
+- [ ] It should be possible to configure the settings of the application.
 - [x] When new files are pushed to the remote from sys A, they should immediately be downloaded down into the dotfiles dir of sys B
 - [x] When a file is added locally to the dotfiles dir, it should be uploaded as soon as possible to the remote
 - [x] If the added files cannot be uploaded when they are added, an attempt to upload them should be made every X time.
