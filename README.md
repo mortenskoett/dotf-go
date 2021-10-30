@@ -6,20 +6,16 @@ The dotf-go project consists of the following components:
 - `dotf` is a command-line tool to add files to the local dotfiles repository.
 - `dotf-tray` is a trayicon-based process that facilitates automatic updates between the local repo and the remote.
 
-Dependencies
-------------
+## Dependencies
 go, gotk, gcc, libappindicator-gtk3, git
 
-Prerequisites to use dotf-go
-----------------------------
+## Prerequisites to use dotf-go
 - It is required that a remote repository is setup with ssh keys so that both push/pull does not require user/pass.
 
-Notes
------
+## Notes
 - Web app used to generate ASCII font: https://texteditor.com/ascii-art/
 
-Prioritized todo
-----------------
+## Prioritized todo
 - [ ] It should be possible to move the dotfiles dir and update all symlinks (implemented in dotf-move)
 - [ ] It should be possible for different distros to share some dotfile and each update it.
 - [ ] It should be possible to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo to that 
