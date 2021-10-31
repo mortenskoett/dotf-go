@@ -1,10 +1,7 @@
-package main
+package cli
 
 import (
-	"flag"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
@@ -21,23 +18,28 @@ const (
 	`
 )
 
-func main() {
-	dotfilesDir := flag.String("from", "", "Required. Specify dotfiles directory.")
-	symlinkRootDir := flag.String("to", "", "Required. Specify user root directory where symlinks should be updated.")
+type moveCommand struct {}
 
-	flag.Parse()
+func NewMoveCommand() moveCommand {
+	return moveCommand{}
+}
 
-	if *dotfilesDir == "" || *symlinkRootDir == "" {
+func (ma moveCommand) Run(args []string) error {
+	if len(args) != 2 {
 		printDefaults()
-		os.Exit(0)
+		return fmt.Errorf("not enough arguments given")
 	}
 
-	err := terminalio.UpdateSymlinks(*dotfilesDir, *symlinkRootDir)
+	dotfilesDir := args[0]
+	symlinkRootDir := args[1]
+
+	err := terminalio.UpdateSymlinks(dotfilesDir, symlinkRootDir)
 	if err != nil {
-		log.Fatal("one or more errors happened while updating symlinks: ", err)
+		return fmt.Errorf("one or more errors happened while updating symlinks: ", err)
 	}
 
 	fmt.Println("\nAll symlinks updated successfully.")
+	return nil
 }
 
 func printDefaults() {
@@ -58,6 +60,10 @@ Notes:
 will be shown.`)
 
 	fmt.Println("")
-	fmt.Println("Usage:")
-	flag.PrintDefaults()
+	fmt.Println(terminalio.Color("Usage:", terminalio.Green))
+	fmt.Println("move   <from>	<to>")
+	fmt.Println("")
+	fmt.Println(terminalio.Color("Description:", terminalio.Green))
+	fmt.Println("from   Required. Specify dotfiles directory.")
+	fmt.Println("to     Required. Specify user root directory where symlinks should be updated.")
 }

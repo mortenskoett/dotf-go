@@ -22,8 +22,11 @@ Prioritized todo
 ----------------
 - [ ] Add ability to move the dotfiles dir and update all symlinks (implemented in dotf-move)
 	- OK Move logic into pkg
-	- Setup argument parsing in dotf-cli so eg. `dotf bla1 bla2 etc` is available.
-	- dotf-go should make this command accesible
+	- OK Setup argument parsing in dotf-cli so eg. `dotf bla1 bla2 etc` is available.
+	- OK dotf-go should make this command accesible
+	- Fixup loose ends: Is it error resilient? Does it actually handle
+		parameters?
+	- Add ability to show commands and params
 
 - [ ] Add ability to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo to that 
 			same location in user space. (logic from dotf-move can be used here)
