@@ -1,45 +1,58 @@
-/*
-Runs a daemon that listens for changes on a designated remote.
-*/
+// The main dotf application entry point.
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
+
+	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 func init() {
 	log.SetPrefix("dotf-cli: ")
 }
 
-type ColorANSI string
-
 const (
-	ColorBlack  ColorANSI = "\u001b[30m"
-	ColorRed              = "\u001b[31m"
-	ColorGreen            = "\u001b[32m"
-	ColorYellow           = "\u001b[33m"
-	ColorBlue             = "\u001b[34m"
-	ColorReset            = "\u001b[0m"
+	logo = `
+	 ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ 
+	█      ██       █       █       █  █       █       █
+	█  ▄    █   ▄   █▄     ▄█    ▄▄▄█  █   ▄▄▄▄█   ▄   █
+	█ █ █   █  █ █  █ █   █ █   █▄▄▄   █  █  ▄▄█  █ █  █
+	█ █▄█   █  █▄█  █ █   █ █    ▄▄▄█  █  █ █  █  █▄█  █
+	█       █       █ █   █ █   █      █  █▄▄█ █       █
+	█▄▄▄▄▄▄██▄▄▄▄▄▄▄█ █▄▄▄█ █▄▄▄█      █▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█
+	`
 )
 
-func colorize(message string, color ColorANSI) string {
-	return string(color) + message + string(ColorReset)
-}
-
 func main() {
-	numargs := len(os.Args)
 	args := os.Args[1:]
 
-	if numargs > 1 {
-		handleInput(args)
+	if len(args) > 0 {
+		parseArguments(args)
+	} else {
+		printHelp()
 	}
 }
 
-func handleInput(args []string) {
-	// Commandline arg parser
-	// Must parse:
-	// command 	arg1
-	// add			path_to_file
+func parseArguments(args []string) {
+	switch command := args[0]; command {
+	case "install":
+		fmt.Println("install not implemented")
+	case "add":
+		fmt.Println("add not implemented")
+	case "move":
+		fmt.Println("move not implemented")
+	}
+}
 
+func printHelp() {
+	fmt.Println(terminalio.Color(logo, terminalio.Blue))
+	fmt.Println(
+`Usage:
+dotf-cli <command> [possible args...]
+
+Commands:
+move ... ...
+`)
 }
