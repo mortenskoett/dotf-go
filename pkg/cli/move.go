@@ -3,48 +3,45 @@ package cli
 import (
 	"fmt"
 
-	"github.com/mortenskoett/dotf-go/pkg/terminalio"
-)
-
-const (
-	logo = `
-	 ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄   ▄▄ ▄▄▄▄▄▄▄ ▄▄   ▄▄ ▄▄▄▄▄▄▄ 
-	█      ██       █       █       █  █  █▄█  █       █  █ █  █       █
-	█  ▄    █   ▄   █▄     ▄█    ▄▄▄█  █       █   ▄   █  █▄█  █    ▄▄▄█
-	█ █ █   █  █ █  █ █   █ █   █▄▄▄   █       █  █ █  █       █   █▄▄▄ 
-	█ █▄█   █  █▄█  █ █   █ █    ▄▄▄█  █       █  █▄█  █       █    ▄▄▄█
-	█       █       █ █   █ █   █      █ ██▄██ █       ██     ██   █▄▄▄ 
-	█▄▄▄▄▄▄██▄▄▄▄▄▄▄█ █▄▄▄█ █▄▄▄█      █▄█   █▄█▄▄▄▄▄▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█
-	`
+//	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 type moveCommand struct {}
 
-func NewMoveCommand() moveCommand {
-	return moveCommand{}
+func NewMoveCommand() *moveCommand {
+	return &moveCommand{}
 }
 
-func (ma moveCommand) Run(args []string) error {
+func (ma *moveCommand) Run(args []string) error {
 	if len(args) != 2 {
-		printDefaults()
 		return fmt.Errorf("not enough arguments given")
 	}
 
-	dotfilesDir := args[0]
-	symlinkRootDir := args[1]
+	//dotfilesDir := args[0]
+	//symlinkRootDir := args[1]
 
-	err := terminalio.UpdateSymlinks(dotfilesDir, symlinkRootDir)
-	if err != nil {
-		return fmt.Errorf("one or more errors happened while updating symlinks: ", err)
-	}
+	//err := terminalio.UpdateSymlinks(dotfilesDir, symlinkRootDir)
+	//if err != nil {
+	//	return fmt.Errorf("one or more errors happened while updating symlinks: ", err)
+	//}
 
-	fmt.Println("\nAll symlinks updated successfully.")
+	//fmt.Println("\nAll symlinks updated successfully.")
 	return nil
 }
 
-func printDefaults() {
-	fmt.Println(terminalio.Color(logo, terminalio.Blue))
-	fmt.Println(
+func (ma *moveCommand) Usage() CommandUsage { 
+	return CommandUsage{
+		Name: "move",
+		Args: map[string]string {
+			"from_dir" : "from bla bla",
+			"to_dir" : "to bla bla",
+		},
+		Usage: "iterates through all files in from_dir and updates matching symlinks in to_dir.",
+	}
+}
+
+func (ma *moveCommand) Description() string {
+	return fmt.Sprintln(
 `In case the dotfiles directory has been moved, it is necessary to update all symlinks
 pointing back to the old location, to point to the new location. 
 This application will iterate through all directories and files in 'from' and attempt to locate
@@ -58,12 +55,4 @@ Notes:
 - The user space and the dotfiles directory must match in terms of file hierachy.
 - Obs: currently if a symlink is not found in the user space, then it will not be touched, however a warning
 will be shown.`)
-
-	fmt.Println("")
-	fmt.Println(terminalio.Color("Usage:", terminalio.Green))
-	fmt.Println("move   <from>	<to>")
-	fmt.Println("")
-	fmt.Println(terminalio.Color("Description:", terminalio.Green))
-	fmt.Println("from   Required. Specify dotfiles directory.")
-	fmt.Println("to     Required. Specify user root directory where symlinks should be updated.")
 }

@@ -23,7 +23,8 @@ const (
 )
 
 var (
-	// Defined CLI commands that are currently implemented in dotf.
+// commands contains the CLI commands that are currently implemented in dotf.
+// The command is also the key.
 	commands = map[string]cli.Command {
 		"move": cli.NewMoveCommand(),
 	}
@@ -31,7 +32,7 @@ var (
 
 func main() {
 	log.SetFlags(0)
-	log.SetPrefix(terminalio.Color("dotf-cli: ", terminalio.Red))
+	log.SetPrefix(terminalio.Color("dotf-cli error: ", terminalio.Red))
 	args := os.Args[1:]
 
 	if len(args) > 0 {
@@ -57,20 +58,23 @@ func parseArguments(args []string) {
 			printHelp()
 			log.Fatal(err)
 	}
-		action.Run(args[1:])
+
+	err = action.Run(args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func printHelp() {
 	fmt.Println(terminalio.Color(logo, terminalio.Blue))
-	fmt.Print(
-`Usage:
-dotf-cli <command> [possible args...]
+	fmt.Println("Usage:")
+	fmt.Println("dotf-cli <command> [args...]\n")
 
-Commands:
-`)
+	fmt.Println("command   <arg1>   <arg2>   description")
 
 	// Print implemented commands.
-	for k, _ := range commands {
-		fmt.Println(k)
+	for _, c := range commands {
+		cmd := c.Usage()
+		fmt.Println(cmd.Name)
 	}
 }
