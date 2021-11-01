@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 	"github.com/mortenskoett/dotf-go/pkg/cli"
@@ -70,11 +71,23 @@ func printHelp() {
 	fmt.Println("Usage:")
 	fmt.Println("dotf-cli <command> [args...]\n")
 
-	fmt.Println("command   <arg1>   <arg2>   description")
+	w := new(tabwriter.Writer)
+	w.Init(os.Stdout, 0, 8, 0, '\t', 0)
+
+	fmt.Fprintln(w, "command\targ1\targ2\tdescription")
 
 	// Print implemented commands.
 	for _, c := range commands {
 		cmd := c.Usage()
-		fmt.Println(cmd.Name)
+		fmt.Fprint(w, cmd.Name, "\t")
+
+		// Put all arguments on same line.
+		for k, _ := range cmd.Args {
+			fmt.Fprint(w, k, "\t")
+		}
+
+			fmt.Fprintln(w, cmd.Usage, "\t")
+
+	w.Flush()
 	}
 }

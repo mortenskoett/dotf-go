@@ -33,10 +33,10 @@ func (ma *moveCommand) Usage() CommandUsage {
 	return CommandUsage{
 		Name: "move",
 		Args: map[string]string {
-			"from_dir" : "from bla bla",
-			"to_dir" : "to bla bla",
+			"from" : "Specifies dotfiles directory.",
+			"to" : "Specifies userspace root directory where symlinks will be updated.",
 		},
-		Usage: "iterates through all files in from_dir and updates matching symlinks in to_dir.",
+		Usage: "iterates through all files in 'from' and updates matching symlinks in 'to'.",
 	}
 }
 
