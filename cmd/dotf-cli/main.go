@@ -68,26 +68,28 @@ func parseArguments(args []string) {
 
 func printHelp() {
 	fmt.Println(terminalio.Color(logo, terminalio.Blue))
-	fmt.Println("Usage:")
-	fmt.Println("dotf-cli <command> [args...]\n")
+	fmt.Println("Usage: dotf-go <command> [args]")
+	fmt.Println("Usage: dotf-go <command> help")
+	fmt.Println("")
+	fmt.Println("Options:")
 
 	w := new(tabwriter.Writer)
-	w.Init(os.Stdout, 0, 8, 0, '\t', 0)
+	w.Init(os.Stdout, 0, 8, 4, ' ', 0)
 
-	fmt.Fprintln(w, "command\targ1\targ2\tdescription")
+	fmt.Fprintln(w, "COMMAND\tARGS\tDESCRIPTION")
 
 	// Print implemented commands.
 	for _, c := range commands {
 		cmd := c.Usage()
-		fmt.Fprint(w, cmd.Name, "\t")
 
-		// Put all arguments on same line.
-		for k, _ := range cmd.Args {
-			fmt.Fprint(w, k, "\t")
+		var args string
+		for a, _ := range cmd.Args {
+			args += "<" + a + ">" + " "
 		}
 
-			fmt.Fprintln(w, cmd.Usage, "\t")
+		str := fmt.Sprintf("%s\t%s\t%s", cmd.Name, args, cmd.Usage)
+		fmt.Fprintln(w, str)
+	}
 
 	w.Flush()
-	}
 }

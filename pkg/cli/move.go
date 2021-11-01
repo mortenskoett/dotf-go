@@ -26,6 +26,7 @@ func (ma *moveCommand) Run(args []string) error {
 	//}
 
 	//fmt.Println("\nAll symlinks updated successfully.")
+	fmt.Println("\nOk")
 	return nil
 }
 
@@ -36,7 +37,7 @@ func (ma *moveCommand) Usage() CommandUsage {
 			"from" : "Specifies dotfiles directory.",
 			"to" : "Specifies userspace root directory where symlinks will be updated.",
 		},
-		Usage: "iterates through all files in 'from' and updates matching symlinks in 'to'.",
+		Usage: "Iterates through all files in 'from' and updates matching symlinks in 'to'.",
 	}
 }
 
