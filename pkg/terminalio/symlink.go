@@ -14,6 +14,15 @@ import (
 // `dotfilesDirPath` denotes the path to the dotfiles directory.
 // `userSpacePath` denotes the root of where the symlinks can be found.
 func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
+
+	if err := checkIfFileExists(dotfilesDirPath); err != nil {
+		return err
+	}
+
+	if err := checkIfFileExists(userSpacePath); err != nil {
+		return err
+	}
+
 	absUserSpaceDir, err := filepath.Abs(userSpacePath)
 	if err != nil {
 		return fmt.Errorf("failed to get absolute path for %s: %w", userSpacePath, err)
@@ -82,4 +91,18 @@ func IsFileSymlink(file string) bool {
 	}
 
 	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
+}
+
+func checkIfFileExists(path string) error {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Stat(absPath)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("filepath does not exist: %s", absPath)
+	}
+
+	return nil
 }
