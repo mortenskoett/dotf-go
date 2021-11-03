@@ -12,6 +12,7 @@ type CommandData struct {
 	Name string
 	Args map[string]string	// Taken arguments and their meaning.
 	Desc string			// Short description of command.
+	Logo string
 }
 
 type Command interface {
@@ -21,17 +22,20 @@ type Command interface {
 
 func BuildUsageText(cdata CommandData) string {
 	var sb strings.Builder
-	w := tabwriter.NewWriter(&sb, 0, 8, 4, ' ', 0)
 
-	// TODO: Fix these arguments to be used from input parameter
-	// TODO: Implement the individual design as seen in sketch file
+	sb.WriteString(terminalio.Color(cdata.Logo, terminalio.Green))
+	sb.WriteString("\n")
+
+	// Construct argument list
 	sb.WriteString(terminalio.Color(fmt.Sprintf("Usage: %s <to> <from>", cdata.Name), terminalio.Yellow))
 	sb.WriteString("\n")
 	sb.WriteString(terminalio.Color(fmt.Sprintf("Usage: %s help", cdata.Name), terminalio.Yellow))
 	sb.WriteString("\n")
 	sb.WriteString("\n")
 
-	fmt.Fprintln(w, ("COMMAND\tARGS\tDESCRIPTION"))
+	tw := tabwriter.NewWriter(&sb, 0, 8, 4, ' ', 0)
+
+	fmt.Fprintln(tw, ("COMMAND\tARGS\tDESCRIPTION"))
 
 	// Formatting arguments.
 	var arguments string
@@ -41,8 +45,8 @@ func BuildUsageText(cdata CommandData) string {
 
 	str := fmt.Sprintf("%s\t%s\t%s", cdata.Name, arguments, cdata.Desc)
 
-	fmt.Fprint(w, str)
-	w.Flush()
+	fmt.Fprint(tw, str)
+	tw.Flush()
 	return sb.String()
 }
 

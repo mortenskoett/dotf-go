@@ -20,13 +20,16 @@ Notes
 
 Prioritized todo
 ----------------
+- [ ] Implement reasonable CLI interface
+	- OK Create an abstraction so that Commands can handle themselves (printing and accessing packages etc)
+	- Conform CLI to some of the industry standard ones git, dotnet, jq
+	- Add ability to show help for all commands by suffixing --help | -h | help
+
 - [ ] Add ability to move the dotfiles dir and update all symlinks (implemented in dotf-move)
 	- OK Move logic into pkg
 	- OK Setup argument parsing in dotf-cli so eg. `dotf bla1 bla2 etc` is available.
 	- OK dotf-go should make this command accesible
 	- OK Fixup loose ends: Is it error resilient? Does it actually handle parameters?
-	- Add ability to show commands and params in main file
-	- Add ability to show help only when asked for it
 
 - [ ] Add ability to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo to that 
 			same location in user space. (logic from dotf-move can be used here)
@@ -53,6 +56,8 @@ Prioritized todo
 - [ ] Add ability to configure the settings of the application.
 	- [ ] A shortcut to the config file or a UI should be accesible from the dotf-tray
 
+Done 
+----
 - [x] When new files are pushed to the remote from sys A, they should immediately be downloaded down into the dotfiles dir of sys B
 - [x] When a file is added locally to the dotfiles dir, it should be uploaded as soon as possible to the remote
 - [x] If the added files cannot be uploaded when they are added, an attempt to upload them should be made every X time.

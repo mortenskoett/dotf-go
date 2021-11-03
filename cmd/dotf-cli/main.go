@@ -6,22 +6,21 @@ import (
 	"log"
 	"os"
 	"text/tabwriter"
+	"bytes"
 
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 	"github.com/mortenskoett/dotf-go/pkg/cli"
 )
 
 const (
-	logo = `
-	 ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ 
-	█      ██       █       █       █  █       █       █
-	█  ▄    █   ▄   █▄     ▄█    ▄▄▄█  █   ▄▄▄▄█   ▄   █
-	█ █ █   █  █ █  █ █   █ █   █▄▄▄   █  █  ▄▄█  █ █  █
-	█ █▄█   █  █▄█  █ █   █ █    ▄▄▄█  █  █ █  █  █▄█  █
-	█       █       █ █   █ █   █      █  █▄▄█ █       █
-	█▄▄▄▄▄▄██▄▄▄▄▄▄▄█ █▄▄▄█ █▄▄▄█      █▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█
-	`
+	logo =
+`    _       _     __                             
+ __| | ___ | |_  / _|
+/ _  |/ _ \|  _||  _|
+\__/_|\___/ \__||_|  
+`
 )
+
 
 var (
 // commands contains the CLI commands that are currently implemented in dotf.
@@ -72,25 +71,25 @@ func handleArguments(args []string) {
 
 func printHelp() {
 	fmt.Println(terminalio.Color(logo, terminalio.Blue))
-	fmt.Println(terminalio.Color("Usage: dotf-go <command> [args]", terminalio.Yellow))
-	fmt.Println(terminalio.Color("Usage: dotf-go <command> help", terminalio.Yellow))
+	fmt.Println("Usage: dotf-go <command> <args> [--help]")
 	fmt.Println("")
 
 	w := new(tabwriter.Writer)
 	w.Init(os.Stdout, 0, 8, 4, ' ', 0)
 
-	fmt.Fprintln(w, "COMMAND\tARGS\tDESCRIPTION")
+	fmt.Println("Commands:")
 
 	// Print commands.
 	for _, c := range commands {
-		cmdata := c.Data()
+		cdata := c.Data()
 
-		var arguments string
-		for arg, _ := range cmdata.Args {
-			arguments += "<" + arg + ">" + " "
+		buf := &bytes.Buffer{}
+		for arg, _ := range cdata.Args {
+			buf.WriteString(arg)
+			buf.WriteByte(' ')
 		}
 
-		str := fmt.Sprintf("%s\t%s\t%s", cmdata.Name, arguments, cmdata.Desc)
+		str := fmt.Sprintf("\t%s\t%s\t%s", cdata.Name, buf.String(), cdata.Desc)
 		fmt.Fprintln(w, str)
 	}
 
