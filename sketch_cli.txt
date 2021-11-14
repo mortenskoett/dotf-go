@@ -1,4 +1,4 @@
-dotf-go move ~/someting ~/todometing
+dgit@github.com:mortenskoett/dotf-go.gitotf-go move ~/someting ~/todometing
 
 #FROM MAIN DOTF:
 --------------
@@ -21,16 +21,21 @@ Examples:
 #INDIVIDUAL COMMANDS:
 -------------------
 Name
-	dotf-go move - update userspace symlinks to point to a changed dotfiles location
+	dotf-go move - update userspace symlinks to point to another dotfiles location
 
-Usage: dotf-go move <dotfiles-dir> <userspace-dir> [--help]
+Usage: 
+	dotf-go move [<options>...] <dotfiles-dir-path> <userspace-dir-path> [--help]
 
 Description:
 	Iterates through all files in 'from' and updates matching symlinks in 'to'.
 
 Arguments:
-	<dotfiles-dir>		Path specifies re-located dotfiles directory.
-	<userspace-dir>		Path specifies userspace directory where symlinks will be updated.
+	<dotfiles-dir-path>		Path specifies re-located dotfiles directory.
+	<userspace-dir-path>		Path specifies userspace directory where symlinks will be updated.
+
+Options:
+	-s, --shared
+		Apply something to the shared dotfiles 
 
 
 #############

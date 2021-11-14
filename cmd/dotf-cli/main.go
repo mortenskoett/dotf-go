@@ -25,7 +25,7 @@ const (
 var (
 // commands contains the CLI commands that are currently implemented in dotf.
 	commands = map[string]cli.Command {
-		"move": cli.NewMoveCommand(),
+		"move": cli.NewMoveCommand("dotf-go"),
 	}
 )
 
@@ -65,7 +65,7 @@ func handleArguments(args []string) {
 	}
 
 	if args[count-1] == "--help" {
-		cmd.Help(name of program, )		// TODO: Start here
+		fmt.Println("help me obi wan")
 	}
 
 	err = cmd.Run(args[1:])
@@ -86,15 +86,14 @@ func printHelp() {
 
 	// Print commands.
 	for _, c := range commands {
-		cdata := c.Data()
 
 		buf := &bytes.Buffer{}
-		for arg, _ := range cdata.Args {
+		for arg, _ := range c.Arguments() {
 			buf.WriteString(arg)
 			buf.WriteByte(' ')
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", cdata.Name, buf.String(), cdata.Desc)
+		str := fmt.Sprintf("\t%s\t%s\t%s", c.Name(), buf.String(), c.Description())
 		fmt.Fprintln(w, str)
 	}
 

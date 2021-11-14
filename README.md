@@ -23,26 +23,26 @@ Prioritized todo
 - [ ] Implement reasonable CLI interface
 	- OK Create an abstraction so that Commands can handle themselves (printing and accessing packages etc)
 	- Conform CLI to some of the industry standard ones git, dotnet, jq
-	- Add ability to show help specifically for each commands by suffixing --help | -h | help
-
-- [ ] Add ability to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo to that 
-			same location in user space. (logic from dotf-move can be used here)
-
-- [ ] Add ability to symlinks inside separate distro dotfiles pointing to
-	  a shared dotfiles directory. Apparently it is possible to add symlinks to
-	  Github which makes this feature possible.
+		- Add ability to show help specifically for each commands by suffixing --help | -h | help
+		- Add ability to give flags specific to each command
 
 - [ ] Add ability for different distros to share some dotfile and each update it.
+
+- [ ] Add ability to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo 
+		to that same location in user space. (logic from dotf-move can be used here)
+	- Add ability to symlinks inside separate distro dotfiles pointing to
+		  a shared dotfiles directory. Apparently it is possible to add symlinks to
+		  Github which makes this feature possible.
 
 - [ ] Move functionality from the dotf.sh script into the go code base.
 	- Create tests
 	- Implement features
 
 - [ ] Create new dotfile by moving a file or directory into the dotfiles dir and replace the file with a symbolic link 
-			pointing back to the dotfiles location.
+		pointing back to the dotfiles location.
 
 - [ ] Add ability to change the location of a dotfile in user space and have symlinks and actual file 
-			location in the dotfiles dir updated, e.g. `dotf move <current_symlink_location> <new_symlink_location>`
+		location in the dotfiles dir updated, e.g. `dotf move <current_symlink_location> <new_symlink_location>`
 
 - [ ] A CLI UI should be implemented to give an overview of the status of both dotfiles and user space w. functionality:
 	- [ ] Get overview of dotfiles / user space

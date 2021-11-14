@@ -2,24 +2,29 @@ package cli
 
 import (
 	"fmt"
-
-	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
-type moveCommand struct {}
+const (
+	commandName = "move"
+)
 
-func NewMoveCommand() *moveCommand {
-	return &moveCommand{}
+type moveCommand struct {
+	programName string
 }
 
-func (cmd *moveCommand) Run(args []string) error {
+func NewMoveCommand(programName string) *moveCommand {
+	return &moveCommand{programName:programName}
+}
+
+func (c *moveCommand) Run(args []string) error {
 	if len(args) == 0 {
-		printUsage(cmd)
+		fmt.Println(c.Description())
 		return nil
 	}
 
 	if len(args) == 1 && args[0] == "help" {
-		printHelp(cmd)
+		fmt.Println(c.Usage())
+		fmt.Println(c.Description())
 		return nil
 	}
 
@@ -27,52 +32,48 @@ func (cmd *moveCommand) Run(args []string) error {
 		return fmt.Errorf("wrong number of arguments given")
 	}
 
-	dotfilesDir := args[0]
-	symlinkRootDir := args[1]
+//	dotfilesDir := args[0]
+//	symlinkRootDir := args[1]
 
-	err := terminalio.UpdateSymlinks(dotfilesDir, symlinkRootDir)
-	if err != nil {
-		return err
-	}
+	// TODO insert again
+//	err := terminalio.UpdateSymlinks(dotfilesDir, symlinkRootDir)
+//	if err != nil {
+//		return err
+//	}
 
 	fmt.Println("\nAll symlinks have been updated successfully.")
 	return nil
 }
 
-func (ma *moveCommand) Data() CommandData { 
-	return CommandData{
-		Name: "move",
-		Args: map[string]string {
-			"from" : "Specifies dotfiles directory.",
-			"to" : "Specifies userspace root directory where symlinks will be updated.",
-		},
-		Desc: "Iterates through all files in 'from' and updates matching symlinks in 'to'.",
-		Logo: "",
-	}
+func (c *moveCommand) Name() string {
+	return c.programName + commandName
 }
 
-func printUsage(c *moveCommand) {
-	fmt.Println(GenerateHelp(c.Data()))
+func (c *moveCommand) Overview() string {
+	return "Iterates through all files in 'dotfiles-dir-path' and updates symlinks using identical dir structure starting at 'userspace-dir-path'."
 }
 
-func printHelp(c *moveCommand) {
-	printUsage(c)
-	fmt.Println("")
+func (c *moveCommand) Arguments() map[string]string {
+	return map[string]string {
+		"dotfiles-dir-path" : "Path specifies re-located dotfiles directory.",
+		"userspace-dir-path" : "Specifies userspace root directory where symlinks will be updated."}
+}
 
-	fmt.Println("")
-	fmt.Print(terminalio.Color("Description:", terminalio.Yellow))
-	fmt.Println(`
+func (c *moveCommand) Usage() string {
+	return "hello"
+}
+
+func (c *moveCommand) Description() string {
+	return `
 In case the dotfiles directory has been moved, it is necessary to update all symlinks
 pointing back to the old location, to point to the new location. 
 This application will iterate through all directories and files in 'from' and attempt to locate
 a matching symlink in the same location relative to the given argument 'to'. The given path 'to' 
-is the root of the user space, e.g. root of '~/' aka the home folder.`)
+is the root of the user space, e.g. root of '~/' aka the home folder.
 
-	fmt.Print(terminalio.Color("Notes:", terminalio.Yellow))
-	fmt.Println(`
 - It is expected that the Dotfiles directory has already been moved and that 'from' is the new location directory.
 - User space describes where the symlinks are placed.
 - Dotfiles directory is where the actual files are placed.
 - The user space and the dotfiles directory must match in terms of file hierachy.
-- Obs: currently if a symlink is not found in the user space, then it will not be touched, however a warning will be shown.`)
+- Obs: currently if a symlink is not found in the user space, then it will not be touched, however a warning will be shown.`
 }

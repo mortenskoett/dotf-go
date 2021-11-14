@@ -8,19 +8,18 @@ import (
 //	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
-type CommandData struct {
-	Name string
-	Args map[string]string	// Taken arguments and their meaning.
-	Desc string				// Short description of command.
-	Logo string
-}
-
 type Command interface {
+	Name() string
+	Overview() string
+	Arguments() map[string]string
+	Usage() string
+	Description() string
+
+	// Run expects only args inteded for this command is given.
 	Run([]string) error
-	Data() CommandData
 }
 
-func GenerateHelp(cdata CommandData) string {
+func GenerateHelp(name, usage string, args map[string]string) string {
 	var sb strings.Builder
 
 	sb.WriteString("Name:")
@@ -36,24 +35,3 @@ func GenerateHelp(cdata CommandData) string {
 	sb.WriteString("\n")
 	return sb.String()
 }
-
-//	// Construct argument list
-//	sb.WriteString(terminalio.Color(fmt.Sprintf("Usage: %s <to> <from>", cdata.Name), terminalio.Yellow))
-//	sb.WriteString("\n")
-//	sb.WriteString(terminalio.Color(fmt.Sprintf("Usage: %s help", cdata.Name), terminalio.Yellow))
-//	sb.WriteString("\n\n")
-//
-//	tw := tabwriter.NewWriter(&sb, 0, 8, 4, ' ', 0)
-//
-//	fmt.Fprintln(tw, ("COMMAND\tARGS\tDESCRIPTION"))
-//
-//	// Formatting arguments.
-//	var arguments string
-//	for arg, _ := range cdata.Args {
-//		arguments += "<" + arg + ">" + " "
-//	}
-//
-//	str := fmt.Sprintf("%s\t%s\t%s", cdata.Name, arguments, cdata.Desc)
-//
-//	fmt.Fprint(tw, str)
-//	tw.Flush()
