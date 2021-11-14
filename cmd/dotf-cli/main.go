@@ -52,6 +52,7 @@ func getCommand(input string) (cli.Command, error) {
 
 func handleArguments(args []string) {
 	input := args[0]
+	count := len(args)
 
 	if input == "help" {
 		printHelp()
@@ -61,6 +62,10 @@ func handleArguments(args []string) {
 	cmd, err := getCommand(input)
 		if err != nil {
 			log.Fatal(err)
+	}
+
+	if args[count-1] == "--help" {
+		cmd.Help(name of program, )		// TODO: Start here
 	}
 
 	err = cmd.Run(args[1:])

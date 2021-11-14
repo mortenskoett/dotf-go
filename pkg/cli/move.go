@@ -52,7 +52,7 @@ func (ma *moveCommand) Data() CommandData {
 }
 
 func printUsage(c *moveCommand) {
-	fmt.Println(BuildUsageText(c.Data()))
+	fmt.Println(GenerateHelp(c.Data()))
 }
 
 func printHelp(c *moveCommand) {

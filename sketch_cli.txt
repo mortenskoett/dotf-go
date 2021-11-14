@@ -1,0 +1,60 @@
+dotf-go move ~/someting ~/todometing
+
+#FROM MAIN DOTF:
+--------------
+    _       _     __                             
+ __| | ___ | |_  / _|
+/ _` |/ _ \|  _||  _|
+\__/_|\___/ \__||_|  
+
+Usage: dotf-go <command> <args> [--help]
+
+Commands:
+	move		to from		inits the dotfiles dir at a new location
+	add			file/dir	adds new file/dir to the dotiles repo
+	install		file/dir	installs a dotfile symlink into the system
+	restore		symlink		restores file to system by moving dotfile back
+
+Examples:
+	dotf-go move --help			shows help for the move command
+
+#INDIVIDUAL COMMANDS:
+-------------------
+Name
+	dotf-go move - update userspace symlinks to point to a changed dotfiles location
+
+Usage: dotf-go move <dotfiles-dir> <userspace-dir> [--help]
+
+Description:
+	Iterates through all files in 'from' and updates matching symlinks in 'to'.
+
+Arguments:
+	<dotfiles-dir>		Path specifies re-located dotfiles directory.
+	<userspace-dir>		Path specifies userspace directory where symlinks will be updated.
+
+
+#############
+# OLD IDEAS BELOW
+#############
+
+#FROM SPECIFIC COMMAND (here move)
+--------------
+Usage: dotf-go move <from> <to>
+Usage: dotf-go move help
+
+Description:
+	Iterates through all files in 'from' and updates matching symlinks in 'to'.
+
+Args:
+	from	Specifies dotfiles directory
+	to		Specifies userspace root directory where symlinks will be updated.".
+
+
+
+# NOTES
+-----------
+main prog should just print list of programs and possible description of their
+args
+
+
+

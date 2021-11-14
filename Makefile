@@ -1,4 +1,5 @@
 all:
+	echo "Specify target"
 
 build:
 	go build -o bin/dotf-cli cmd/dotf-cli/main.go 
