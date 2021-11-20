@@ -26,23 +26,22 @@ Prioritized todo
 		- Add ability to show help specifically for each commands by suffixing --help | -h | help
 		- Add ability to give flags specific to each command
 
-- [ ] Add ability for different distros to share some dotfile and each update it.
-
-- [ ] Add ability to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo 
-		to that same location in user space. (logic from dotf-move can be used here)
-	- Add ability to symlinks inside separate distro dotfiles pointing to
-		  a shared dotfiles directory. Apparently it is possible to add symlinks to
-		  Github which makes this feature possible.
+- [ ] Add ability to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo to that 
+		same location in user space. (logic from dotf-move can be used here)
+	- Handle shared dotfiles in a smart way.
 
 - [ ] Move functionality from the dotf.sh script into the go code base.
 	- Create tests
 	- Implement features
 
+
 - [ ] Create new dotfile by moving a file or directory into the dotfiles dir and replace the file with a symbolic link 
 		pointing back to the dotfiles location.
 
+
 - [ ] Add ability to change the location of a dotfile in user space and have symlinks and actual file 
 		location in the dotfiles dir updated, e.g. `dotf move <current_symlink_location> <new_symlink_location>`
+
 
 - [ ] A CLI UI should be implemented to give an overview of the status of both dotfiles and user space w. functionality:
 	- [ ] Get overview of dotfiles / user space
@@ -51,11 +50,16 @@ Prioritized todo
 	- [ ] See dotfiles that are not installed.
 	- [ ] Revert a dotfile back to its original location.
 
+
 - [ ] Add ability to configure the settings of the application.
 	- [ ] A shortcut to the config file or a UI should be accesible from the dotf-tray
 
+
 Done 
 ----
+- [x] Add ability for different distros to share some dotfile and each update it.
+	- OK Add ability to symlinks inside separate distro dotfiles pointing to
+		  a shared dotfiles directory. Apparently it is possible to add symlinks to Github which makes this feature possible.
 - [x] Add ability to move the dotfiles dir and update all symlinks (implemented in dotf-move)
 	- OK Move logic into pkg
 	- OK Setup argument parsing in dotf-cli so eg. `dotf bla1 bla2 etc` is available.

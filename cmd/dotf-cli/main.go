@@ -47,14 +47,14 @@ func getCommand(input string) (cli.Command, error) {
 		return cmd, nil
 	}
 
-	return nil, fmt.Errorf("%s command does not exist.", input)
+	return nil, fmt.Errorf("%s command does not exist. Try adding --help.", input)
 }
 
 func handleArguments(args []string) {
 	input := args[0]
 	count := len(args)
 
-	if input == "help" {
+	if input == "" || input == "help" || input == "--help" || count == 0 {
 		printHelp()
 		return
 	}
@@ -62,10 +62,6 @@ func handleArguments(args []string) {
 	cmd, err := getCommand(input)
 		if err != nil {
 			log.Fatal(err)
-	}
-
-	if args[count-1] == "--help" {
-		fmt.Println("help me obi wan")
 	}
 
 	err = cmd.Run(args[1:])
@@ -88,12 +84,12 @@ func printHelp() {
 	for _, c := range commands {
 
 		buf := &bytes.Buffer{}
-		for arg, _ := range c.Arguments() {
-			buf.WriteString(arg)
+		for _, arg := range *c.Arguments() {
+			buf.WriteString(arg.Name)
 			buf.WriteByte(' ')
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", c.Name(), buf.String(), c.Description())
+		str := fmt.Sprintf("\t%s\t%s\t%s", c.Name(), buf.String(), c.Overview())
 		fmt.Fprintln(w, str)
 	}
 

@@ -8,14 +8,19 @@ import (
 //	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
+type Arg struct {
+	Name string
+	Description string
+}
+
 type Command interface {
 	Name() string
 	Overview() string
-	Arguments() map[string]string
+	Arguments() *[]Arg
 	Usage() string
 	Description() string
 
-	// Run expects only args inteded for this command is given.
+	// Run expects only args inteded for this command.
 	Run([]string) error
 }
 

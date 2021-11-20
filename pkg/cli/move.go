@@ -32,10 +32,10 @@ func (c *moveCommand) Run(args []string) error {
 		return fmt.Errorf("wrong number of arguments given")
 	}
 
+// TODO insert again
 //	dotfilesDir := args[0]
 //	symlinkRootDir := args[1]
 
-	// TODO insert again
 //	err := terminalio.UpdateSymlinks(dotfilesDir, symlinkRootDir)
 //	if err != nil {
 //		return err
@@ -50,13 +50,14 @@ func (c *moveCommand) Name() string {
 }
 
 func (c *moveCommand) Overview() string {
-	return "Iterates through all files in 'dotfiles-dir-path' and updates symlinks using identical dir structure starting at 'userspace-dir-path'."
+	return "Iterates through all files in 'dotfiles-dir' and updates symlinks using identical dir structure starting at 'userspace-dir'."
 }
 
-func (c *moveCommand) Arguments() map[string]string {
-	return map[string]string {
-		"dotfiles-dir-path" : "Path specifies re-located dotfiles directory.",
-		"userspace-dir-path" : "Specifies userspace root directory where symlinks will be updated."}
+func (c *moveCommand) Arguments() *[]Arg {
+	return &[]Arg{
+		Arg{ Name: "dotfiles-dir", Description: "Path specifies re-located dotfiles directory."},
+		Arg{ Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
+	}
 }
 
 func (c *moveCommand) Usage() string {
