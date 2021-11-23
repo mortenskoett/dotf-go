@@ -5,8 +5,9 @@ import (
 	"strings"
 	"text/tabwriter"
 	"bytes"
-
-//	"github.com/mortenskoett/dotf-go/pkg/terminalio"
+	"bufio"
+	"os"
+	"log"
 )
 
 type Arg struct {
@@ -55,19 +56,23 @@ func GenerateUsage(programName string, c Command) string {
 	return sb.String()
 }
 
-func GenerateHelp(c Command) string {
-	var sb strings.Builder
+func confirmByUser(question string) bool {
+	reader := bufio.NewReader(os.Stdin)
 
-	sb.WriteString("Name:")
-	sb.WriteString("\n")
+	for {
+		fmt.Printf("%s [Y(yes)/n(no)]\n", question)
 
-	sb.WriteString("Usage:")
-	sb.WriteString("\n")
+		resp, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	sb.WriteString("Description:")
-	sb.WriteString("\n")
+		resp = strings.TrimSpace(resp)
 
-	sb.WriteString("Arguments:")
-	sb.WriteString("\n")
-	return sb.String()
+		if resp == "Y" || resp == "yes" {
+			return true
+		} else if resp == "n" || resp == "no" {
+			return false
+		}
+	}
 }
