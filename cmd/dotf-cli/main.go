@@ -85,8 +85,10 @@ func printHelp() {
 
 		buf := &bytes.Buffer{}
 		for _, arg := range *c.Arguments() {
+			buf.WriteString("<")
 			buf.WriteString(arg.Name)
-			buf.WriteByte(' ')
+			buf.WriteString(">")
+			buf.WriteString("  ")
 		}
 
 		str := fmt.Sprintf("\t%s\t%s\t%s", c.Name(), buf.String(), c.Overview())

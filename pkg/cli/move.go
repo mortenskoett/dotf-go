@@ -18,18 +18,21 @@ func NewMoveCommand(programName string) *moveCommand {
 
 func (c *moveCommand) Run(args []string) error {
 	if len(args) == 0 {
-		fmt.Println(c.Description())
+		fmt.Println(GenerateUsage(c.programName, c))
 		return nil
 	}
 
-	if len(args) == 1 && args[0] == "help" {
+	if args[len(args)-1] == "--help" {
+
+		fmt.Println(c.Name())
+		fmt.Println(c.Overview())
 		fmt.Println(c.Usage())
 		fmt.Println(c.Description())
 		return nil
 	}
 
 	if len(args) != 2 {
-		return fmt.Errorf("wrong number of arguments given")
+		return fmt.Errorf("wrong number of arguments given. Try adding --help.")
 	}
 
 // TODO insert again
@@ -46,7 +49,7 @@ func (c *moveCommand) Run(args []string) error {
 }
 
 func (c *moveCommand) Name() string {
-	return c.programName + commandName
+	return commandName
 }
 
 func (c *moveCommand) Overview() string {
@@ -61,7 +64,7 @@ func (c *moveCommand) Arguments() *[]Arg {
 }
 
 func (c *moveCommand) Usage() string {
-	return "hello"
+	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", c.programName, commandName)
 }
 
 func (c *moveCommand) Description() string {

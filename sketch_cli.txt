@@ -26,12 +26,12 @@ Name
 Usage: 
 	dotf-go move [<options>...] <dotfiles-dir-path> <userspace-dir-path> [--help]
 
+Options:
+	<dotfiles-dir-path>		Path specifies re-located dotfiles directory.
+	<userspace-dir-path>	Path specifies userspace directory where symlinks will be updated.
+
 Description:
 	Iterates through all files in 'from' and updates matching symlinks in 'to'.
-
-Arguments:
-	<dotfiles-dir-path>		Path specifies re-located dotfiles directory.
-	<userspace-dir-path>		Path specifies userspace directory where symlinks will be updated.
 
 Options:
 	-s, --shared
