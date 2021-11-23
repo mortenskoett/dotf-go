@@ -20,19 +20,13 @@ Notes
 
 Prioritized todo
 ----------------
-- [ ] Implement reasonable CLI interface
-	- OK Create an abstraction so that Commands can handle themselves (printing and accessing packages etc)
-	- Conform CLI to some of the industry standard ones git, dotnet, jq
-		- Add ability to show help specifically for each commands by suffixing --help | -h | help
-		- Add ability to give flags specific to each command
-
 - [ ] Add ability to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo to that 
 		same location in user space. (logic from dotf-move can be used here)
 	- Handle shared dotfiles in a smart way.
 
 - [ ] Move functionality from the dotf.sh script into the go code base.
-	- Create tests
-	- Implement features
+- Create tests
+- Implement features
 
 
 - [ ] Create new dotfile by moving a file or directory into the dotfiles dir and replace the file with a symbolic link 
@@ -57,6 +51,12 @@ Prioritized todo
 
 Done 
 ----
+- [x] Implement reasonable CLI interface
+	- OK Create an abstraction so that Commands can handle themselves (printing and accessing packages etc)
+	- OK Conform CLI to some of the industry standard ones git, dotnet, jq
+		- OK Add ability to show help specifically for each commands by suffixing --help | -h | help
+		- OK Add ability to give flags specific to each command
+
 - [x] Add ability for different distros to share some dotfile and each update it.
 	- OK Add ability to symlinks inside separate distro dotfiles pointing to
 		  a shared dotfiles directory. Apparently it is possible to add symlinks to Github which makes this feature possible.
