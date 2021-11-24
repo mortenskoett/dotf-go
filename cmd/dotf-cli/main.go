@@ -23,7 +23,7 @@ const (
 
 
 var (
-// commands contains the CLI commands that are currently implemented in dotf.
+	// commands contains the CLI commands that are currently implemented in dotf.
 	commands = map[string]cli.Command {
 		"move": cli.NewMoveCommand("dotf-go"),
 	}
@@ -41,15 +41,6 @@ func main() {
 	}
 }
 
-func getCommand(input string) (cli.Command, error) {
-	cmd, ok := commands[input]
-	if ok {
-		return cmd, nil
-	}
-
-	return nil, fmt.Errorf("%s command does not exist. Try adding --help.", input)
-}
-
 func handleArguments(args []string) {
 	input := args[0]
 	count := len(args)
@@ -59,7 +50,7 @@ func handleArguments(args []string) {
 		return
 	}
 
-	cmd, err := getCommand(input)
+	cmd, err := parseCommand(input)
 		if err != nil {
 			log.Fatal(err)
 	}
@@ -68,6 +59,15 @@ func handleArguments(args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func parseCommand(input string) (cli.Command, error) {
+	cmd, ok := commands[input]
+	if ok {
+		return cmd, nil
+	}
+
+	return nil, fmt.Errorf("%s command does not exist. Try adding --help.", input)
 }
 
 func printHelp() {
