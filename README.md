@@ -25,13 +25,22 @@ Prioritized todo
 	- Handle shared dotfiles in a smart way.
 
 - [ ] Move functionality from the dotf.sh script into the go code base.
-- Create tests
-- Implement features
+	- [ ] Implement all features of dotf.sh legacy:
 
+		- Day-to-day functionality
+			- add		(from userspace to dotfiles)
+			- remove	(from dotfiles and reinsert file into userspace)
+			- push		(to git)
+
+		- Overview functionality
+			- info (show 
+			- stat (git status)
+			- list (list all dotfiles)
+
+	- [ ] Create tests using something golang smartness
 
 - [ ] Create new dotfile by moving a file or directory into the dotfiles dir and replace the file with a symbolic link 
 		pointing back to the dotfiles location.
-
 
 - [ ] Add ability to change the location of a dotfile in user space and have symlinks and actual file 
 		location in the dotfiles dir updated, e.g. `dotf move <current_symlink_location> <new_symlink_location>`
