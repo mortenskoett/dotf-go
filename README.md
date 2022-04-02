@@ -14,9 +14,9 @@ The dotf-go project consists of the following components:
 	to the userspace (system) through symlinks.
 - `dotf-tray` is a trayicon-based process that facilitates automatic updates between the local repo and the remote.
 
-### Dependencies
+#### Dependencies
 go, gotk, gcc, libappindicator-gtk3, git
 
-### Prerequisites to use dotf-go
-- It is required that a remote repository is setup with ssh keys so that both push/pull does not require user/pass.
+#### How to setup
+- Setup a remote repository with ssh keys so that push/pull does not require user/pass.
 
