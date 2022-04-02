@@ -18,5 +18,5 @@ The dotf-go project consists of the following components:
 go, gotk, gcc, libappindicator-gtk3, git
 
 ### Setup
-- Setup a remote repository with ssh keys so that push/pull does not require user/pass.
+- Create a local git repository and make sure it connects using ssh to the remote.
 
