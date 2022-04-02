@@ -1,83 +1,22 @@
-dotf-go - Dotfiles handler written in go
-----------------------------------------
-The intended functionality revolves around keeping local dotfiles and remote dotfiles up-to-date
-across two or more systems using an intermediary git repository.
+```    
+    _       _     __         __ _      
+ __| | ___ | |_  / _|  ___  / _` | ___ 
+/ _` |/ _ \|  _||  _| |___| \__. |/ _ \
+\__/_|\___/ \__||_|         |___/ \___/
+
+dotf-go - dotfiles handler written in go
+```
+The intended functionality of this tool is to manage dotfiles locally and to the dotfiles up-to-date
+across two or more systems using an intermediary git repository and a tray icon based service.
+
 The dotf-go project consists of the following components:
-- `dotf` is a command-line tool to add files to the local dotfiles repository.
+- `dotf-cli` is a command-line tool to manage the dotfiles in the repository and their relationship
+	to the userspace (system) through symlinks.
 - `dotf-tray` is a trayicon-based process that facilitates automatic updates between the local repo and the remote.
 
-Dependencies
-------------
+### Dependencies
 go, gotk, gcc, libappindicator-gtk3, git
 
-Prerequisites to use dotf-go
-----------------------------
+### Prerequisites to use dotf-go
 - It is required that a remote repository is setup with ssh keys so that both push/pull does not require user/pass.
-
-Notes
------
-- Web app used to generate ASCII font: https://texteditor.com/ascii-art/
-
-Prioritized todo
-----------------
-- [ ] Add ability to install dotfiles, i.e. create symlinks for specific files in the dotfiles repo to that 
-		same location in user space. (logic from dotf-move can be used here)
-	- Handle shared dotfiles in a smart way.
-
-- [ ] Move functionality from the dotf.sh script into the go code base.
-	- [ ] Implement all features of dotf.sh legacy:
-
-		- Day-to-day functionality
-			- add		(from userspace to dotfiles)
-			- remove	(from dotfiles and reinsert file into userspace)
-			- push		(to git)
-
-		- Overview functionality
-			- info (show 
-			- stat (git status)
-			- list (list all dotfiles)
-
-	- [ ] Create tests using something golang smartness
-
-- [ ] Create new dotfile by moving a file or directory into the dotfiles dir and replace the file with a symbolic link 
-		pointing back to the dotfiles location.
-
-- [ ] Add ability to change the location of a dotfile in user space and have symlinks and actual file 
-		location in the dotfiles dir updated, e.g. `dotf move <current_symlink_location> <new_symlink_location>`
-
-
-- [ ] A CLI UI should be implemented to give an overview of the status of both dotfiles and user space w. functionality:
-	- [ ] Get overview of dotfiles / user space
-	- [ ] Install specific dotfile.
-	- [ ] Move specific dotfile.
-	- [ ] See dotfiles that are not installed.
-	- [ ] Revert a dotfile back to its original location.
-
-
-- [ ] Add ability to configure the settings of the application.
-	- [ ] A shortcut to the config file or a UI should be accesible from the dotf-tray
-
-
-Done 
-----
-- [x] Implement reasonable CLI interface
-	- OK Create an abstraction so that Commands can handle themselves (printing and accessing packages etc)
-	- OK Conform CLI to some of the industry standard ones git, dotnet, jq
-		- OK Add ability to show help specifically for each commands by suffixing --help | -h | help
-		- OK Add ability to give flags specific to each command
-
-- [x] Add ability for different distros to share some dotfile and each update it.
-	- OK Add ability to symlinks inside separate distro dotfiles pointing to
-		  a shared dotfiles directory. Apparently it is possible to add symlinks to Github which makes this feature possible.
-- [x] Add ability to move the dotfiles dir and update all symlinks (implemented in dotf-move)
-	- OK Move logic into pkg
-	- OK Setup argument parsing in dotf-cli so eg. `dotf bla1 bla2 etc` is available.
-	- OK dotf-go should make this command accesible
-	- OK Fixup loose ends: Is it error resilient? Does it actually handle parameters?
-
-- [x] When new files are pushed to the remote from sys A, they should immediately be downloaded down into the dotfiles dir of sys B
-- [x] When a file is added locally to the dotfiles dir, it should be uploaded as soon as possible to the remote
-- [x] If the added files cannot be uploaded when they are added, an attempt to upload them should be made every X time.
-- [x] The application must then run in the background
-- [x] A systray icon should be visible to give status info and signal that the service is running.
 

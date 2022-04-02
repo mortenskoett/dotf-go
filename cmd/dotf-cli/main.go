@@ -13,11 +13,11 @@ import (
 )
 
 const (
-	logo =
-`    _       _     __                             
- __| | ___ | |_  / _|
-/ _  |/ _ \|  _||  _|
-\__/_|\___/ \__||_|  
+	logo = 
+`    _       _     __         __ _      
+ __| | ___ | |_  / _|  ___  / _' | ___ 
+/ _' |/ _ \|  _||  _| |___| \__. |/ _ \
+\__/_|\___/ \__||_|         |___/ \___/
 `
 )
 
@@ -72,7 +72,14 @@ func parseCommand(input string) (cli.Command, error) {
 
 func printHelp() {
 	fmt.Println(terminalio.Color(logo, terminalio.Blue))
-	fmt.Println("Usage: dotf-go <command> <args> [--help]")
+	fmt.Println(`Dotfiles handler in Go.
+
+Terminology:
+	1) User space describes where the symlinks are placed pointing into the dotfiles directory.
+	2) The dotfiles directory is where the actual configuration files are stored.
+	3) The folder structure in the dotfiles directory will match that of the user space.`)
+
+	fmt.Println("\nUsage: dotf-go <command> <args> [--help]")
 	fmt.Println("")
 
 	w := new(tabwriter.Writer)

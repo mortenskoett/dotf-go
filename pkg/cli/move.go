@@ -9,6 +9,7 @@ const (
 	commandName = "move"
 )
 
+// Implements Command interface
 type moveCommand struct {
 	programName string
 }
@@ -57,13 +58,13 @@ func (c *moveCommand) Name() string {
 }
 
 func (c *moveCommand) Overview() string {
-	return "Iterates through all files in 'dotfiles-dir' and updates symlinks using identical dir structure starting at 'userspace-dir'."
+	return "Iterates through configs in 'dotfiles-dir' and updates matching symlinks in 'userspace-dir'."
 }
 
 func (c *moveCommand) Arguments() *[]Arg {
 	return &[]Arg{
-		Arg{ Name: "dotfiles-dir", Description: "Path specifies re-located dotfiles directory."},
-		Arg{ Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
+		{ Name: "dotfiles-dir", Description: "Path specifies re-located dotfiles directory."},
+		{ Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 	}
 }
 
@@ -73,17 +74,14 @@ func (c *moveCommand) Usage() string {
 
 func (c *moveCommand) Description() string {
 	return `
-	In case the dotfiles directory has been moved, it is necessary to update all symlinks
-	pointing back to the old location, to point to the new location. 
-	This application will iterate through all directories and files in 'from' and attempt to locate
-	a matching symlink in the same location relative to the given argument 'to'. The given path 'to' 
-	is the root of the user space, e.g. root of '~/' aka the home folder.
-	Note that currently if a symlink is not found in the user space, then it will not be touched, however a warning will be shown.
+	In case the dotfiles directory has been moved, it is necessary to update all symlinks pointing
+	back to the old location, to point to the new location. This application will iterate through
+	all directories and files in 'from' and attempt to locate a matching symlink in the same
+	location relative to the given argument 'to'. The given path 'to' is the root of the user space,
+	e.g. root of '~/' aka the home folder. Note that currently if a symlink is not found in the user
+	space, then it will not be touched, however a warning will be shown.
 
-	It is expected that 
-	  - the Dotfiles directory has already been moved and that 'from' is the new location directory.
-	  - user space describes where the symlinks are placed.
-	  - dotfiles directory is where the actual files are placed.
-	  - the user space and the dotfiles directory must match in terms of file hierachy.
-`
-}
+	It is expected that the dotfiles directory has already been moved and that 'from' is the new
+	location directory. 
+	` }
+
