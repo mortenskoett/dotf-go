@@ -6,8 +6,8 @@
 
 dotf-go - dotfiles handler written in go
 ```
-The intended functionality of this tool is to manage dotfiles locally and to the dotfiles up-to-date
-across two or more systems using an intermediary git repository and a tray icon based service.
+The intended functionality of this tool is to manage dotfiles locally and to keep the dotfiles up-to-date
+across two or more systems using an intermediary git repository and a tray application.
 
 The dotf-go project consists of the following components:
 - `dotf-cli` is a command-line tool to manage the dotfiles in the repository and their relationship
