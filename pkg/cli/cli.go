@@ -1,34 +1,58 @@
 package cli
 
 import (
+	"bufio"
+	"bytes"
+	"errors"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 	"text/tabwriter"
-	"bytes"
-	"bufio"
-	"os"
-	"log"
 )
 
+type CommandBase struct {
+	programName string
+	commandName string
+}
+
 type Arg struct {
-	Name string
+	Name        string
 	Description string
 }
 
 type Command interface {
-	Name() string	// Name of command.
-	Overview() string // Oneliner description of command.
-	Arguments() *[]Arg // Needed arguments to use command.
-	Usage() string		// How to use the command.
+	ProgName() string    // Name of program used for pretty-printing.
+	CmdName() string     // Name of command.
+	Overview() string    // Oneliner description of command.
+	Arguments() *[]Arg   // Needed arguments to use command.
+	Usage() string       // How to use the command.
 	Description() string // Detailed description.
-	Run([]string) error // Run expects only args inteded for this command.
+	Run([]string) error  // Run expects only args inteded for this command.
 }
 
-func GenerateUsage(programName string, c Command) string {
+func checkCmdArguments(args []string, c Command) error {
+	if len(args) == 0 {
+		fmt.Println(GenerateUsage(c))
+		return errors.New("returns because zero arguments given")
+	}
+
+	if args[len(args)-1] == "--help" {
+		fmt.Println(GenerateUsage(c))
+		fmt.Print("Description:")
+		fmt.Println(c.Description())
+		return errors.New("returns because help flag given")
+	}
+
+	return nil
+}
+
+// Generates a pretty-printed usage description of a Command
+func GenerateUsage(c Command) string {
 	var sb strings.Builder
 
 	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf( "%s %s - %s", programName, c.Name(), c.Overview())
+	name := fmt.Sprintf("%s %s - %s", c.ProgName, c.CmdName(), c.Overview())
 	sb.WriteString(name)
 
 	sb.WriteString("\n\nUsage:\n\t")
@@ -56,6 +80,7 @@ func GenerateUsage(programName string, c Command) string {
 	return sb.String()
 }
 
+// Displays a yes/no prompt to the user and returns the boolean value of the answer
 func confirmByUser(question string) bool {
 	reader := bufio.NewReader(os.Stdin)
 

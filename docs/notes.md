@@ -1,6 +1,9 @@
 # Development notes
 ===================
 
+# Tue Apr  5 09:08:00 PM CEST 2022
+- Moved todo.md into depcrecated and moved all bullets into Todoist.
+
 # Sat Apr  2 01:34:41 PM CEST 2022
 - Web app used to generate ASCII font: https://texteditor.com/ascii-art/
 

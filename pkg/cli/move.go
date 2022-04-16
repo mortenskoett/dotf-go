@@ -2,30 +2,30 @@ package cli
 
 import (
 	"fmt"
-	"github.com/mortenskoett/dotf-go/pkg/terminalio"
-)
 
-const (
-	commandName = "move"
+	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 // Implements Command interface
 type moveCommand struct {
-	programName string
+	CommandBase
 }
 
-func NewMoveCommand(programName string) *moveCommand {
-	return &moveCommand{programName:programName}
+func NewMoveCommand(programName, commandName string) *moveCommand {
+	return &moveCommand{
+		CommandBase{
+			programName: programName,
+			commandName: commandName}}
 }
 
 func (c *moveCommand) Run(args []string) error {
 	if len(args) == 0 {
-		fmt.Println(GenerateUsage(c.programName, c))
+		fmt.Println(GenerateUsage(c))
 		return nil
 	}
 
 	if args[len(args)-1] == "--help" {
-		fmt.Println(GenerateUsage(c.programName, c))
+		fmt.Println(GenerateUsage(c))
 		fmt.Print("Description:")
 		fmt.Println(c.Description())
 		return nil
@@ -53,8 +53,12 @@ func (c *moveCommand) Run(args []string) error {
 	return nil
 }
 
-func (c *moveCommand) Name() string {
-	return commandName
+func (c *moveCommand) ProgName() string {
+	return c.programName
+}
+
+func (c *moveCommand) CmdName() string {
+	return c.commandName
 }
 
 func (c *moveCommand) Overview() string {
@@ -63,13 +67,13 @@ func (c *moveCommand) Overview() string {
 
 func (c *moveCommand) Arguments() *[]Arg {
 	return &[]Arg{
-		{ Name: "dotfiles-dir", Description: "Path specifies re-located dotfiles directory."},
-		{ Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
+		{Name: "dotfiles-dir", Description: "Path specifies re-located dotfiles directory."},
+		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 	}
 }
 
 func (c *moveCommand) Usage() string {
-	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", c.programName, commandName)
+	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", c.programName, c.commandName)
 }
 
 func (c *moveCommand) Description() string {
@@ -83,5 +87,5 @@ func (c *moveCommand) Description() string {
 
 	It is expected that the dotfiles directory has already been moved and that 'from' is the new
 	location directory. 
-	` }
-
+	`
+}

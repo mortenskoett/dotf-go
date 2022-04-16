@@ -2,30 +2,30 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"text/tabwriter"
-	"bytes"
 
-	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 	"github.com/mortenskoett/dotf-go/pkg/cli"
+	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 const (
-	logo = 
-`    _       _     __         __ _      
+	logo = `    _       _     __         __ _      
  __| | ___ | |_  / _|  ___  / _' | ___ 
 / _' |/ _ \|  _||  _| |___| \__. |/ _ \
 \__/_|\___/ \__||_|         |___/ \___/
 `
+	programName string = "dotf-go"
 )
-
 
 var (
 	// commands contains the CLI commands that are currently implemented in dotf.
-	commands = map[string]cli.Command {
-		"move": cli.NewMoveCommand("dotf-go"),
+	commands = map[string]cli.Command{
+		"add":  cli.NewAddCommand(programName, "add"),
+		"move": cli.NewMoveCommand(programName, "move"),
 	}
 )
 
@@ -37,7 +37,8 @@ func main() {
 	if len(args) > 0 {
 		handleArguments(args)
 	} else {
-		printHelp()
+		printHeader()
+		printUsage()
 	}
 }
 
@@ -51,8 +52,8 @@ func handleArguments(args []string) {
 	}
 
 	cmd, err := parseCommand(input)
-		if err != nil {
-			log.Fatal(err)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	err = cmd.Run(args[1:])
@@ -70,15 +71,7 @@ func parseCommand(input string) (cli.Command, error) {
 	return nil, fmt.Errorf("%s command does not exist. Try adding --help.", input)
 }
 
-func printHelp() {
-	fmt.Println(terminalio.Color(logo, terminalio.Blue))
-	fmt.Println(`Dotfiles handler in Go.
-
-Terminology:
-	1) User space describes where the symlinks are placed pointing into the dotfiles directory.
-	2) The dotfiles directory is where the actual configuration files are stored.
-	3) The folder structure in the dotfiles directory will match that of the user space.`)
-
+func printUsage() {
 	fmt.Println("\nUsage: dotf-go <command> <args> [--help]")
 	fmt.Println("")
 
@@ -87,9 +80,8 @@ Terminology:
 
 	fmt.Println("Commands:")
 
-	// Print commands.
+	// Print commands
 	for _, c := range commands {
-
 		buf := &bytes.Buffer{}
 		for _, arg := range *c.Arguments() {
 			buf.WriteString("<")
@@ -98,9 +90,24 @@ Terminology:
 			buf.WriteString("  ")
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", c.Name(), buf.String(), c.Overview())
+		str := fmt.Sprintf("\t%s\t%s\t%s", c.CmdName(), buf.String(), c.Overview())
 		fmt.Fprintln(w, str)
 	}
 
 	w.Flush()
+}
+
+func printHeader() {
+	fmt.Println(terminalio.Color(logo, terminalio.Blue))
+	fmt.Println("Dotfiles handler in Go.")
+}
+
+func printHelp() {
+	printHeader()
+	fmt.Println(`
+Terminology:
+	1) User space describes where the symlinks are placed pointing into the dotfiles directory.
+	2) The dotfiles directory is where the actual configuration files are stored.
+	3) The folder structure in the dotfiles directory will match that of the user space.`)
+	printUsage()
 }
