@@ -34,14 +34,14 @@ type Command interface {
 func checkCmdArguments(args []string, c Command) error {
 	if len(args) == 0 {
 		fmt.Println(GenerateUsage(c))
-		return errors.New("returns because zero arguments given")
+		return errors.New("zero arguments given")
 	}
 
 	if args[len(args)-1] == "--help" {
 		fmt.Println(GenerateUsage(c))
 		fmt.Print("Description:")
 		fmt.Println(c.Description())
-		return errors.New("returns because help flag given")
+		return errors.New("help flag given")
 	}
 
 	return nil
@@ -52,7 +52,7 @@ func GenerateUsage(c Command) string {
 	var sb strings.Builder
 
 	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf("%s %s - %s", c.ProgName, c.CmdName(), c.Overview())
+	name := fmt.Sprintf("%s %s - %s", c.ProgName(), c.CmdName(), c.Overview())
 	sb.WriteString(name)
 
 	sb.WriteString("\n\nUsage:\n\t")

@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
@@ -19,16 +20,8 @@ func NewMoveCommand(programName, commandName string) *moveCommand {
 }
 
 func (c *moveCommand) Run(args []string) error {
-	if len(args) == 0 {
-		fmt.Println(GenerateUsage(c))
-		return nil
-	}
-
-	if args[len(args)-1] == "--help" {
-		fmt.Println(GenerateUsage(c))
-		fmt.Print("Description:")
-		fmt.Println(c.Description())
-		return nil
+	if err := checkCmdArguments(args, c); err != nil {
+		return err
 	}
 
 	if len(args) != 2 {
@@ -37,7 +30,7 @@ func (c *moveCommand) Run(args []string) error {
 
 	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
 	if !ok {
-		fmt.Println("Aborted by user")
+		log.Println("Aborted by user")
 		return nil
 	}
 
@@ -49,7 +42,7 @@ func (c *moveCommand) Run(args []string) error {
 		return err
 	}
 
-	fmt.Println("\nAll symlinks have been updated successfully.")
+	log.Println("\nAll symlinks have been updated successfully.")
 	return nil
 }
 
