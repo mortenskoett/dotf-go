@@ -8,7 +8,15 @@ import (
 )
 
 func main() {
-	// argparse.HandleArguments(os.Args)
+	cmd, cliargs, err := argparse.HandleArguments(os.Args)
+	if err != nil {
+		logger.LogFatal("fatal:", err)
+	}
 
-	logger.Log(argparse.Parse(os.Args))
+	err = cmd.Run()
+	if err != nil {
+		logger.LogFatal("fatal:", err)
+	}
+
+	logger.LogSuccess("OK:", cmd, cliargs)
 }

@@ -6,6 +6,8 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/mortenskoett/dotf-go/pkg/command"
+	"github.com/mortenskoett/dotf-go/pkg/shared/global"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -25,12 +27,12 @@ Terminology:
 }
 
 func printHeader() {
-	fmt.Println(terminalio.Color(logo, terminalio.Blue))
+	fmt.Println(terminalio.Color(global.Logo, terminalio.Blue))
 	fmt.Println("Dotfiles handler in Go.")
 }
 
 func printUsage() {
-	fmt.Println("\nUsage: dotf-go <command> <args> [--help]")
+	fmt.Println("\nUsage:", global.ProgramName, "<command> <args> [--help]")
 	fmt.Println("")
 
 	w := new(tabwriter.Writer)
@@ -39,7 +41,7 @@ func printUsage() {
 	fmt.Println("Commands:")
 
 	// Print commands
-	for _, c := range commands {
+	for _, c := range command.GetAllCommands() {
 		buf := &bytes.Buffer{}
 		for _, arg := range *c.Arguments() {
 			buf.WriteString("<")
@@ -53,4 +55,5 @@ func printUsage() {
 	}
 
 	w.Flush()
+	fmt.Println()
 }

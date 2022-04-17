@@ -10,6 +10,8 @@ import (
 	"os"
 	"strings"
 	"text/tabwriter"
+
+	"github.com/mortenskoett/dotf-go/pkg/shared/global"
 )
 
 type CommandBase struct {
@@ -30,6 +32,30 @@ type Command interface {
 	Usage() string       // How to use the command.
 	Description() string // Detailed description.
 	Run([]string) error  // Run expects only args inteded for this command.
+}
+
+// ** ALL PROGRAM COMMANDS AVAILABLE BELOW ** //
+
+// Contains the CLI Commands that are currently implemented in dotf. The commands are returned as
+// functions so the name of the application can be given as param. The program name is used for
+// pretty-printing.
+var commands = map[string]Command{
+	"add":  NewAddCommand(global.ProgramName, "add"),
+	"move": NewMoveCommand(global.ProgramName, "move"),
+}
+
+// Get copy of all Commands
+func GetAllCommands() map[string]Command {
+	return commands
+}
+
+// Creates a Command from command name and program name.
+func ParseCommandName(cmdName string) (Command, error) {
+	cmd, ok := commands[cmdName]
+	if ok {
+		return cmd, nil
+	}
+	return nil, fmt.Errorf("%s command does not exist.", cmdName)
 }
 
 func checkCmdArguments(args []string, c Command) error {

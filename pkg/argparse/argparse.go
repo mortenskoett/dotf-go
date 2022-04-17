@@ -2,28 +2,10 @@ package argparse
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/mortenskoett/dotf-go/pkg/command"
-	"github.com/mortenskoett/dotf-go/pkg/utils"
-)
-
-const (
-	logo = `    _       _     __         __ _      
- __| | ___ | |_  / _|  ___  / _' | ___ 
-/ _' |/ _ \|  _||  _| |___| \__. |/ _ \
-\__/_|\___/ \__||_|         |___/ \___/
-`
-	programName string = "dotf-go"
-)
-
-var (
-	// commands contains the CLI commands that are currently implemented in dotf.
-	commands = map[string]command.Command{
-		"add":  command.NewAddCommand(programName, "add"),
-		"move": command.NewMoveCommand(programName, "move"),
-	}
+	"github.com/mortenskoett/dotf-go/pkg/shared/utils"
 )
 
 type CliArguments struct {
@@ -44,51 +26,45 @@ func newCliArguments() *CliArguments {
 }
 
 // Parses the CLI input argument string.
-func HandleArguments(osargs []string) {
-	args := osargs[1:]
+func HandleArguments(osargs []string) (command.Command, *CliArguments, error) {
+	args := osargs[1:] // Ignore executable name
 
 	if len(args) < 1 {
 		printBasicHelp()
-		return
+		return nil, nil, fmt.Errorf("no arguments given")
 	}
 
-	ops := args[0]
+	cmdName := args[0]
 	count := len(args)
-	if ops == "" || ops == "help" || ops == "--help" || count == 0 {
+	if cmdName == "" || cmdName == "help" || cmdName == "--help" || count == 0 {
 		printFullHelp()
-		return
+		return nil, nil, fmt.Errorf("no ops. Showing full help.")
 	}
 
-	cmd, err := parseCommandName(ops)
+	cmd, cliargs, err := parse(args)
 	if err != nil {
-		log.Fatal(err)
+		return nil, nil, fmt.Errorf("failed to parse input: %w", err)
 	}
 
-	cmdargs := args[1:]
-	err = cmd.Run(cmdargs)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return cmd, cliargs, nil
+
 }
 
-// Parses cli arguments without judgement on fit for Command
-func Parse(osargs []string) *CliArguments {
+// Parses cli command and arguments without judgement on argument fit for Command
+func parse(osargs []string) (command.Command, *CliArguments, error) {
 	cliarg := newCliArguments()
-	args := osargs[1:]
 
+	cmdName := osargs[0]
+	cmd, err := command.ParseCommandName(cmdName)
+	if err != nil {
+		return nil, nil, fmt.Errorf("try --help for available commands: %w", err)
+	}
+
+	args := osargs[1:]
 	parsePositional(args, cliarg)
 	parseFlags(args, valueflags, cliarg)
 
-	return cliarg
-}
-
-func parseCommandName(input string) (command.Command, error) {
-	cmd, ok := commands[input]
-	if ok {
-		return cmd, nil
-	}
-
-	return nil, fmt.Errorf("%s command does not exist. Try adding --help.", input)
+	return cmd, cliarg, nil
 }
 
 // Parses only positional args before the first flag
