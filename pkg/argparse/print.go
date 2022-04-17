@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/mortenskoett/dotf-go/pkg/command"
+	"github.com/mortenskoett/dotf-go/pkg/cli"
 	"github.com/mortenskoett/dotf-go/pkg/shared/global"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
@@ -41,7 +41,7 @@ func printUsage() {
 	fmt.Println("Commands:")
 
 	// Print commands
-	for _, c := range command.GetAllCommands() {
+	for _, c := range cli.GetAllCommands() {
 		buf := &bytes.Buffer{}
 		for _, arg := range *c.Arguments() {
 			buf.WriteString("<")

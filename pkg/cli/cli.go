@@ -1,5 +1,5 @@
 // Package command contains handling of all dotf operations given by cli arg
-package command
+package cli
 
 import (
 	"bufio"
@@ -34,23 +34,23 @@ type Arg struct {
 }
 
 type Command interface {
-	ProgName() string             // Name of program used for pretty-printing.
-	CmdName() string              // Name of command.
-	Overview() string             // Oneliner description of the command.
-	Arguments() *[]Arg            // Needed arguments to use the command.
-	Usage() string                // How to use the command.
-	Description() string          // Detailed description.
-	Run(args *CliArguments) error // Attempt to runs the Command using the given args
+	ProgName() string          // Name of program used for pretty-printing.
+	CmdName() string           // Name of command.
+	Overview() string          // Oneliner description of the command.
+	Arguments() *[]Arg         // Needed arguments to use the command.
+	Usage() string             // How to use the command.
+	Description() string       // Detailed description.
+	Run(args *Arguments) error // Attempt to runs the Command using the given args
 }
 
-// Contains CLI arguments parsed. Type placed here due to circular dependency.
-type CliArguments struct {
-	PosArgs []string // In order by input
+// Parsed CLI arguments.
+type Arguments struct {
+	PosArgs []string // Positional args in order by input
 	Flags   map[string]string
 }
 
-func NewCliArguments() *CliArguments {
-	return &CliArguments{
+func NewCliArguments() *Arguments {
+	return &Arguments{
 		Flags: make(map[string]string),
 	}
 }
@@ -69,7 +69,7 @@ func ParseCommandName(cmdName string) (Command, error) {
 	return nil, fmt.Errorf("%s command does not exist.", cmdName)
 }
 
-func checkCmdArguments(args *CliArguments, c Command) error {
+func checkCmdArguments(args *Arguments, c Command) error {
 	if _, ok := args.Flags["help"]; ok {
 		fmt.Println(GenerateUsage(c))
 		fmt.Print("Description:")

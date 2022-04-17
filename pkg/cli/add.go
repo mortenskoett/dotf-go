@@ -1,4 +1,4 @@
-package command
+package cli
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ func NewAddCommand(programName, commandName string) *addCommand {
 			commandName: commandName}}
 }
 
-func (c *addCommand) Run(args *CliArguments) error {
+func (c *addCommand) Run(args *Arguments) error {
 	if err := checkCmdArguments(args, c); err != nil {
 		return err
 	}

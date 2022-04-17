@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mortenskoett/dotf-go/pkg/command"
+	"github.com/mortenskoett/dotf-go/pkg/cli"
 	"github.com/mortenskoett/dotf-go/pkg/shared/utils"
 )
 
@@ -14,7 +14,7 @@ type ValueFlags []string
 var valueflags ValueFlags = []string{"config"}
 
 // Parses the CLI input argument string.
-func HandleArguments(osargs []string) (command.Command, *command.CliArguments, error) {
+func HandleArguments(osargs []string) (cli.Command, *cli.Arguments, error) {
 	args := osargs[1:] // Ignore executable name
 
 	if len(args) < 1 {
@@ -39,11 +39,11 @@ func HandleArguments(osargs []string) (command.Command, *command.CliArguments, e
 }
 
 // Parses cli command and arguments without judgement on argument fit for Command
-func parse(osargs []string) (command.Command, *command.CliArguments, error) {
-	cliarg := command.NewCliArguments()
+func parse(osargs []string) (cli.Command, *cli.Arguments, error) {
+	cliarg := cli.NewCliArguments()
 
 	cmdName := osargs[0]
-	cmd, err := command.ParseCommandName(cmdName)
+	cmd, err := cli.ParseCommandName(cmdName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("try --help for available commands: %w", err)
 	}
@@ -56,7 +56,7 @@ func parse(osargs []string) (command.Command, *command.CliArguments, error) {
 }
 
 // Parses only positional args before the first flag
-func parsePositional(args []string, cliarg *command.CliArguments) {
+func parsePositional(args []string, cliarg *cli.Arguments) {
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--") {
 			break
@@ -67,7 +67,7 @@ func parsePositional(args []string, cliarg *command.CliArguments) {
 }
 
 // Parses only flags but both boolean and value holding flags
-func parseFlags(args []string, valueflags ValueFlags, cliarg *command.CliArguments) {
+func parseFlags(args []string, valueflags ValueFlags, cliarg *cli.Arguments) {
 	var currentflag string
 
 	for _, arg := range args {
