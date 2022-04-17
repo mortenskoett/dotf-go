@@ -2,7 +2,8 @@ package command
 
 import (
 	"fmt"
-	"log"
+
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
 type addCommand struct {
@@ -16,19 +17,19 @@ func NewAddCommand(programName, commandName string) *addCommand {
 			commandName: commandName}}
 }
 
-func (c *addCommand) Run(args []string) error {
+func (c *addCommand) Run(args *CliArguments) error {
 	if err := checkCmdArguments(args, c); err != nil {
 		return err
 	}
 
 	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
 	if !ok {
-		log.Println("Aborted by user")
+		logger.LogWarn("Aborted by user")
 		return nil
 	}
 
-	filepath := args[0]
-	log.Println(filepath)
+	filepath := args.PosArgs[0]
+	logger.LogWarn(filepath)
 
 	// TODO: Actual operation of command here
 	// read cli arg and check that file exists in userspace

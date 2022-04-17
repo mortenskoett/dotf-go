@@ -19,7 +19,7 @@ func NewMoveCommand(programName, commandName string) *moveCommand {
 			commandName: commandName}}
 }
 
-func (c *moveCommand) Run(args []string) error {
+func (c *moveCommand) Run(args *CliArguments) error {
 	if err := checkCmdArguments(args, c); err != nil {
 		return err
 	}
@@ -30,8 +30,8 @@ func (c *moveCommand) Run(args []string) error {
 		return nil
 	}
 
-	dotfilesDir := args[0]
-	symlinkRootDir := args[1]
+	dotfilesDir := args.PosArgs[0]
+	symlinkRootDir := args.PosArgs[1]
 
 	err := terminalio.UpdateSymlinks(dotfilesDir, symlinkRootDir)
 	if err != nil {

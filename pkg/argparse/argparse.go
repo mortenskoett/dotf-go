@@ -8,25 +8,13 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/shared/utils"
 )
 
-type CliArguments struct {
-	command string
-	posArgs []string // In order by input
-	flags   map[string]string
-}
-
 // Flags required to contain a value
 type ValueFlags []string
 
 var valueflags ValueFlags = []string{"config"}
 
-func newCliArguments() *CliArguments {
-	return &CliArguments{
-		flags: make(map[string]string),
-	}
-}
-
 // Parses the CLI input argument string.
-func HandleArguments(osargs []string) (command.Command, *CliArguments, error) {
+func HandleArguments(osargs []string) (command.Command, *command.CliArguments, error) {
 	args := osargs[1:] // Ignore executable name
 
 	if len(args) < 1 {
@@ -51,8 +39,8 @@ func HandleArguments(osargs []string) (command.Command, *CliArguments, error) {
 }
 
 // Parses cli command and arguments without judgement on argument fit for Command
-func parse(osargs []string) (command.Command, *CliArguments, error) {
-	cliarg := newCliArguments()
+func parse(osargs []string) (command.Command, *command.CliArguments, error) {
+	cliarg := command.NewCliArguments()
 
 	cmdName := osargs[0]
 	cmd, err := command.ParseCommandName(cmdName)
@@ -68,25 +56,25 @@ func parse(osargs []string) (command.Command, *CliArguments, error) {
 }
 
 // Parses only positional args before the first flag
-func parsePositional(args []string, cliarg *CliArguments) {
+func parsePositional(args []string, cliarg *command.CliArguments) {
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--") {
 			break
 		} else {
-			cliarg.posArgs = append(cliarg.posArgs, arg)
+			cliarg.PosArgs = append(cliarg.PosArgs, arg)
 		}
 	}
 }
 
 // Parses only flags but both boolean and value holding flags
-func parseFlags(args []string, valueflags ValueFlags, cliarg *CliArguments) {
+func parseFlags(args []string, valueflags ValueFlags, cliarg *command.CliArguments) {
 	var currentflag string
 
 	for _, arg := range args {
 
 		// previous arg was a value containing flag
 		if currentflag != "" {
-			cliarg.flags[currentflag] = arg
+			cliarg.Flags[currentflag] = arg
 			currentflag = ""
 			continue
 		}
@@ -101,7 +89,7 @@ func parseFlags(args []string, valueflags ValueFlags, cliarg *CliArguments) {
 
 			} else {
 				// no value
-				cliarg.flags[flag] = flag
+				cliarg.Flags[flag] = flag
 			}
 
 		}

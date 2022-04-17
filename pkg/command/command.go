@@ -4,7 +4,6 @@ package command
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +12,16 @@ import (
 
 	"github.com/mortenskoett/dotf-go/pkg/shared/global"
 )
+
+// ** ALL PROGRAM COMMANDS AVAILABLE BELOW ** //
+
+// Contains the CLI Commands that are currently implemented in dotf. The commands are returned as
+// functions so the name of the application can be given as param. The program name is used for
+// pretty-printing.
+var commands = map[string]Command{
+	"add":  NewAddCommand(global.ProgramName, "add"),
+	"move": NewMoveCommand(global.ProgramName, "move"),
+}
 
 type CommandBase struct {
 	programName string
@@ -25,23 +34,25 @@ type Arg struct {
 }
 
 type Command interface {
-	ProgName() string    // Name of program used for pretty-printing.
-	CmdName() string     // Name of command.
-	Overview() string    // Oneliner description of the command.
-	Arguments() *[]Arg   // Needed arguments to use the command.
-	Usage() string       // How to use the command.
-	Description() string // Detailed description.
-	Run([]string) error  // Run expects only args inteded for this command.
+	ProgName() string             // Name of program used for pretty-printing.
+	CmdName() string              // Name of command.
+	Overview() string             // Oneliner description of the command.
+	Arguments() *[]Arg            // Needed arguments to use the command.
+	Usage() string                // How to use the command.
+	Description() string          // Detailed description.
+	Run(args *CliArguments) error // Attempt to runs the Command using the given args
 }
 
-// ** ALL PROGRAM COMMANDS AVAILABLE BELOW ** //
+// Contains CLI arguments parsed. Type placed here due to circular dependency.
+type CliArguments struct {
+	PosArgs []string // In order by input
+	Flags   map[string]string
+}
 
-// Contains the CLI Commands that are currently implemented in dotf. The commands are returned as
-// functions so the name of the application can be given as param. The program name is used for
-// pretty-printing.
-var commands = map[string]Command{
-	"add":  NewAddCommand(global.ProgramName, "add"),
-	"move": NewMoveCommand(global.ProgramName, "move"),
+func NewCliArguments() *CliArguments {
+	return &CliArguments{
+		Flags: make(map[string]string),
+	}
 }
 
 // Get copy of all Commands
@@ -58,22 +69,18 @@ func ParseCommandName(cmdName string) (Command, error) {
 	return nil, fmt.Errorf("%s command does not exist.", cmdName)
 }
 
-func checkCmdArguments(args []string, c Command) error {
-	if len(args) == 0 {
-		fmt.Println(GenerateUsage(c))
-		return errors.New("zero arguments given")
-	}
-
-	if args[len(args)-1] == "--help" {
+func checkCmdArguments(args *CliArguments, c Command) error {
+	if _, ok := args.Flags["help"]; ok {
 		fmt.Println(GenerateUsage(c))
 		fmt.Print("Description:")
 		fmt.Println(c.Description())
-		return errors.New("help flag given")
+		return &CmdErrorSuccess{"help flag given"}
 	}
 
-	if len(args) != len(*c.Arguments()) {
+	if len(args.PosArgs) != len(*c.Arguments()) {
+		fmt.Println(GenerateUsage(c))
 		return fmt.Errorf(fmt.Sprintf(
-			"%d arguments given, but %d required. Try adding --help.", len(args), len(*c.Arguments())))
+			"%d arguments given, but %d required. Try adding --help.", len(args.PosArgs), len(*c.Arguments())))
 	}
 
 	return nil
