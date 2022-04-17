@@ -26,6 +26,23 @@ var (
 	}
 )
 
+type CliArguments struct {
+	command string
+	posArgs []string // In order by input
+	flags   map[string]string
+}
+
+// Flags required to contain a value
+type ValueFlags []string
+
+var valueflags ValueFlags = []string{"config"}
+
+func newCliArguments() *CliArguments {
+	return &CliArguments{
+		flags: make(map[string]string),
+	}
+}
+
 // Parses the CLI input argument string.
 func HandleArguments(osargs []string) {
 	args := osargs[1:]
@@ -54,32 +71,6 @@ func HandleArguments(osargs []string) {
 	}
 }
 
-func parseCommandName(input string) (command.Command, error) {
-	cmd, ok := commands[input]
-	if ok {
-		return cmd, nil
-	}
-
-	return nil, fmt.Errorf("%s command does not exist. Try adding --help.", input)
-}
-
-type CliArguments struct {
-	command string
-	posArgs []string // In order by input
-	flags   map[string]string
-}
-
-func newCliArguments() *CliArguments {
-	return &CliArguments{
-		flags: make(map[string]string),
-	}
-}
-
-// Flags required to contain a value
-type ValueFlags []string
-
-var valueflags ValueFlags = []string{"config"}
-
 // Parses cli arguments without judgement on fit for Command
 func Parse(osargs []string) *CliArguments {
 	cliarg := newCliArguments()
@@ -91,7 +82,16 @@ func Parse(osargs []string) *CliArguments {
 	return cliarg
 }
 
-// Only parses positional args before the first flag
+func parseCommandName(input string) (command.Command, error) {
+	cmd, ok := commands[input]
+	if ok {
+		return cmd, nil
+	}
+
+	return nil, fmt.Errorf("%s command does not exist. Try adding --help.", input)
+}
+
+// Parses only positional args before the first flag
 func parsePositional(args []string, cliarg *CliArguments) {
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--") {
@@ -102,7 +102,7 @@ func parsePositional(args []string, cliarg *CliArguments) {
 	}
 }
 
-// Parses both boolean and value holding flags
+// Parses only flags but both boolean and value holding flags
 func parseFlags(args []string, valueflags ValueFlags, cliarg *CliArguments) {
 	var currentflag string
 

@@ -11,14 +11,15 @@ const (
 	Green
 	Yellow
 	Blue
+	Default
 )
 
 const (
-	colorReset = "\033[0m"
-	colorRed = "\033[31m"
-	colorGreen = "\033[32m"
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
 	colorYellow = "\033[33m"
-	colorBlue = "\033[34m"
+	colorBlue   = "\033[34m"
+	colorReset  = "\033[0m"
 )
 
 // Color given string and a TerminalColor, will insert color codes that are
@@ -28,11 +29,12 @@ func Color(text string, color TerminalColor) string {
 }
 
 func colorCode(code TerminalColor) string {
-	colors := []string {
+	colors := []string{
 		colorRed,
 		colorGreen,
 		colorYellow,
 		colorBlue,
+		colorReset, // used e.g. to reset logger
 	}
 
 	if int(code) > len(colors) {
@@ -42,4 +44,3 @@ func colorCode(code TerminalColor) string {
 
 	return colors[code]
 }
-
