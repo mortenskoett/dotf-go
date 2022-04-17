@@ -1,6 +1,24 @@
 # Development notes
 ===================
 
+# Sun Apr 17 09:06:31 AM CEST 2022
+Reading config:
+	1. Read config at default location: ~/.config/dotf/config
+	2. Read config at location w. flag: --config (try to use flags pkg)
+	3. Default behaviour if no config: fail and print basic config to terminal.
+
+Arg-parser that handles:
+	1. Positional args (command arg)
+	2. Both bool and Value Flags specific to each command
+	3. General flags should be parsed first or propogated to command
+
+	Order of parsing: 
+	Command -> General flags -> Specific flags
+
+	Types
+	--flag
+	command
+
 # Tue Apr  5 09:08:00 PM CEST 2022
 - Moved todo.md into depcrecated and moved all bullets into Todoist.
 
@@ -28,5 +46,4 @@
 - [x] If the added files cannot be uploaded when they are added, an attempt to upload them should be made every X time.
 - [x] The application must then run in the background
 - [x] A systray icon should be visible to give status info and signal that the service is running.
-
 

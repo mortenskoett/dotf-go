@@ -1,4 +1,4 @@
-package cli
+package command
 
 import (
 	"fmt"
@@ -21,19 +21,26 @@ func (c *addCommand) Run(args []string) error {
 		return err
 	}
 
-	// TODO: Actual input check of command:
-
-	if len(args) != 2 {
-		return fmt.Errorf("wrong number of arguments given. Try adding --help.")
-	}
-
 	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
 	if !ok {
 		log.Println("Aborted by user")
 		return nil
 	}
 
+	filepath := args[0]
+	log.Println(filepath)
+
 	// TODO: Actual operation of command here
+	// read cli arg and check that file exists in userspace
+	// if not exit
+	// check if file exists in dotfiles
+	// if yes then write this to output and return
+	// if no then
+	// make backup of userspace files
+	// create path in dotfiles dir
+	// copy files to dotfiles dir
+	// remove files from userspace
+	// create symlink in userspace
 
 	return nil
 }

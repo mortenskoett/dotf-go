@@ -1,4 +1,4 @@
-package cli
+package command
 
 import (
 	"fmt"
@@ -22,10 +22,6 @@ func NewMoveCommand(programName, commandName string) *moveCommand {
 func (c *moveCommand) Run(args []string) error {
 	if err := checkCmdArguments(args, c); err != nil {
 		return err
-	}
-
-	if len(args) != 2 {
-		return fmt.Errorf("wrong number of arguments given. Try adding --help.")
 	}
 
 	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")

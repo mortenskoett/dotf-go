@@ -1,4 +1,5 @@
-package cli
+// Package command contains handling of all dotf operations given by cli arg
+package command
 
 import (
 	"bufio"
@@ -24,8 +25,8 @@ type Arg struct {
 type Command interface {
 	ProgName() string    // Name of program used for pretty-printing.
 	CmdName() string     // Name of command.
-	Overview() string    // Oneliner description of command.
-	Arguments() *[]Arg   // Needed arguments to use command.
+	Overview() string    // Oneliner description of the command.
+	Arguments() *[]Arg   // Needed arguments to use the command.
 	Usage() string       // How to use the command.
 	Description() string // Detailed description.
 	Run([]string) error  // Run expects only args inteded for this command.
@@ -42,6 +43,11 @@ func checkCmdArguments(args []string, c Command) error {
 		fmt.Print("Description:")
 		fmt.Println(c.Description())
 		return errors.New("help flag given")
+	}
+
+	if len(args) != len(*c.Arguments()) {
+		return fmt.Errorf(fmt.Sprintf(
+			"%d arguments given, but %d required. Try adding --help.", len(args), len(*c.Arguments())))
 	}
 
 	return nil
