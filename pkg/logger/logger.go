@@ -5,11 +5,16 @@ package logger
 import (
 	"log"
 
+	"github.com/mortenskoett/dotf-go/pkg/constant"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 const (
-	prefix string = "dotf-cli: "
+	programprefix string = constant.ProgramName + ": "
+	warn          string = "warn: "
+	fatal         string = "fatal: "
+	error         string = "error: "
+	ok            string = "ok: "
 )
 
 func init() {
@@ -17,28 +22,29 @@ func init() {
 }
 
 func Log(str ...interface{}) {
-	logWithColor(terminalio.Default, str...)
+	logWithColor(terminalio.Default, "", str...)
 }
 
 func LogSuccess(str ...interface{}) {
-	logWithColor(terminalio.Green, str...)
+	logWithColor(terminalio.Green, ok, str...)
 }
 
 func LogWarn(str ...interface{}) {
-	logWithColor(terminalio.Yellow, str...)
+	logWithColor(terminalio.Yellow, warn, str...)
 }
 
 func LogError(str ...interface{}) {
-	logWithColor(terminalio.Red, str...)
+	logWithColor(terminalio.Red, error, str...)
 }
 
+// Logs and exits program
 func LogFatal(str ...interface{}) {
-	log.SetPrefix(terminalio.Color(prefix, terminalio.Red))
+	log.SetPrefix(terminalio.Color(programprefix+fatal, terminalio.Red))
 	log.Fatalln(str...)
 }
 
-func logWithColor(color terminalio.TerminalColor, str ...interface{}) {
+func logWithColor(color terminalio.TerminalColor, prefix string, str ...interface{}) {
 	log.SetPrefix(terminalio.Color(prefix, color))
 	log.Println(str...)
-	log.SetPrefix(prefix)
+	log.SetPrefix(programprefix + prefix)
 }

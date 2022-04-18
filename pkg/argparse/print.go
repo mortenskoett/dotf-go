@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/cli"
-	"github.com/mortenskoett/dotf-go/pkg/shared/global"
+	"github.com/mortenskoett/dotf-go/pkg/constant"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -19,7 +19,7 @@ func printBasicHelp() {
 func printFullHelp() {
 	printHeader()
 	fmt.Println(`
-Terminology:
+Details:
 	1) User space describes where the symlinks are placed pointing into the dotfiles directory.
 	2) The dotfiles directory is where the actual configuration files are stored.
 	3) The folder structure in the dotfiles directory will match that of the user space.`)
@@ -27,12 +27,12 @@ Terminology:
 }
 
 func printHeader() {
-	fmt.Println(terminalio.Color(global.Logo, terminalio.Blue))
+	fmt.Println(terminalio.Color(constant.Logo, terminalio.Blue))
 	fmt.Println("Dotfiles handler in Go.")
 }
 
 func printUsage() {
-	fmt.Println("\nUsage:", global.ProgramName, "<command> <args> [--help]")
+	fmt.Println("\nUsage:", constant.ProgramName, "<command> <args> [--help]")
 	fmt.Println("")
 
 	w := new(tabwriter.Writer)

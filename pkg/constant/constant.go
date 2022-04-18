@@ -1,5 +1,5 @@
 // Global constants
-package global
+package constant
 
 // Logo
 const Logo = `    _       _     __         __ _      

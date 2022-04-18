@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/mortenskoett/dotf-go/pkg/cli"
-	"github.com/mortenskoett/dotf-go/pkg/shared/utils"
+	"github.com/mortenskoett/dotf-go/pkg/utils"
 )
 
 // Flags required to contain a value
@@ -26,7 +26,7 @@ func HandleArguments(osargs []string) (cli.Command, *cli.Arguments, error) {
 	count := len(args)
 	if cmdName == "" || cmdName == "help" || cmdName == "--help" || count == 0 {
 		printFullHelp()
-		return nil, nil, fmt.Errorf("no ops. Showing full help.")
+		return nil, nil, &ParseErrorSuccess{"showing full help."}
 	}
 
 	cmd, cliargs, err := parse(args)

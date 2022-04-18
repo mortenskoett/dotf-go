@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/mortenskoett/dotf-go/pkg/shared/global"
+	"github.com/mortenskoett/dotf-go/pkg/constant"
 )
 
 // ** ALL PROGRAM COMMANDS AVAILABLE BELOW ** //
@@ -19,8 +19,8 @@ import (
 // functions so the name of the application can be given as param. The program name is used for
 // pretty-printing.
 var commands = map[string]Command{
-	"add":  NewAddCommand(global.ProgramName, "add"),
-	"move": NewMoveCommand(global.ProgramName, "move"),
+	"add":  NewAddCommand(constant.ProgramName, "add"),
+	"move": NewMoveCommand(constant.ProgramName, "move"),
 }
 
 type CommandBase struct {
@@ -74,13 +74,13 @@ func checkCmdArguments(args *Arguments, c Command) error {
 		fmt.Println(GenerateUsage(c))
 		fmt.Print("Description:")
 		fmt.Println(c.Description())
-		return &CmdErrorSuccess{"help flag given"}
+		return &CmdHelpFlagError{"help flag given"}
 	}
 
 	if len(args.PosArgs) != len(*c.Arguments()) {
 		fmt.Println(GenerateUsage(c))
-		return fmt.Errorf(fmt.Sprintf(
-			"%d arguments given, but %d required. Try adding --help.", len(args.PosArgs), len(*c.Arguments())))
+		return &CmdArgumentError{fmt.Sprintf(
+			"%d arguments given, but %d required. Try adding --help.", len(args.PosArgs), len(*c.Arguments()))}
 	}
 
 	return nil
