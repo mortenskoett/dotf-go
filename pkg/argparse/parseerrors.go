@@ -2,10 +2,34 @@ package argparse
 
 import "fmt"
 
-type ParseErrorSuccess struct {
+type ParseHelpFlagError struct {
 	message string
 }
 
-func (e *ParseErrorSuccess) Error() string {
+type ParseNoArgumentError struct {
+	message string
+}
+
+type ParseError struct {
+	message string
+}
+
+type ParseInvalidArgumentError struct {
+	message string
+}
+
+func (e *ParseHelpFlagError) Error() string {
+	return fmt.Sprintf(e.message)
+}
+
+func (e *ParseNoArgumentError) Error() string {
+	return fmt.Sprintf(e.message)
+}
+
+func (e *ParseError) Error() string {
+	return fmt.Sprintf(e.message)
+}
+
+func (e *ParseInvalidArgumentError) Error() string {
 	return fmt.Sprintf(e.message)
 }

@@ -60,13 +60,13 @@ func GetAllCommands() map[string]Command {
 	return commands
 }
 
-// Creates a Command from command name and program name.
+// Creates a Command from command name
 func ParseCommandName(cmdName string) (Command, error) {
 	cmd, ok := commands[cmdName]
 	if ok {
 		return cmd, nil
 	}
-	return nil, fmt.Errorf("%s command does not exist.", cmdName)
+	return nil, &CmdArgumentError{fmt.Sprintf("%s command does not exist.", cmdName)}
 }
 
 func checkCmdArguments(args *Arguments, c Command) error {

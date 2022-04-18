@@ -13,8 +13,14 @@ func main() {
 	cmd, cliargs, err := argparse.HandleArguments(os.Args)
 	if err != nil {
 		switch err.(type) {
-		case *argparse.ParseErrorSuccess:
+		case *argparse.ParseHelpFlagError:
 			logger.LogSuccess(err)
+		case *argparse.ParseNoArgumentError:
+			logger.LogWarn(err)
+		case *argparse.ParseInvalidArgumentError:
+			logger.LogWarn(err)
+		case *argparse.ParseError:
+			logger.LogError(err)
 		default:
 			logger.LogError("unknown parser error:", err)
 		}

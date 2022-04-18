@@ -14,12 +14,20 @@ type UnmatchedShellReturnError struct {
 	expected []commandReturn
 }
 
+type NotFoundError struct {
+	path string
+}
+
 func (e *MergeFailError) Error() string {
 	return fmt.Sprintf("merge was unsuccessful and rolled back (aborted). Manual intervention required in '%s'", e.directory)
 }
 
 func (e *UnmatchedShellReturnError) Error() string {
 	return fmt.Sprintf("while executing '%s' in the shell, non of the following outputs where found: [%s]", e.command, e.expected)
+}
+
+func (e *NotFoundError) Error() string {
+	return fmt.Sprintf("file or directory was not found at: %s", e.path)
 }
 
 /* Unexported */

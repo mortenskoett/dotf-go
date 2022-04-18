@@ -32,16 +32,6 @@ func (c *addCommand) Run(args *Arguments) error {
 	logger.LogWarn(filepath)
 
 	// TODO: Actual operation of command here
-	// read cli arg and check that file exists in userspace
-	// if not exit
-	// check if file exists in dotfiles
-	// if yes then write this to output and return
-	// if no then
-	// make backup of userspace files
-	// create path in dotfiles dir
-	// copy files to dotfiles dir
-	// remove files from userspace
-	// create symlink in userspace
 
 	return nil
 }

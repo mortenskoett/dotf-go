@@ -9,6 +9,32 @@ import (
 	"strings"
 )
 
+// Moves the file found at 'userspaceFile' to 'dotfilesDir' and creates a symlink in its original
+// location pointing to it.
+func AddFile(userspaceFile, dotfilesDir string) error {
+	if err := checkIfFileExists(userspaceFile); err != nil {
+		return err
+	}
+
+	if err := checkIfFileExists(dotfilesDir); err != nil {
+		return err
+	}
+
+	// TODO:
+	// make backup of userspace files
+	// create path in dotfiles dir
+	// copy files to dotfiles dir
+	// remove files from userspace
+	// create symlink in userspace
+
+	return nil
+}
+
+// Backs up 'file' to 'destDir' without modifying 'file'
+func backupFileTemp(file, destDir string) error {
+	return nil
+}
+
 // UpdateSymlinks walks over files and folders in the dotfiles dir, while updating their
 // respective symlinks in the system relative to the placement in the dotfiles directory.
 // `dotfilesDirPath` denotes the path to the dotfiles directory.
@@ -33,7 +59,7 @@ func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
 		return fmt.Errorf("failed to get absolute path for %s: %w", dotfilesDirPath, err)
 	}
 
-	// Walkdir traverses the dotfiles dir with `p` denoting each file or directory in the dotfiles 
+	// Walkdir traverses the dotfiles dir with `p` denoting each file or directory in the dotfiles
 	// directory and can be either a file or directory.
 	return filepath.WalkDir(dotfilesDirPath, func(p string, d fs.DirEntry, err error) error {
 		if p == dotfilesDirPath {
@@ -56,7 +82,7 @@ func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
 
 		if IsFileSymlink(userFile) {
 			err = UpdateSymlink(absFilePath, userFile)
-			if err != nil { 
+			if err != nil {
 				return err
 			}
 		}
@@ -66,7 +92,7 @@ func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
 
 // UpdateSymlink updates an existing symlink 'file' to point to 'pointTo'
 func UpdateSymlink(pointTo string, file string) error {
-// symlink info: https://stackoverflow.com/questions/37345844/how-to-overwrite-a-symlink-in-go
+	// symlink info: https://stackoverflow.com/questions/37345844/how-to-overwrite-a-symlink-in-go
 
 	err := os.Remove(file)
 	if err != nil {
@@ -75,14 +101,14 @@ func UpdateSymlink(pointTo string, file string) error {
 
 	err = os.Symlink(pointTo, file)
 	if err != nil {
-			return fmt.Errorf("failed to create new symlink: %s, %s, %+v", file, pointTo, err)
+		return fmt.Errorf("failed to create new symlink: %s, %s, %+v", file, pointTo, err)
 	}
 
-	fmt.Printf(Color("Updated: ", Green) + "%s -> %s.\n", file, pointTo)
+	fmt.Printf(Color("Updated: ", Green)+"%s -> %s.\n", file, pointTo)
 	return nil
 }
 
-// IsFileSymlink returns true if the given path is an existsing symlink. 
+// IsFileSymlink returns true if the given path is an existsing symlink.
 func IsFileSymlink(file string) bool {
 	fileInfo, err := os.Lstat(file)
 	if err != nil {
@@ -101,7 +127,7 @@ func checkIfFileExists(path string) error {
 
 	_, err = os.Stat(absPath)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("filepath does not exist: %s", absPath)
+		return &NotFoundError{absPath}
 	}
 
 	return nil
