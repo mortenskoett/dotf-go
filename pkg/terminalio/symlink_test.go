@@ -2,64 +2,14 @@ package terminalio
 
 import (
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"testing"
+
+	"github.com/mortenskoett/dotf-go/pkg/test"
 )
-
-type testFilepathHandle struct {
-	path string
-}
-
-type testEnvironment struct {
-	dotfilesDir, userspaceDir, backupDir testFilepathHandle
-	// Cleans up the environment. Should be called when done e.g. using defer
-	cleanup func() error
-}
-
-func createTestDirHierachySetup() testEnvironment {
-	dotfilesDir, err := os.MkdirTemp("", "dotfiles")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	userspaceDir, err := os.MkdirTemp("", "userspace")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	backupDir, err := os.MkdirTemp("", "backup")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Returns a func that should be called by the user of the environment after use
-	cleanfunc := func(dotfilesdir, userspacedir, backupdir string) func() error {
-		return func() error {
-			if err := os.RemoveAll(dotfilesdir); err != nil {
-				return err
-			}
-			if err := os.RemoveAll(userspacedir); err != nil {
-				return err
-			}
-			if err := os.RemoveAll(backupdir); err != nil {
-				return err
-			}
-			return nil
-		}
-	}
-
-	return testEnvironment{
-		dotfilesDir:  testFilepathHandle{dotfilesDir},
-		userspaceDir: testFilepathHandle{userspaceDir},
-		backupDir:    testFilepathHandle{backupDir},
-		cleanup:      cleanfunc(dotfilesDir, userspaceDir, backupDir),
-	}
-}
-
-func fail(actual, expected interface{}, t *testing.T) {
-	t.Errorf("\nactual = %v\nexpected = %v", actual, expected)
-}
 
 func TestAddFileNotFoundError(t *testing.T) {
 	userspacefile := "adsf"
@@ -69,20 +19,39 @@ func TestAddFileNotFoundError(t *testing.T) {
 	actual := AddFile(userspacefile, dotfilesdir)
 
 	if !errors.As(actual, &expected) {
-		fail(actual, expected, t)
+		test.Fail(actual, expected, t)
 	}
 }
 
 func TestBackupFileTemp(t *testing.T) {
-	env := createTestDirHierachySetup()
-	defer env.cleanup()
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
 
-	from := env.userspaceDir.path
-	to := env.backupDir.path
+	fromdir := env.UserspaceDir
+	todir := env.BackupDir
 
-	err := backupFileTemp(from, to)
+	fileToMove := fromdir.AddTempFile().Name()
+
+	err := backupFileTemp(fileToMove, todir.Path)
+
+	files, err := ioutil.ReadDir(todir.Path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		fmt.Println(file.Name(), file.IsDir())
+	}
 
 	if err != nil {
-		fail(err, "should not fail", t)
+		test.Fail(err, "should not fail", t)
+	}
+
+	expectedPath := fmt.Sprintf("%s%s", todir.Name, fileToMove)
+
+	log.Println(expectedPath)
+
+	if _, err := os.Stat(expectedPath); errors.Is(err, os.ErrNotExist) {
+		test.Fail(err, expectedPath, t)
 	}
 }
