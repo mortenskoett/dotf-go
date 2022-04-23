@@ -22,7 +22,7 @@ func TestAddFileNotFoundError(t *testing.T) {
 	}
 }
 
-func TestBackupFileTemp(t *testing.T) {
+func TestCopyFile(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -33,7 +33,7 @@ func TestBackupFileTemp(t *testing.T) {
 
 	expectedPath := fmt.Sprintf("%s/%s", todir.Path, dstFilename)
 
-	actualpath, err := backupFileTemp(fileToMove, expectedPath)
+	actualpath, err := copyFile(fileToMove, expectedPath)
 	if err != nil {
 		log.Fatal(err)
 	}

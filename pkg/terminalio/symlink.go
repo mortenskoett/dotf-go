@@ -1,9 +1,7 @@
 package terminalio
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path"
@@ -29,35 +27,12 @@ func AddFile(userspaceFile, dotfilesDir string) error {
 	// remove files from userspace
 	// create symlink in userspace
 
+	_, err := backupFile(userspaceFile)
+	if err != nil {
+		return err
+	}
+
 	return nil
-}
-
-// Backs up src to dst without modifying src. Returns path to dst.
-// Both src and dst should be actual file paths, not directories.
-func backupFileTemp(src, dst string) (string, error) {
-	in, err := os.Open(src)
-	if err != nil {
-		return "", fmt.Errorf("couldn't open src: %w", err)
-	}
-	defer in.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return "", fmt.Errorf("couldn't create dst: %w", err)
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, in)
-	if err != nil {
-		return "", fmt.Errorf("couldn't copy src to dst: %w", err)
-	}
-
-	_, err = os.Stat(out.Name())
-	if errors.Is(err, os.ErrNotExist) {
-		return "", fmt.Errorf("backup file was not found: %w", err)
-	}
-
-	return out.Name(), nil
 }
 
 // UpdateSymlinks walks over files and folders in the dotfiles dir, while updating their
@@ -105,7 +80,7 @@ func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
 		// directory structure of the dotfiles directory.
 		userFile := path.Join(absUserSpaceDir, relativeDotfilesDirPath)
 
-		if IsFileSymlink(userFile) {
+		if isFileSymlink(userFile) {
 			err = UpdateSymlink(absFilePath, userFile)
 			if err != nil {
 				return err
@@ -130,30 +105,5 @@ func UpdateSymlink(pointTo string, file string) error {
 	}
 
 	fmt.Printf(Color("Updated: ", Green)+"%s -> %s.\n", file, pointTo)
-	return nil
-}
-
-// IsFileSymlink returns true if the given path is an existsing symlink.
-func IsFileSymlink(file string) bool {
-	fileInfo, err := os.Lstat(file)
-	if err != nil {
-		fmt.Println(Color("Warning: ", Red), err)
-		return false
-	}
-
-	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
-}
-
-func checkIfFileExists(path string) error {
-	absPath, err := filepath.Abs(path)
-	if err != nil {
-		return err
-	}
-
-	_, err = os.Stat(absPath)
-	if os.IsNotExist(err) {
-		return &NotFoundError{absPath}
-	}
-
 	return nil
 }
