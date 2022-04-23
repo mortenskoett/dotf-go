@@ -1,7 +1,9 @@
 package terminalio
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path"
@@ -30,9 +32,32 @@ func AddFile(userspaceFile, dotfilesDir string) error {
 	return nil
 }
 
-// Backs up 'file' to 'destDir' without modifying 'file'
-func backupFileTemp(file, destDir string) error {
-	return nil
+// Backs up src to dst without modifying src. Returns path to dst.
+// Both src and dst should be actual file paths, not directories.
+func backupFileTemp(src, dst string) (string, error) {
+	in, err := os.Open(src)
+	if err != nil {
+		return "", fmt.Errorf("couldn't open src: %w", err)
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return "", fmt.Errorf("couldn't create dst: %w", err)
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	if err != nil {
+		return "", fmt.Errorf("couldn't copy src to dst: %w", err)
+	}
+
+	_, err = os.Stat(out.Name())
+	if errors.Is(err, os.ErrNotExist) {
+		return "", fmt.Errorf("backup file was not found: %w", err)
+	}
+
+	return out.Name(), nil
 }
 
 // UpdateSymlinks walks over files and folders in the dotfiles dir, while updating their

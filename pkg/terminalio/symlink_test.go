@@ -3,7 +3,6 @@ package terminalio
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
@@ -29,29 +28,23 @@ func TestBackupFileTemp(t *testing.T) {
 
 	fromdir := env.UserspaceDir
 	todir := env.BackupDir
-
 	fileToMove := fromdir.AddTempFile().Name()
+	dstFilename := "dstFileName"
 
-	err := backupFileTemp(fileToMove, todir.Path)
+	expectedPath := fmt.Sprintf("%s/%s", todir.Path, dstFilename)
 
-	files, err := ioutil.ReadDir(todir.Path)
+	actualpath, err := backupFileTemp(fileToMove, expectedPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, file := range files {
-		fmt.Println(file.Name(), file.IsDir())
+	// compare returned path
+	if expectedPath != actualpath {
+		test.Fail(actualpath, expectedPath, t)
 	}
 
-	if err != nil {
-		test.Fail(err, "should not fail", t)
-	}
-
-	expectedPath := fmt.Sprintf("%s%s", todir.Name, fileToMove)
-
-	log.Println(expectedPath)
-
-	if _, err := os.Stat(expectedPath); errors.Is(err, os.ErrNotExist) {
+	// check if file exists
+	if _, err := os.Stat(actualpath); errors.Is(err, os.ErrNotExist) {
 		test.Fail(err, expectedPath, t)
 	}
 }
