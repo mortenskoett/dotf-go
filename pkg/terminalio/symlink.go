@@ -11,7 +11,7 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
-// Moves the file found at 'userspaceFile' to 'dotfilesDir' and creates a symlink in its original
+// Copies the file found at 'userspaceFile' to 'dotfilesDir' and creates a symlink in its original
 // location pointing to it.
 func AddFileCreateSymlink(userspaceFile, dotfilesDir string) error {
 	absUserSpaceFile, err := getAbsolutePath(userspaceFile)
@@ -43,21 +43,21 @@ func AddFileCreateSymlink(userspaceFile, dotfilesDir string) error {
 // respective symlinks in the system relative to the placement in the dotfiles directory.
 // `dotfilesDirPath` denotes the path to the dotfiles directory.
 // `userSpacePath` denotes the root of where the symlinks can be found.
-func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
-	absUserSpaceDir, err := getAbsolutePath(userSpacePath)
+func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
+	absUserSpaceDir, err := getAbsolutePath(userSpaceDir)
 	if err != nil {
 		return err
 	}
 
-	absDotfilesDirPath, err := getAbsolutePath(dotfilesDirPath)
+	absDotfilesDir, err := getAbsolutePath(dotfilesDir)
 	if err != nil {
 		return err
 	}
 
 	// Walkdir traverses the dotfiles dir with `p` denoting each file or directory in the dotfiles
 	// directory and can be either a file or directory.
-	return filepath.WalkDir(dotfilesDirPath, func(p string, d fs.DirEntry, err error) error {
-		if p == dotfilesDirPath {
+	return filepath.WalkDir(dotfilesDir, func(p string, d fs.DirEntry, err error) error {
+		if p == dotfilesDir {
 			return nil
 		}
 
@@ -69,7 +69,7 @@ func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
 
 		// construct the relative path to each file inside dotfiles dir by removing
 		// the leading part of the path to the dotfiles dir.
-		relativeDotfilesDirPath := strings.TrimPrefix(absFilePath, absDotfilesDirPath)
+		relativeDotfilesDirPath := strings.TrimPrefix(absFilePath, absDotfilesDir)
 
 		// construct path to each expected loaction in user space imitating the
 		// directory structure of the dotfiles directory.
@@ -84,6 +84,9 @@ func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
 		return nil
 	})
 }
+
+// TODO
+// func create
 
 // UpdateSymlink updates an existing symlink 'file' to point to 'pointTo'
 func UpdateSymlink(pointTo string, file string) error {

@@ -33,7 +33,7 @@ func (c *moveCommand) Run(args *Arguments) error {
 	dotfilesDir := args.PosArgs[0]
 	symlinkRootDir := args.PosArgs[1]
 
-	err := terminalio.UpdateSymlinks(dotfilesDir, symlinkRootDir)
+	err := terminalio.UpdateSymlinks(symlinkRootDir, dotfilesDir)
 	if err != nil {
 		return err
 	}
