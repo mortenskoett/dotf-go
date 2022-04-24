@@ -5,12 +5,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/constant"
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
 // ** ALL PROGRAM COMMANDS AVAILABLE BELOW ** //
@@ -69,6 +69,7 @@ func ParseCommandName(cmdName string) (Command, error) {
 	return nil, &CmdArgumentError{fmt.Sprintf("%s command does not exist.", cmdName)}
 }
 
+// Validates the given Arguments against the Command and errors if not valid
 func checkCmdArguments(args *Arguments, c Command) error {
 	if _, ok := args.Flags["help"]; ok {
 		fmt.Println(GenerateUsage(c))
@@ -128,7 +129,7 @@ func confirmByUser(question string) bool {
 
 		resp, err := reader.ReadString('\n')
 		if err != nil {
-			log.Fatal(err)
+			logger.LogFatal(err)
 		}
 
 		resp = strings.TrimSpace(resp)

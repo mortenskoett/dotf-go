@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"log"
 
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -26,7 +26,7 @@ func (c *moveCommand) Run(args *Arguments) error {
 
 	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
 	if !ok {
-		log.Println("Aborted by user")
+		logger.LogWarn("Aborted by user")
 		return nil
 	}
 
@@ -38,7 +38,7 @@ func (c *moveCommand) Run(args *Arguments) error {
 		return err
 	}
 
-	log.Println("\nAll symlinks have been updated successfully.")
+	logger.LogSuccess("\nAll symlinks have been updated successfully.")
 	return nil
 }
 

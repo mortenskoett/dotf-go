@@ -7,27 +7,31 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
 // Moves the file found at 'userspaceFile' to 'dotfilesDir' and creates a symlink in its original
 // location pointing to it.
 func AddFileCreateSymlink(userspaceFile, dotfilesDir string) error {
-	if err := checkIfFileExists(userspaceFile); err != nil {
+	absUserSpaceFile, err := getAbsolutePath(userspaceFile)
+	if err != nil {
 		return err
 	}
 
-	if err := checkIfFileExists(dotfilesDir); err != nil {
+	absUserSpaceFile, err = getAbsolutePath(dotfilesDir)
+	if err != nil {
 		return err
 	}
 
 	// TODO:
-	// make backup of userspace files
+	// **OK** 	// make backup of userspace files
 	// create path in dotfiles dir
 	// copy files to dotfiles dir
 	// remove files from userspace
 	// create symlink in userspace
 
-	_, err := backupFile(userspaceFile)
+	_, err = backupFile(absUserSpaceFile)
 	if err != nil {
 		return err
 	}
@@ -40,23 +44,14 @@ func AddFileCreateSymlink(userspaceFile, dotfilesDir string) error {
 // `dotfilesDirPath` denotes the path to the dotfiles directory.
 // `userSpacePath` denotes the root of where the symlinks can be found.
 func UpdateSymlinks(dotfilesDirPath string, userSpacePath string) error {
-
-	if err := checkIfFileExists(dotfilesDirPath); err != nil {
+	absUserSpaceDir, err := getAbsolutePath(userSpacePath)
+	if err != nil {
 		return err
 	}
 
-	if err := checkIfFileExists(userSpacePath); err != nil {
+	absDotfilesDirPath, err := getAbsolutePath(dotfilesDirPath)
+	if err != nil {
 		return err
-	}
-
-	absUserSpaceDir, err := filepath.Abs(userSpacePath)
-	if err != nil {
-		return fmt.Errorf("failed to get absolute path for %s: %w", userSpacePath, err)
-	}
-
-	absDotfilesDirPath, err := filepath.Abs(dotfilesDirPath)
-	if err != nil {
-		return fmt.Errorf("failed to get absolute path for %s: %w", dotfilesDirPath, err)
 	}
 
 	// Walkdir traverses the dotfiles dir with `p` denoting each file or directory in the dotfiles
@@ -104,6 +99,6 @@ func UpdateSymlink(pointTo string, file string) error {
 		return fmt.Errorf("failed to create new symlink: %s, %s, %+v", file, pointTo, err)
 	}
 
-	fmt.Printf(Color("Updated: ", Green)+"%s -> %s.\n", file, pointTo)
+	logger.LogSuccess("Updated:"+"%s -> %s.\n", file, pointTo)
 	return nil
 }

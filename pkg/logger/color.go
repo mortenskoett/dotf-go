@@ -1,4 +1,4 @@
-package terminalio
+package logger
 
 import (
 	"fmt"

@@ -4,8 +4,6 @@ package logger
 
 import (
 	"log"
-
-	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 const (
@@ -21,29 +19,29 @@ func init() {
 }
 
 func Log(str ...interface{}) {
-	logWithColor(terminalio.Default, "", str...)
+	logWithColor(Default, "", str...)
 }
 
 func LogSuccess(str ...interface{}) {
-	logWithColor(terminalio.Green, ok, str...)
+	logWithColor(Green, ok, str...)
 }
 
 func LogWarn(str ...interface{}) {
-	logWithColor(terminalio.Yellow, warn, str...)
+	logWithColor(Yellow, warn, str...)
 }
 
 func LogError(str ...interface{}) {
-	logWithColor(terminalio.Red, error, str...)
+	logWithColor(Red, error, str...)
 }
 
 // Logs and exits program
 func LogFatal(str ...interface{}) {
-	log.SetPrefix(terminalio.Color(fatal, terminalio.Red))
+	log.SetPrefix(Color(fatal, Red))
 	log.Fatalln(str...)
 }
 
-func logWithColor(color terminalio.TerminalColor, prefix string, str ...interface{}) {
-	log.SetPrefix(terminalio.Color(prefix, color))
+func logWithColor(color TerminalColor, prefix string, str ...interface{}) {
+	log.SetPrefix(Color(prefix, color))
 	log.Println(str...)
 	// log.SetPrefix(programprefix)
 }

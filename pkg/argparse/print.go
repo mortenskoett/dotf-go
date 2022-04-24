@@ -8,7 +8,7 @@ import (
 
 	"github.com/mortenskoett/dotf-go/pkg/cli"
 	"github.com/mortenskoett/dotf-go/pkg/constant"
-	"github.com/mortenskoett/dotf-go/pkg/terminalio"
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
 func printBasicHelp() {
@@ -20,14 +20,14 @@ func printFullHelp() {
 	printHeader()
 	fmt.Println(`
 Details:
-	1) User space describes where the symlinks are placed pointing into the dotfiles directory.
-	2) The dotfiles directory is where the actual configuration files are stored.
-	3) The folder structure in the dotfiles directory will match that of the user space.`)
+	- User space describes where the symlinks are placed pointing into the dotfiles directory.
+	- The dotfiles directory is where the actual configuration files are stored.
+	- The folder structure in the dotfiles directory will match that of the user space.`)
 	printUsage()
 }
 
 func printHeader() {
-	fmt.Println(terminalio.Color(constant.Logo, terminalio.Blue))
+	fmt.Println(logger.Color(constant.Logo, logger.Blue))
 	fmt.Println("Dotfiles handler in Go.")
 }
 

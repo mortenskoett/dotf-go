@@ -14,6 +14,7 @@ type DirectoryHandle struct {
 
 // File hierachy test environment. Remember to call cleanup after use
 type Environment struct {
+	// A contained directory in the environment
 	DotfilesDir, UserspaceDir, BackupDir *DirectoryHandle
 }
 

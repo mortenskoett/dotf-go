@@ -7,16 +7,17 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
 // isFileSymlink returns true if the given path is an existsing symlink.
 func isFileSymlink(file string) bool {
 	fileInfo, err := os.Lstat(file)
 	if err != nil {
-		fmt.Println(Color("Warning: ", Red), err)
+		logger.LogWarn("Warning:", err)
 		return false
 	}
-
 	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
 }
 
@@ -70,6 +71,18 @@ func copyFile(src, dst string) (string, error) {
 
 	// Return path to file
 	return out.Name(), nil
+}
+
+func getAbsolutePath(path string) (string, error) {
+	if err := checkIfFileExists(path); err != nil {
+		return "", fmt.Errorf("failed to get absolute path for %s: %w", path, err)
+	}
+
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to get absolute path for %s: %s", path, err)
+	}
+	return absPath, nil
 }
 
 func checkIfFileExists(path string) error {

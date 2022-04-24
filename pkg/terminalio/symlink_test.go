@@ -25,9 +25,8 @@ func TestCopyFile(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
-	fromdir := env.UserspaceDir
 	todir := env.BackupDir
-	fileToMove := fromdir.AddTempFile().Name()
+	fileToMove := env.UserspaceDir.AddTempFile().Name()
 	dstFilename := "dstFileName"
 
 	expectedPath := fmt.Sprintf("%s/%s", todir.Path, dstFilename)
