@@ -11,7 +11,7 @@ import (
 
 // Moves the file found at 'userspaceFile' to 'dotfilesDir' and creates a symlink in its original
 // location pointing to it.
-func AddFile(userspaceFile, dotfilesDir string) error {
+func AddFileCreateSymlink(userspaceFile, dotfilesDir string) error {
 	if err := checkIfFileExists(userspaceFile); err != nil {
 		return err
 	}

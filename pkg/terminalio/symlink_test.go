@@ -3,19 +3,18 @@ package terminalio
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"testing"
 
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-func TestAddFileNotFoundError(t *testing.T) {
+func TestAddFileCreateSymlinkNotFoundError(t *testing.T) {
 	userspacefile := "adsf"
 	dotfilesdir := "adsf"
 
 	expected := &NotFoundError{}
-	actual := AddFile(userspacefile, dotfilesdir)
+	actual := AddFileCreateSymlink(userspacefile, dotfilesdir)
 
 	if !errors.As(actual, &expected) {
 		test.Fail(actual, expected, t)
@@ -35,7 +34,7 @@ func TestCopyFile(t *testing.T) {
 
 	actualpath, err := copyFile(fileToMove, expectedPath)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 
 	// compare returned path

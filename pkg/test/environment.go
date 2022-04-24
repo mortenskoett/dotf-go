@@ -29,15 +29,15 @@ func NewTestFilePathHandle(name string) *DirectoryHandle {
 // Returns a file hierachy based testing environment
 func NewTestEnvironment() Environment {
 	return Environment{
-		DotfilesDir:  NewTestFilePathHandle("dotfiles"),
-		UserspaceDir: NewTestFilePathHandle("userspace"),
-		BackupDir:    NewTestFilePathHandle("backup"),
+		DotfilesDir:  NewTestFilePathHandle("dotfiles-dir*"),
+		UserspaceDir: NewTestFilePathHandle("userspace-dir*"),
+		BackupDir:    NewTestFilePathHandle("backup-dir*"),
 	}
 }
 
 // Adds a file to the filepath and returns its handle
 func (e *DirectoryHandle) AddTempFile() *os.File {
-	f, err := os.CreateTemp(e.Path, e.Name+"-*") // Suffixes a random string
+	f, err := os.CreateTemp(e.Path, "file-*") // Suffixes a random string
 	if err != nil {
 		log.Fatal(err)
 	}

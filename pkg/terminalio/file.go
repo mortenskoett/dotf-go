@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -24,8 +25,8 @@ func isFileSymlink(file string) bool {
 func backupFile(file string) (string, error) {
 	const backupDir string = "/tmp/dotf-go/backups/"
 
-	backupFile := backupDir + file
-	path, err := copyFile(file, backupFile)
+	backupDst := backupDir + file
+	path, err := copyFile(file, backupDst)
 	if err != nil {
 		return "", err
 	}
@@ -33,15 +34,25 @@ func backupFile(file string) (string, error) {
 }
 
 // Copies src to dst without modifying src. Both src and dst should be actual file paths, not
-// directories. Returns path to dst.
+// directories. Returns path to dst. The function uses absolute paths for both src and dst.
 func copyFile(src, dst string) (string, error) {
-	in, err := os.Open(src)
+	srcAbs, err := filepath.Abs(src)
+	dstAbs, err := filepath.Abs(dst)
+
+	in, err := os.Open(srcAbs)
 	if err != nil {
 		return "", fmt.Errorf("couldn't open src: %w", err)
 	}
 	defer in.Close()
 
-	out, err := os.Create(dst)
+	// Create path to destination file
+	dstPath := path.Dir(dstAbs)
+	err = os.MkdirAll(dstPath, os.ModePerm)
+	if err != nil {
+		return "", fmt.Errorf("couldn't nested directores in dst: %w", err)
+	}
+
+	out, err := os.Create(dstAbs)
 	if err != nil {
 		return "", fmt.Errorf("couldn't create dst: %w", err)
 	}
