@@ -14,7 +14,7 @@ func TestAddFileCreateSymlinkNotFoundError(t *testing.T) {
 	dotfilesdir := "adsf"
 
 	expected := &NotFoundError{}
-	actual := AddFileCreateSymlink(userspacefile, dotfilesdir)
+	actual := AddFileToDotfiles(userspacefile, dotfilesdir)
 
 	if !errors.As(actual, &expected) {
 		test.Fail(actual, expected, t)

@@ -11,9 +11,8 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
-// Copies the file found at 'userspaceFile' to 'dotfilesDir' and creates a symlink in its original
-// location pointing to it.
-func AddFileCreateSymlink(userspaceFile, dotfilesDir string) error {
+// Copies the file found at 'userspaceFile' to 'dotfilesDir'.
+func AddFileToDotfiles(userspaceFile, dotfilesDir string) error {
 	absUserSpaceFile, err := getAbsolutePath(userspaceFile)
 	if err != nil {
 		return err
@@ -24,13 +23,6 @@ func AddFileCreateSymlink(userspaceFile, dotfilesDir string) error {
 		return err
 	}
 
-	// TODO:
-	// **OK** 	// make backup of userspace files
-	// create path in dotfiles dir
-	// copy files to dotfiles dir
-	// remove files from userspace
-	// create symlink in userspace
-
 	_, err = backupFile(absUserSpaceFile)
 	if err != nil {
 		return err
@@ -40,7 +32,7 @@ func AddFileCreateSymlink(userspaceFile, dotfilesDir string) error {
 }
 
 // UpdateSymlinks walks over files and folders in the dotfiles dir, while updating their
-// respective symlinks in the system relative to the placement in the dotfiles directory.
+// respective symlinks in userspace relative to the placement in the dotfiles directory.
 // `dotfilesDirPath` denotes the path to the dotfiles directory.
 // `userSpacePath` denotes the root of where the symlinks can be found.
 func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
@@ -61,10 +53,9 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 			return nil
 		}
 
-		// absolute path to each dotfile visited.
-		absFilePath, err := filepath.Abs(p)
+		absFilePath, err := getAbsolutePath(p)
 		if err != nil {
-			return fmt.Errorf("failed to get absolute path for %s: %w", p, err)
+			return err
 		}
 
 		// construct the relative path to each file inside dotfiles dir by removing
@@ -84,9 +75,6 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 		return nil
 	})
 }
-
-// TODO
-// func create
 
 // UpdateSymlink updates an existing symlink 'file' to point to 'pointTo'
 func UpdateSymlink(pointTo string, file string) error {

@@ -31,7 +31,12 @@ func (c *addCommand) Run(args *Arguments) error {
 	filepath := args.PosArgs[0]
 	logger.LogWarn(filepath)
 
-	// TODO: Actual operation of command here
+	// TODO:
+	// **OK** 	// make backup of userspace files
+	// create path in dotfiles dir
+	// copy files to dotfiles dir
+	// remove files from userspace
+	// create symlink in userspace
 
 	return nil
 }

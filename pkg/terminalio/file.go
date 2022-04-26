@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
@@ -73,28 +74,59 @@ func copyFile(src, dst string) (string, error) {
 	return out.Name(), nil
 }
 
-func getAbsolutePath(path string) (string, error) {
-	if err := checkIfFileExists(path); err != nil {
-		return "", fmt.Errorf("failed to get absolute path for %s: %w", path, err)
+// Changes the leading path of 'filepath' from that of 'frompath' to that of 'topath'.
+// It is assumed that 'filepath' is contained in 'frompath'.
+func changeLeadingPath(filepath, frompath, topath string) (string, error) {
+	absTo, err := getAbsolutePath(topath)
+	if err != nil {
+		return "", err
+	}
+	relative, err := detachRelativePath(frompath, filepath)
+	if err != nil {
+		return "", err
 	}
 
+	// Suffixes the relative path to that of the new location.
+	newpath := path.Join(absTo, relative)
+	return newpath, nil
+}
+
+// Detaches 'filepath' from 'basepath' and returns the path-suffix of 'filepath' which is relative
+// to 'basepath'. It is assumed that basepath is part of filepath.
+func detachRelativePath(basepath, filepath string) (string, error) {
+	absBase, err := getAbsolutePath(basepath)
+	if err != nil {
+		return "", err
+	}
+	absFile, err := getAbsolutePath(filepath)
+	if err != nil {
+		return "", err
+	}
+
+	// Removes the leading part of 'absFile'. The part that matches that of absBase.
+	relative := strings.TrimPrefix(absFile, absBase)
+	return relative, nil
+}
+
+// Returns the absolute path. If the path does not point to anything an error is returned.
+func getAbsolutePath(path string) (string, error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
-		return "", fmt.Errorf("failed to get absolute path for %s: %s", path, err)
+		return "", fmt.Errorf("failed to create absolute path for %s: %s", path, err)
 	}
+
+	if err := checkIfFileExists(absPath); err != nil {
+		return "", fmt.Errorf("a file could not be found: %w", err)
+	}
+
 	return absPath, nil
 }
 
-func checkIfFileExists(path string) error {
-	absPath, err := filepath.Abs(path)
-	if err != nil {
-		return err
-	}
-
-	_, err = os.Stat(absPath)
-	if os.IsNotExist(err) {
+// Checks if file exists by trying to open it. The given path should be absolute.
+func checkIfFileExists(absPath string) error {
+	_, err := os.Open(absPath)
+	if errors.Is(err, os.ErrNotExist) {
 		return &NotFoundError{absPath}
 	}
-
 	return nil
 }
