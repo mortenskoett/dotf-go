@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
-	"strings"
 
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
@@ -58,16 +56,13 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 			return err
 		}
 
-		// construct the relative path to each file inside dotfiles dir by removing
-		// the leading part of the path to the dotfiles dir.
-		relativeDotfilesDirPath := strings.TrimPrefix(absFilePath, absDotfilesDir)
+		fileInUserspace, err := changeLeadingPath(absFilePath, absDotfilesDir, absUserSpaceDir)
+		if err != nil {
+			return err
+		}
 
-		// construct path to each expected loaction in user space imitating the
-		// directory structure of the dotfiles directory.
-		userFile := path.Join(absUserSpaceDir, relativeDotfilesDirPath)
-
-		if isFileSymlink(userFile) {
-			err = UpdateSymlink(absFilePath, userFile)
+		if isFileSymlink(fileInUserspace) {
+			err = UpdateSymlink(absFilePath, fileInUserspace)
 			if err != nil {
 				return err
 			}

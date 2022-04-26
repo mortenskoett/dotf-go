@@ -74,14 +74,14 @@ func copyFile(src, dst string) (string, error) {
 	return out.Name(), nil
 }
 
-// Changes the leading path of 'filepath' from that of 'frompath' to that of 'topath'.
-// It is assumed that 'filepath' is contained in 'frompath'.
+// Changes the leading path of 'filepath' from that of 'frompath' to that of 'topath'. It is assumed
+// that 'filepath' points to a file that is contained in 'frompath'.
 func changeLeadingPath(filepath, frompath, topath string) (string, error) {
-	absTo, err := getAbsolutePath(topath)
+	relative, err := detachRelativePath(filepath, frompath)
 	if err != nil {
 		return "", err
 	}
-	relative, err := detachRelativePath(frompath, filepath)
+	absTo, err := getAbsolutePath(topath)
 	if err != nil {
 		return "", err
 	}
@@ -93,12 +93,12 @@ func changeLeadingPath(filepath, frompath, topath string) (string, error) {
 
 // Detaches 'filepath' from 'basepath' and returns the path-suffix of 'filepath' which is relative
 // to 'basepath'. It is assumed that basepath is part of filepath.
-func detachRelativePath(basepath, filepath string) (string, error) {
-	absBase, err := getAbsolutePath(basepath)
+func detachRelativePath(filepath, basepath string) (string, error) {
+	absFile, err := getAbsolutePath(filepath)
 	if err != nil {
 		return "", err
 	}
-	absFile, err := getAbsolutePath(filepath)
+	absBase, err := getAbsolutePath(basepath)
 	if err != nil {
 		return "", err
 	}
