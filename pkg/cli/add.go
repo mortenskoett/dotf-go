@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 type addCommand struct {
@@ -22,21 +23,25 @@ func (c *addCommand) Run(args *Arguments) error {
 		return err
 	}
 
-	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
-	if !ok {
-		logger.LogWarn("Aborted by user")
-		return nil
-	}
+	// ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
+	// if !ok {
+	// 	logger.LogWarn("Aborted by user")
+	// 	return nil
+	// }
 
 	filepath := args.PosArgs[0]
-	logger.LogWarn(filepath)
+	logger.LogWarn("filepath:", filepath)
 
 	// TODO:
-	// **OK** 	// make backup of userspace files
+	// **OK** 	// ability to make backup of userspace files
 	// create path in dotfiles dir
 	// copy files to dotfiles dir
 	// remove files from userspace
 	// create symlink in userspace
+	err := terminalio.AddFileToDotfiles("", "")
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

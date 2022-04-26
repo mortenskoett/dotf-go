@@ -9,26 +9,6 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
-// Copies the file found at 'userspaceFile' to 'dotfilesDir'.
-func AddFileToDotfiles(userspaceFile, dotfilesDir string) error {
-	absUserSpaceFile, err := getAbsolutePath(userspaceFile)
-	if err != nil {
-		return err
-	}
-
-	absUserSpaceFile, err = getAbsolutePath(dotfilesDir)
-	if err != nil {
-		return err
-	}
-
-	_, err = backupFile(absUserSpaceFile)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // UpdateSymlinks walks over files and folders in the dotfiles dir, while updating their
 // respective symlinks in userspace relative to the placement in the dotfiles directory.
 // `dotfilesDirPath` denotes the path to the dotfiles directory.
@@ -87,4 +67,14 @@ func UpdateSymlink(pointTo string, file string) error {
 
 	logger.LogSuccess("Updated:"+"%s -> %s.\n", file, pointTo)
 	return nil
+}
+
+// isFileSymlink returns true if the given path is an existsing symlink.
+func isFileSymlink(file string) bool {
+	fileInfo, err := os.Lstat(file)
+	if err != nil {
+		logger.LogWarn("Warning:", err)
+		return false
+	}
+	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
 }

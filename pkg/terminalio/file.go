@@ -4,22 +4,33 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
-// isFileSymlink returns true if the given path is an existsing symlink.
-func isFileSymlink(file string) bool {
-	fileInfo, err := os.Lstat(file)
+// Copies the file found at 'userspaceFile' to 'dotfilesDir'.
+func AddFileToDotfiles(userspaceFile, dotfilesDir string) error {
+	absUserSpaceFile, err := getAbsolutePath(userspaceFile)
 	if err != nil {
-		logger.LogWarn("Warning:", err)
-		return false
+		return err
 	}
-	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
+
+	absDotfilesDir, err := getAbsolutePath(dotfilesDir)
+	if err != nil {
+		return err
+	}
+
+	log.Println("user", absUserSpaceFile, "dotf", absDotfilesDir)
+
+	// _, err = backupFile(absUserSpaceFile)
+	// if err != nil {
+	// 	return err
+	// }
+
+	return nil
 }
 
 // Backs up file and returns the path to the backed up version of the file. The backed up file
@@ -76,12 +87,12 @@ func copyFile(src, dst string) (string, error) {
 
 // Changes the leading path of 'filepath' from that of 'frompath' to that of 'topath'. It is assumed
 // that 'filepath' points to a file that is contained in 'frompath'.
-func changeLeadingPath(filepath, frompath, topath string) (string, error) {
-	relative, err := detachRelativePath(filepath, frompath)
+func changeLeadingPath(filepath, fromdir, todir string) (string, error) {
+	relative, err := detachRelativePath(filepath, fromdir)
 	if err != nil {
 		return "", err
 	}
-	absTo, err := getAbsolutePath(topath)
+	absTo, err := getAbsolutePath(todir)
 	if err != nil {
 		return "", err
 	}
@@ -110,6 +121,10 @@ func detachRelativePath(filepath, basepath string) (string, error) {
 
 // Returns the absolute path. If the path does not point to anything an error is returned.
 func getAbsolutePath(path string) (string, error) {
+	if path == "" {
+		return "", fmt.Errorf("cannot get absolute path of empty string")
+	}
+
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to create absolute path for %s: %s", path, err)
