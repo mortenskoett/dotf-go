@@ -32,7 +32,7 @@ func (c *addCommand) Run(args *Arguments) error {
 	filepath := args.PosArgs[0]
 	logger.LogWarn("filepath:", filepath)
 
-	// TODO:
+	// TODO: Implement this function
 	// **OK** 	// ability to make backup of userspace files
 	// create path in dotfiles dir
 	// copy files to dotfiles dir

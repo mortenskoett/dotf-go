@@ -45,7 +45,7 @@ type Command interface {
 
 // Parsed CLI arguments.
 type Arguments struct {
-	PosArgs []string // Positional args in order by input
+	PosArgs []string // Positional args in order by input starting with 0
 	Flags   map[string]string
 }
 

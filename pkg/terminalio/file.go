@@ -13,17 +13,19 @@ import (
 
 // Copies the file found at 'userspaceFile' to 'dotfilesDir'.
 func AddFileToDotfiles(userspaceFile, dotfilesDir string) error {
-	absUserSpaceFile, err := getAbsolutePath(userspaceFile)
+	absUserSpaceFile, err := getCheckAbsolutePath(userspaceFile)
 	if err != nil {
 		return err
 	}
 
-	absDotfilesDir, err := getAbsolutePath(dotfilesDir)
+	absDotfilesDir, err := getCheckAbsolutePath(dotfilesDir)
 	if err != nil {
 		return err
 	}
 
 	log.Println("user", absUserSpaceFile, "dotf", absDotfilesDir)
+
+	// TODO: Implement this function
 
 	// _, err = backupFile(absUserSpaceFile)
 	// if err != nil {
@@ -92,7 +94,7 @@ func changeLeadingPath(filepath, fromdir, todir string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	absTo, err := getAbsolutePath(todir)
+	absTo, err := getCheckAbsolutePath(todir)
 	if err != nil {
 		return "", err
 	}
@@ -105,11 +107,11 @@ func changeLeadingPath(filepath, fromdir, todir string) (string, error) {
 // Detaches 'filepath' from 'basepath' and returns the path-suffix of 'filepath' which is relative
 // to 'basepath'. It is assumed that basepath is part of filepath.
 func detachRelativePath(filepath, basepath string) (string, error) {
-	absFile, err := getAbsolutePath(filepath)
+	absFile, err := getCheckAbsolutePath(filepath)
 	if err != nil {
 		return "", err
 	}
-	absBase, err := getAbsolutePath(basepath)
+	absBase, err := getCheckAbsolutePath(basepath)
 	if err != nil {
 		return "", err
 	}
@@ -120,7 +122,7 @@ func detachRelativePath(filepath, basepath string) (string, error) {
 }
 
 // Returns the absolute path. If the path does not point to anything an error is returned.
-func getAbsolutePath(path string) (string, error) {
+func getCheckAbsolutePath(path string) (string, error) {
 	if path == "" {
 		return "", fmt.Errorf("cannot get absolute path of empty string")
 	}

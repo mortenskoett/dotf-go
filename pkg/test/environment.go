@@ -4,18 +4,19 @@ package test
 import (
 	"log"
 	"os"
+	"path/filepath"
 )
 
-// Path file handle used by test Environment
-type DirectoryHandle struct {
-	Name string // Will be contained in the path
-	Path string // To the directory
-}
-
-// File hierachy test environment. Remember to call cleanup after use
+// File hierachy test environment. **Remember to call cleanup after use**.
 type Environment struct {
 	// A contained directory in the environment
 	DotfilesDir, UserspaceDir, BackupDir *DirectoryHandle
+}
+
+// Path file handle used by test Environment
+type DirectoryHandle struct {
+	Name string // The base of the path
+	Path string // Path to directory
 }
 
 // Returns a filepath handle used in the test Environment
@@ -34,6 +35,16 @@ func NewTestEnvironment() Environment {
 		UserspaceDir: NewTestFilePathHandle("userspace-dir*"),
 		BackupDir:    NewTestFilePathHandle("backup-dir*"),
 	}
+}
+
+// Adds a directory to the filepath and returns its handle
+func (e *DirectoryHandle) AddTempDir(relativePath string) *DirectoryHandle {
+	path := filepath.Join(e.Path, relativePath)
+	err := os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		log.Fatal("could not create nested directories:", err)
+	}
+	return &DirectoryHandle{Name: filepath.Base(path), Path: path}
 }
 
 // Adds a file to the filepath and returns its handle
