@@ -121,7 +121,8 @@ func detachRelativePath(filepath, basepath string) (string, error) {
 	return relative, nil
 }
 
-// Returns the absolute path. If the path does not point to anything an error is returned.
+// Returns the absolute path from current directory. If the path does not point to anything an error
+// is returned.
 func getCheckAbsolutePath(path string) (string, error) {
 	if path == "" {
 		return "", fmt.Errorf("cannot get absolute path of empty string")

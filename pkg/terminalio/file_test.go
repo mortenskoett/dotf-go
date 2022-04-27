@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/mortenskoett/dotf-go/pkg/test"
@@ -97,11 +98,57 @@ func TestChangeLeadingPath(t *testing.T) {
 }
 
 func TestDetachRelativePath(t *testing.T) {
-	//TODO
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	basepath := env.DotfilesDir.AddTempDir("/bla1/bla2/")
+	f := basepath.AddTempFile()
+
+	p, err := detachRelativePath(f.Name(), basepath.Path)
+	if err != nil {
+		test.Fail(err, "Should not fail here", t)
+	}
+
+	// Because result has leading slash
+	expected := filepath.Join("/", filepath.Base(p))
+
+	// Check filename
+	if p != expected {
+		test.Fail(p, expected, t)
+	}
 }
 
-func TestGetCheckAbsolutePath(t *testing.T) {
-	//TODO
+func TestGetCheckAbsolutePathSame(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	f := env.UserspaceDir.AddTempFile()
+
+	actual, err := getCheckAbsolutePath(f.Name())
+	expected := filepath.Join(f.Name())
+
+	// Check error
+	if err != nil {
+		test.Fail(err, "Should not fail here", t)
+	}
+
+	// Check path -- should return the same path
+	if actual != expected {
+		test.Fail(actual, expected, t)
+	}
+}
+
+func TestGetCheckAbsolutePathDifferent(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	f := "myrandomfile"
+
+	_, err := getCheckAbsolutePath(f)
+
+	if err == nil {
+		test.Fail(err, "Should fail here as file not found", t)
+	}
 }
 
 func TestCheckIfFileExists(t *testing.T) {
