@@ -22,6 +22,25 @@ func TestAddFileCreateSymlinkNotFoundError(t *testing.T) {
 	}
 }
 
+func TestBackupFile(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	fileToBackup := env.UserspaceDir.AddTempFile().Name()
+	expectedBackupPath := "/tmp/dotf-go/backups" + fileToBackup
+
+	actual, err := backupFile(fileToBackup)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.Remove(expectedBackupPath)
+
+	if expectedBackupPath != actual {
+		test.Fail(actual, expectedBackupPath, t)
+	}
+}
+
 func TestCopyFile(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
@@ -48,60 +67,38 @@ func TestCopyFile(t *testing.T) {
 	}
 }
 
-func TestBackupFile(t *testing.T) {
+func TestChangeLeadingPath(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
-	fileToBackup := env.UserspaceDir.AddTempFile().Name()
-	expectedBackupPath := "/tmp/dotf-go/backups" + fileToBackup
+	fromdir := env.DotfilesDir
+	subfpath := "/bla1/bla2/"
+	subfolders := fromdir.AddTempDir(subfpath)
+	fp := subfolders.AddTempFile()
+	todir := env.UserspaceDir
 
-	actual, err := backupFile(fileToBackup)
+	result, err := changeLeadingPath(fp.Name(), fromdir.Path, todir.Path)
 	if err != nil {
-		t.Fatal(err)
+		test.Fail(result, err, t)
 	}
 
-	defer os.Remove(expectedBackupPath)
-
-	if expectedBackupPath != actual {
-		test.Fail(actual, expectedBackupPath, t)
+	expected := filepath.Join(todir.Path, subfpath, filepath.Base(fp.Name()))
+	if result != expected {
+		test.Fail(result, expected, t)
 	}
-}
-
-func TestChangeLeadingPath(t *testing.T) {
-	// env := test.NewTestEnvironment()
-	// defer env.Cleanup()
-
-	// fromdir := env.DotfilesDir.AddTempDir("/bla1/bla2/")
-	// f := fromdir.AddTempFile()
-	// todir := env.UserspaceDir
-
-	// actual, err := changeLeadingPath(filepath, fromdir, todir)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
-
-	// defer os.Remove(expectedBackupPath)
-
-	// if expectedBackupPath != actual {
-	// 	test.Fail(actual, expectedBackupPath, t)
-	// }
-
-	// log.Println(f.Name())
-	// log.Println(fromdir)
-
-	// absPath, err := filepath.Abs(fromdir.Path)
-	// if err != nil {
-	// 	log.Println(err)
-	// } else {
-	// 	log.Println(absPath)
-	// }
 }
 
 func TestDetachRelativePath(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
-	basepath := env.DotfilesDir.AddTempDir("/bla1/bla2/")
+	// example
+	// dotfiles/d1/d2/file.txt
+	// detach(dotfiles/, dotfiles/d1/d2/file.txt)
+	// returns d1/d2/file.txt
+
+	somedir := env.DotfilesDir.AddTempDir("/dotfiles/")
+	basepath := somedir.AddTempDir("/bla1/bla2/")
 	f := basepath.AddTempFile()
 
 	p, err := detachRelativePath(f.Name(), basepath.Path)
@@ -110,7 +107,7 @@ func TestDetachRelativePath(t *testing.T) {
 	}
 
 	// Because result has leading slash
-	expected := filepath.Join("/", filepath.Base(p))
+	expected := "/" + filepath.Base(f.Name())
 
 	// Check filename
 	if p != expected {
@@ -125,12 +122,13 @@ func TestGetCheckAbsolutePathSame(t *testing.T) {
 	f := env.UserspaceDir.AddTempFile()
 
 	actual, err := getCheckAbsolutePath(f.Name())
-	expected := filepath.Join(f.Name())
 
 	// Check error
 	if err != nil {
 		test.Fail(err, "Should not fail here", t)
 	}
+
+	expected := filepath.Join(f.Name())
 
 	// Check path -- should return the same path
 	if actual != expected {
@@ -138,16 +136,16 @@ func TestGetCheckAbsolutePathSame(t *testing.T) {
 	}
 }
 
-func TestGetCheckAbsolutePathDifferent(t *testing.T) {
+func TestGetCheckAbsolutePathNotExists(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
 	f := "myrandomfile"
 
-	_, err := getCheckAbsolutePath(f)
+	f, err := getCheckAbsolutePath(f)
 
 	if err == nil {
-		test.Fail(err, "Should fail here as file not found", t)
+		test.Fail(err, "Should fail here as file does not exist.", t)
 	}
 }
 
@@ -159,6 +157,6 @@ func TestCheckIfFileExists(t *testing.T) {
 
 	err := checkIfFileExists(file.Name())
 	if err != nil {
-		test.Fail(err, "Should exist here", t)
+		test.Fail(err, "Should not fail as file exists.", t)
 	}
 }
