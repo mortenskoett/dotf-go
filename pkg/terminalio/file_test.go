@@ -67,6 +67,14 @@ func TestCopyFile(t *testing.T) {
 	}
 }
 
+func TestChangeLeadingPathStrings(t *testing.T) {
+	result, err := changeLeadingPath("/dotfiles/dir1/dir2/file.txt", "/dotfiles", "/userdir")
+	fmt.Println(result)
+	if err != nil {
+		test.Fail(err, "Shouldn't fail here", t)
+	}
+}
+
 func TestChangeLeadingPath(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
@@ -86,6 +94,22 @@ func TestChangeLeadingPath(t *testing.T) {
 	expected := filepath.Join(todir.Path, subfolderPath, filepath.Base(fp.Name()))
 	if result != expected {
 		test.Fail(result, expected, t)
+	}
+}
+
+func TestDetachRelativePathWithStrings(t *testing.T) {
+	df := "/dotfiles/d1/d2/d3/"
+	bp := "/d1/d2/d3/"
+	fp := bp + "file.txt"
+
+	p, err := detachRelativePath(fp, df)
+
+	if err != nil {
+		test.Fail(err, "Shouldn't fail here", t)
+	}
+
+	if p != fp {
+		test.Fail(p, bp, t)
 	}
 }
 
@@ -116,13 +140,13 @@ func TestDetachRelativePath(t *testing.T) {
 	}
 }
 
-func TestGetCheckAbsolutePathSame(t *testing.T) {
+func TestGetAndValidateAbsolutePathSame(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
 	f := env.UserspaceDir.AddTempFile()
 
-	actual, err := getCheckAbsolutePath(f.Name())
+	actual, err := getAbsolutePath(f.Name())
 
 	// Check error
 	if err != nil {
@@ -137,13 +161,13 @@ func TestGetCheckAbsolutePathSame(t *testing.T) {
 	}
 }
 
-func TestGetCheckAbsolutePathNotExists(t *testing.T) {
+func TestGetAndValidateAbsolutePathNotExists(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
 	f := "myrandomfile"
 
-	f, err := getCheckAbsolutePath(f)
+	f, err := getAndValidateAbsolutePath(f)
 
 	if err == nil {
 		test.Fail(err, "Should fail here as file does not exist.", t)

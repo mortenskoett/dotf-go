@@ -19,7 +19,7 @@ func NewMoveCommand(programName, commandName string) *moveCommand {
 			commandName: commandName}}
 }
 
-func (c *moveCommand) Run(args *CliArguments) error {
+func (c *moveCommand) Run(args *CmdArguments) error {
 	if err := checkCmdArguments(args, c); err != nil {
 		return err
 	}

@@ -14,24 +14,26 @@ import (
 	"strings"
 )
 
-type Configuration struct {
+type DotfConfiguration struct {
 	RemoteURL         string
 	DotFilesDir       string
+	HomeDir           string
 	UpdateIntervalSec int
 }
 
 /* Creates an empty Configuration with default values. */
-func NewConfiguration() Configuration {
+func NewConfiguration() DotfConfiguration {
 
-	return Configuration{
+	return DotfConfiguration{
 		RemoteURL:         "N/A",
 		DotFilesDir:       "N/A",
+		HomeDir:           "~/",
 		UpdateIntervalSec: 120,
 	}
 }
 
 /* ReadFromFile parses and returns a representation of a *.toml file found at 'absPath'. */
-func ReadFromFile(absPath string) (Configuration, error) {
+func ReadFromFile(absPath string) (DotfConfiguration, error) {
 	config := NewConfiguration()
 
 	_, err := os.Stat(absPath)
@@ -89,13 +91,15 @@ func parseTOMLFile(file *os.File) (map[string]string, error) {
 	return parameterToValue, nil
 }
 
-func buildConfiguration(config *Configuration, paramsToValues *map[string]string) error {
+func buildConfiguration(config *DotfConfiguration, paramsToValues *map[string]string) error {
 	for k, v := range *paramsToValues {
 		switch k {
 		case "RemoteURL":
 			config.RemoteURL = v
 		case "DotFilesDir":
 			config.DotFilesDir = v
+		case "HomeDir":
+			config.HomeDir = v
 		case "UpdateIntervalSec":
 			if v_num, err := strconv.Atoi(v); err == nil {
 				config.UpdateIntervalSec = v_num

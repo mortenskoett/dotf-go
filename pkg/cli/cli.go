@@ -46,17 +46,17 @@ type Command interface {
 	Arguments() *[]Arg            // Needed arguments to use the command.
 	Usage() string                // How to use the command.
 	Description() string          // Detailed description.
-	Run(args *CliArguments) error // Attempt to runs the Command using the given args
+	Run(args *CmdArguments) error // Attempt to runs the Command using the given args
 }
 
 // Parsed CLI arguments
-type CliArguments struct {
+type CmdArguments struct {
 	PosArgs []string // Positional args in order by input starting with 0
 	Flags   map[string]string
 }
 
-func NewCliArguments() *CliArguments {
-	return &CliArguments{
+func NewCliArguments() *CmdArguments {
+	return &CmdArguments{
 		Flags: make(map[string]string),
 	}
 }
@@ -85,7 +85,7 @@ func parseToCommandFunc(cmdName string) (CommandFunc, error) {
 }
 
 // Validates the given Arguments against the Command and errors if not valid
-func checkCmdArguments(args *CliArguments, c Command) error {
+func checkCmdArguments(args *CmdArguments, c Command) error {
 	if _, ok := args.Flags["help"]; ok {
 		fmt.Println(GenerateUsage(c))
 		fmt.Print("Description:")

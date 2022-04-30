@@ -18,7 +18,7 @@ func NewAddCommand(programName, commandName string) *addCommand {
 			commandName: commandName}}
 }
 
-func (c *addCommand) Run(args *CliArguments) error {
+func (c *addCommand) Run(args *CmdArguments) error {
 	if err := checkCmdArguments(args, c); err != nil {
 		return err
 	}
@@ -34,13 +34,6 @@ func (c *addCommand) Run(args *CliArguments) error {
 
 	// TODO: Implement this function
 
-	// construct path inside dotfiles dir
-	// check if file already exists and exit early
-	// create path in dotfiles dir
-	// make backup of userspace files
-	// copy files to dotfiles dir
-	// remove files from userspace
-	// create symlink in userspace
 	err := terminalio.AddFileToDotfiles("", "")
 	if err != nil {
 		return err

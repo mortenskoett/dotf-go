@@ -14,7 +14,7 @@ type ValueFlags []string
 var valueflags ValueFlags = []string{"dummy"}
 
 // Parses the CLI input argument string. Expects complete input argument line.
-func ParseCliArguments(osargs []string) (string, string, *cli.CliArguments, error) {
+func ParseCliArguments(osargs []string) (string, string, *cli.CmdArguments, error) {
 	execName := osargs[0]
 
 	args := osargs[1:]
@@ -40,7 +40,7 @@ func ParseCliArguments(osargs []string) (string, string, *cli.CliArguments, erro
 }
 
 // Parses cli command and arguments without judgement on argument fit for Command.
-func parse(osargs []string) (string, *cli.CliArguments, error) {
+func parse(osargs []string) (string, *cli.CmdArguments, error) {
 	cliarg := cli.NewCliArguments()
 
 	cmdName := osargs[0]
@@ -54,7 +54,7 @@ func parse(osargs []string) (string, *cli.CliArguments, error) {
 
 // Parses only positional args and stops at the first flag e.g. '--flag'. The args are added to the
 // supplied cli.Arguments.
-func parsePositionalInto(args []string, cliarg *cli.CliArguments) {
+func parsePositionalInto(args []string, cliarg *cli.CmdArguments) {
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--") {
 			break
@@ -66,7 +66,7 @@ func parsePositionalInto(args []string, cliarg *cli.CliArguments) {
 
 // Parses only flags but both boolean and value holding flags The flags are added to the supplied
 // cli.Arguments.
-func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CliArguments) {
+func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CmdArguments) {
 	var currentflag string
 
 	for _, arg := range args {

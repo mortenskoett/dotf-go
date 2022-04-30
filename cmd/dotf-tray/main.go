@@ -18,7 +18,7 @@ import (
 var (
 	shouldAutoUpdate bool                       = false
 	lastUpdated      string                     = "N/A"
-	latestReadConf   config.Configuration       = config.NewConfiguration()        // Configuration currently loaded.
+	latestReadConf   config.DotfConfiguration   = config.NewConfiguration()        // Configuration currently loaded.
 	updateWorker     concurrency.IntervalWorker = *concurrency.NewIntervalWorker() // Worker handles background updates.
 )
 
@@ -38,7 +38,7 @@ func main() {
 	systray.Run(onReady, onExit)
 }
 
-func readConfiguration() config.Configuration {
+func readConfiguration() config.DotfConfiguration {
 	conf, err := config.ReadFromFile(resource.ProjectRoot + "/config.toml")
 	if err != nil {
 		log.Fatal(err)
