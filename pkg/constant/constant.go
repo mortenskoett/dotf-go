@@ -10,5 +10,5 @@ const Logo = `    _       _     __         __ _
 
 // Other global constants
 const (
-	ProgramName string = "dotf-cli"
+// None
 )

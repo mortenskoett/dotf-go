@@ -14,49 +14,47 @@ type ValueFlags []string
 var valueflags ValueFlags = []string{"dummy"}
 
 // Parses the CLI input argument string. Expects complete input argument line.
-func HandleArguments(osargs []string) (cli.Command, *cli.Arguments, error) {
-	args := osargs[1:] // Ignore executable name
+func ParseCliArguments(osargs []string) (string, string, *cli.CliArguments, error) {
+	execName := osargs[0]
+
+	args := osargs[1:]
 
 	if len(args) < 1 {
-		printBasicHelp()
-		return nil, nil, &ParseNoArgumentError{"no arguments given"}
+		printBasicHelp(execName)
+		return "", "", nil, &ParseNoArgumentError{"no arguments given"}
 	}
 
 	cmdName := args[0]
 	count := len(args)
 	if cmdName == "" || cmdName == "help" || cmdName == "--help" || count == 0 {
-		printFullHelp()
-		return nil, nil, &ParseHelpFlagError{"showing full help."}
+		printFullHelp(execName)
+		return "", "", nil, &ParseHelpFlagError{"showing full help."}
 	}
 
-	cmd, cliargs, err := parse(args)
+	cmdName, cliargs, err := parse(args)
 	if err != nil {
-		return nil, nil, &ParseError{fmt.Sprintf("failed to parse input: %s", err)}
+		return "", "", nil, &ParseError{fmt.Sprintf("failed to parse input: %s", err)}
 	}
 
-	return cmd, cliargs, nil
-
+	return execName, cmdName, cliargs, nil
 }
 
-// Parses cli command and arguments without judgement on argument fit for Command
-func parse(osargs []string) (cli.Command, *cli.Arguments, error) {
+// Parses cli command and arguments without judgement on argument fit for Command.
+func parse(osargs []string) (string, *cli.CliArguments, error) {
 	cliarg := cli.NewCliArguments()
 
 	cmdName := osargs[0]
-	cmd, err := cli.ParseCommandName(cmdName)
-	if err != nil {
-		return nil, nil, &ParseInvalidArgumentError{fmt.Sprintf("try --help for available commands: %s", err)}
-	}
-
 	args := osargs[1:]
-	parsePositional(args, cliarg)
-	parseFlags(args, valueflags, cliarg)
 
-	return cmd, cliarg, nil
+	parsePositionalInto(args, cliarg)
+	parseFlagsInto(args, valueflags, cliarg)
+
+	return cmdName, cliarg, nil
 }
 
-// Parses only positional args and stops at the first flag e.g. '--flag'
-func parsePositional(args []string, cliarg *cli.Arguments) {
+// Parses only positional args and stops at the first flag e.g. '--flag'. The args are added to the
+// supplied cli.Arguments.
+func parsePositionalInto(args []string, cliarg *cli.CliArguments) {
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--") {
 			break
@@ -66,12 +64,12 @@ func parsePositional(args []string, cliarg *cli.Arguments) {
 	}
 }
 
-// Parses only flags but both boolean and value holding flags
-func parseFlags(args []string, valueflags ValueFlags, cliarg *cli.Arguments) {
+// Parses only flags but both boolean and value holding flags The flags are added to the supplied
+// cli.Arguments.
+func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CliArguments) {
 	var currentflag string
 
 	for _, arg := range args {
-
 		// previous arg was a value containing flag
 		if currentflag != "" {
 			cliarg.Flags[currentflag] = arg

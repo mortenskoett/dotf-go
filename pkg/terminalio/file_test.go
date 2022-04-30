@@ -10,7 +10,7 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-func TestAddFileCreateSymlinkNotFoundError(t *testing.T) {
+func TestAddFileToDotfilesNotFoundError(t *testing.T) {
 	userspacefile := "adsf"
 	dotfilesdir := "adsf"
 
@@ -72,9 +72,10 @@ func TestChangeLeadingPath(t *testing.T) {
 	defer env.Cleanup()
 
 	fromdir := env.DotfilesDir
-	subfpath := "/bla1/bla2/"
-	subfolders := fromdir.AddTempDir(subfpath)
+	subfolderPath := "/bla1/bla2/"
+	subfolders := fromdir.AddTempDir(subfolderPath)
 	fp := subfolders.AddTempFile()
+
 	todir := env.UserspaceDir
 
 	result, err := changeLeadingPath(fp.Name(), fromdir.Path, todir.Path)
@@ -82,7 +83,7 @@ func TestChangeLeadingPath(t *testing.T) {
 		test.Fail(result, err, t)
 	}
 
-	expected := filepath.Join(todir.Path, subfpath, filepath.Base(fp.Name()))
+	expected := filepath.Join(todir.Path, subfolderPath, filepath.Base(fp.Name()))
 	if result != expected {
 		test.Fail(result, expected, t)
 	}

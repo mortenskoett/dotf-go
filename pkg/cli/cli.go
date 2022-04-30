@@ -9,68 +9,83 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/mortenskoett/dotf-go/pkg/constant"
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
 // ** ALL PROGRAM COMMANDS AVAILABLE BELOW ** //
 
+// CommandFunc defines a function that given the name of the executable (most likely dotf-go) will
+// return a valid Command.
+type CommandFunc = func(execName string) Command
+
 // Contains the CLI Commands that are currently implemented in dotf. The commands are returned as
 // functions so the name of the application can be given as param. The program name is used for
 // pretty-printing.
-var commands = map[string]Command{
-	"add":  NewAddCommand(constant.ProgramName, "add"),
-	"move": NewMoveCommand(constant.ProgramName, "move"),
+var commands = map[string]CommandFunc{
+	"add":  func(name string) Command { return NewAddCommand(name, "add") },
+	"move": func(name string) Command { return NewMoveCommand(name, "move") },
 }
 
+// Contains basic program info for each Command
 type CommandBase struct {
 	programName string
 	commandName string
 }
 
+// Defines a required argument for a specific Command
 type Arg struct {
 	Name        string
 	Description string
 }
 
+// Command is a definition of a main operation taking a number of cli args to work on
 type Command interface {
-	ProgName() string          // Name of program used for pretty-printing.
-	CmdName() string           // Name of command.
-	Overview() string          // Oneliner description of the command.
-	Arguments() *[]Arg         // Needed arguments to use the command.
-	Usage() string             // How to use the command.
-	Description() string       // Detailed description.
-	Run(args *Arguments) error // Attempt to runs the Command using the given args
+	ProgName() string             // Name of program used for pretty-printing.
+	CmdName() string              // Name of command.
+	Overview() string             // Oneliner description of the command.
+	Arguments() *[]Arg            // Needed arguments to use the command.
+	Usage() string                // How to use the command.
+	Description() string          // Detailed description.
+	Run(args *CliArguments) error // Attempt to runs the Command using the given args
 }
 
-// Parsed CLI arguments.
-type Arguments struct {
+// Parsed CLI arguments
+type CliArguments struct {
 	PosArgs []string // Positional args in order by input starting with 0
 	Flags   map[string]string
 }
 
-func NewCliArguments() *Arguments {
-	return &Arguments{
+func NewCliArguments() *CliArguments {
+	return &CliArguments{
 		Flags: make(map[string]string),
 	}
 }
 
-// Get copy of all Commands
-func GetAllCommands() map[string]Command {
+// Get copy of all available CommandFuncs
+func GetCommandFuncs() map[string]CommandFunc {
 	return commands
 }
 
-// Creates a Command from command name
-func ParseCommandName(cmdName string) (Command, error) {
-	cmd, ok := commands[cmdName]
+// Creates a Command or errors
+func CreateCommand(programName, cmdName string) (Command, error) {
+	cmdfunc, err := parseToCommandFunc(cmdName)
+	if err != nil {
+		return nil, &CmdUnknownCommand{fmt.Sprintf("try --help for available commands: %s", err)}
+	}
+	return cmdfunc(programName), nil
+}
+
+// Parses a Command name to a CommandFunc or errors
+func parseToCommandFunc(cmdName string) (CommandFunc, error) {
+	cmdfunc, ok := commands[cmdName]
 	if ok {
-		return cmd, nil
+		return cmdfunc, nil
 	}
 	return nil, &CmdArgumentError{fmt.Sprintf("%s command does not exist.", cmdName)}
 }
 
 // Validates the given Arguments against the Command and errors if not valid
-func checkCmdArguments(args *Arguments, c Command) error {
+func checkCmdArguments(args *CliArguments, c Command) error {
 	if _, ok := args.Flags["help"]; ok {
 		fmt.Println(GenerateUsage(c))
 		fmt.Print("Description:")

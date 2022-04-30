@@ -19,7 +19,7 @@ func NewMoveCommand(programName, commandName string) *moveCommand {
 			commandName: commandName}}
 }
 
-func (c *moveCommand) Run(args *Arguments) error {
+func (c *moveCommand) Run(args *CliArguments) error {
 	if err := checkCmdArguments(args, c); err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (c *moveCommand) Overview() string {
 
 func (c *moveCommand) Arguments() *[]Arg {
 	return &[]Arg{
-		{Name: "dotfiles-dir", Description: "Path specifies re-located dotfiles directory."},
+		{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
 		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 	}
 }

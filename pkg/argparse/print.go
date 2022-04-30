@@ -11,28 +11,28 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
-func printBasicHelp() {
-	printHeader()
-	printUsage()
+func printBasicHelp(execName string) {
+	printHeader(execName)
+	printUsage(execName)
 }
 
-func printFullHelp() {
-	printHeader()
+func printFullHelp(execName string) {
+	printHeader(execName)
 	fmt.Println(`
 Details:
 	- User space describes where the symlinks are placed pointing into the dotfiles directory.
 	- The dotfiles directory is where the actual configuration files are stored.
 	- The folder structure in the dotfiles directory will match that of the user space.`)
-	printUsage()
+	printUsage(execName)
 }
 
-func printHeader() {
+func printHeader(execName string) {
 	fmt.Println(logger.Color(constant.Logo, logger.Blue))
 	fmt.Println("Dotfiles handler in Go.")
 }
 
-func printUsage() {
-	fmt.Println("\nUsage:", constant.ProgramName, "<command> <args> [--help]")
+func printUsage(execName string) {
+	fmt.Println("\nUsage:", execName, "<command> <args> [--help]")
 	fmt.Println("")
 
 	w := new(tabwriter.Writer)
@@ -41,7 +41,8 @@ func printUsage() {
 	fmt.Println("Commands:")
 
 	// Print commands
-	for _, c := range cli.GetAllCommands() {
+	for _, cmdFunc := range cli.GetCommandFuncs() {
+		c := cmdFunc(execName)
 		buf := &bytes.Buffer{}
 		for _, arg := range *c.Arguments() {
 			buf.WriteString("<")

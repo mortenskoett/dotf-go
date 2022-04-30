@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// Parse input to command
-	cmd, cliargs, err := argparse.HandleArguments(os.Args)
+	execName, cmdName, cliargs, err := argparse.ParseCliArguments(os.Args)
 	if err != nil {
 		switch err.(type) {
 		case *argparse.ParseHelpFlagError:
@@ -27,7 +27,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Run command
+	// Create command
+	cmd, err := cli.CreateCommand(execName, cmdName)
+	if err != nil {
+		switch err.(type) {
+		case *cli.CmdUnknownCommand:
+			logger.LogError(err)
+		default:
+			logger.LogError("unknown parser error:", err)
+		}
+		os.Exit(1)
+	}
+
+	// If no errors run command
 	err = cmd.Run(cliargs)
 	if err != nil {
 		switch err.(type) {

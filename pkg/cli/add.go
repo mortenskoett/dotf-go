@@ -18,7 +18,7 @@ func NewAddCommand(programName, commandName string) *addCommand {
 			commandName: commandName}}
 }
 
-func (c *addCommand) Run(args *Arguments) error {
+func (c *addCommand) Run(args *CliArguments) error {
 	if err := checkCmdArguments(args, c); err != nil {
 		return err
 	}
@@ -33,8 +33,11 @@ func (c *addCommand) Run(args *Arguments) error {
 	logger.LogWarn("filepath:", filepath)
 
 	// TODO: Implement this function
-	// **OK** 	// ability to make backup of userspace files
+
+	// construct path inside dotfiles dir
+	// check if file already exists and exit early
 	// create path in dotfiles dir
+	// make backup of userspace files
 	// copy files to dotfiles dir
 	// remove files from userspace
 	// create symlink in userspace
