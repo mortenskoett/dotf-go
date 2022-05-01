@@ -10,12 +10,58 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
+func TestAddFileToDotfiles(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	dfilesdir := env.DotfilesDir
+	userspacedir := env.UserspaceDir
+
+	userdirpath := "dir1/dir2"
+	dir := userspacedir.AddTempDir(userdirpath)
+
+	userspaceFile := dir.AddTempFile()
+
+	err := AddFileToDotfiles(userspaceFile.Name(), userspacedir.Path, dfilesdir.Path)
+	if err != nil {
+		test.Fail(err, "No error should have happened", t)
+	}
+
+	expectedUserspaceFile := filepath.Join(dfilesdir.Path, userdirpath, filepath.Base(userspaceFile.Name()))
+	expectedBackupFile := filepath.Join("/tmp/dotf-go/backups", userspaceFile.Name())
+
+	// check if new file in dotfiles exist
+	if exists, _ := checkIfFileExists(expectedUserspaceFile); !exists {
+		test.Fail(exists, fmt.Sprintf("File in dotfiles dir should exist at %s", expectedUserspaceFile), t)
+	}
+
+	// check if new file at userspace location exists
+	if exists, err := checkIfFileExists(userspaceFile.Name()); !exists {
+		test.Fail(exists, fmt.Sprintf(
+			"File in userspace dir should still exist at %s: %v", userspaceFile.Name(), err), t)
+	}
+
+	// check if new file at userspace location is symlink
+	if ok := isFileSymlink(userspaceFile.Name()); !ok {
+		test.Fail(ok, fmt.Sprintf(
+			"File in userspace dir should be a symlink at %s: %v", userspaceFile.Name(), err), t)
+	}
+
+	// check if backup exists
+	if exists, err := checkIfFileExists(expectedBackupFile); !exists {
+		test.Fail(exists, fmt.Sprintf(
+			"File from userspace should be backed up to %s: %v", expectedBackupFile, err), t)
+	}
+
+}
+
 func TestAddFileToDotfilesNotFoundError(t *testing.T) {
+	file := "asdf"
 	userspacefile := "adsf"
 	dotfilesdir := "adsf"
 
 	expected := &NotFoundError{}
-	actual := AddFileToDotfiles(userspacefile, dotfilesdir)
+	actual := AddFileToDotfiles(file, userspacefile, dotfilesdir)
 
 	if !errors.As(actual, &expected) {
 		test.Fail(actual, expected, t)
@@ -68,10 +114,18 @@ func TestCopyFile(t *testing.T) {
 }
 
 func TestChangeLeadingPathStrings(t *testing.T) {
-	result, err := changeLeadingPath("/dotfiles/dir1/dir2/file.txt", "/dotfiles", "/userdir")
-	fmt.Println(result)
+	file := "/dotfiles/dir1/dir2/file.txt"
+	from := "/userdir"
+	to := "/dotfiles"
+
+	result, err := changeLeadingPath(file, from, to)
 	if err != nil {
 		test.Fail(err, "Shouldn't fail here", t)
+	}
+
+	expected := filepath.Join(to, file)
+	if result != expected {
+		test.Fail(result, expected, t)
 	}
 }
 
@@ -168,7 +222,6 @@ func TestGetAndValidateAbsolutePathNotExists(t *testing.T) {
 	f := "myrandomfile"
 
 	f, err := getAndValidateAbsolutePath(f)
-
 	if err == nil {
 		test.Fail(err, "Should fail here as file does not exist.", t)
 	}
@@ -180,8 +233,7 @@ func TestCheckIfFileExists(t *testing.T) {
 
 	file := env.UserspaceDir.AddTempFile()
 
-	err := checkIfFileExists(file.Name())
-	if err != nil {
-		test.Fail(err, "Should not fail as file exists.", t)
+	if exists, _ := checkIfFileExists(file.Name()); !exists {
+		test.Fail(exists, "Should not fail as file exists.", t)
 	}
 }

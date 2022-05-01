@@ -34,7 +34,7 @@ func main() {
 		case *cli.CmdUnknownCommand:
 			logger.LogError(err)
 		default:
-			logger.LogError("unknown parser error:", err)
+			logger.LogError("unknown command error:", err)
 		}
 		os.Exit(1)
 	}

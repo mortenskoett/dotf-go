@@ -4,16 +4,23 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
-// Copies the file found at 'userspaceFile' to 'dotfilesDir'.
-func AddFileToDotfiles(userspaceFile, dotfilesDir string) error {
-	absUserSpaceFile, err := getAndValidateAbsolutePath(userspaceFile)
+// Copies file in userspace to dotfiles dir using same relative path between 'homeDir' and
+// 'dotfilesDir'. The file is backed up first.
+func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
+	absUserspaceFile, err := getAndValidateAbsolutePath(userspaceFile)
+	if err != nil {
+		return err
+	}
+
+	absHomedir, err := getAndValidateAbsolutePath(homeDir)
 	if err != nil {
 		return err
 	}
@@ -23,9 +30,8 @@ func AddFileToDotfiles(userspaceFile, dotfilesDir string) error {
 		return err
 	}
 
-	log.Println("user", absUserSpaceFile, "dotf", absDotfilesDir)
-
 	// TODO: Implement this function
+
 	// construct path relative to inside dotfiles dir
 	// check if file already exists and exit early
 	// create path in dotfiles dir
@@ -34,11 +40,52 @@ func AddFileToDotfiles(userspaceFile, dotfilesDir string) error {
 	// remove files from userspace
 	// create symlink in userspace
 
-	// _, err = backupFile(absUserSpaceFile)
-	// if err != nil {
-	// 	return err
-	// }
+	// Create path inside dotfiles dir
+	absNewFile, err := changeLeadingPath(absUserspaceFile, absHomedir, absDotfilesDir)
+	if err != nil {
+		return err
+	}
 
+	// Assert a file is not already in dotfiles dir at location
+	exists, err := checkIfFileExists(absNewFile)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return &FileAlreadyExistsError{absNewFile}
+	}
+
+	// Backup file before copying it
+	_, err = backupFile(userspaceFile)
+	if err != nil {
+		return err
+	}
+
+	// Copy file to dotfiles
+	_, err = copyFile(userspaceFile, absNewFile)
+	if err != nil {
+		return err
+	}
+
+	// Remove file in userspace
+	if err := deleteFile(absUserspaceFile); err != nil {
+		return err
+	}
+
+	// Create symlink from userspace to the newly created file in dotfiles
+	if err := createSymlink(absNewFile, absUserspaceFile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func deleteFile(file string) error {
+	err := os.Remove(file)
+	if err != nil {
+		return fmt.Errorf("failed to delete file: %s: %w", file, err)
+	}
+	logger.Log("File successfully deleted at:", file)
 	return nil
 }
 
@@ -52,14 +99,15 @@ func backupFile(file string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	logger.Log("File successfully backed up from", file, "->", path)
 	return path, nil
 }
 
 // Copies src to dst without modifying src. Both src and dst should be actual file paths, not
 // directories. Returns path to dst. The function uses absolute paths for both src and dst.
 func copyFile(src, dst string) (string, error) {
-	srcAbs, err := filepath.Abs(src)
-	dstAbs, err := filepath.Abs(dst)
+	srcAbs, err := getAbsolutePath(src)
+	dstAbs, err := getAbsolutePath(dst)
 
 	in, err := os.Open(srcAbs)
 	if err != nil {
@@ -138,9 +186,8 @@ func getAndValidateAbsolutePath(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = checkIfFileExists(path)
-	if err != nil {
-		return "", err
+	if exists, _ := checkIfFileExists(path); !exists {
+		return "", &NotFoundError{path}
 	}
 
 	return path, nil
@@ -161,11 +208,15 @@ func getAbsolutePath(path string) (string, error) {
 }
 
 // Checks if file exists by trying to open it. The given path should be absolute or relative to
-// dotf executable.
-func checkIfFileExists(absPath string) error {
+// dotf executable. An error is return ed if the file does not exist.
+func checkIfFileExists(absPath string) (bool, error) {
 	_, err := os.Open(absPath)
-	if errors.Is(err, os.ErrNotExist) {
-		return &NotFoundError{absPath}
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			// &NotFoundError{absPath}
+			return false, nil
+		}
+		return false, err
 	}
-	return nil
+	return true, nil
 }

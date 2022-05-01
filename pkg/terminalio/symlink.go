@@ -55,17 +55,32 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 func UpdateSymlink(pointTo string, file string) error {
 	// symlink info: https://stackoverflow.com/questions/37345844/how-to-overwrite-a-symlink-in-go
 
-	err := os.Remove(file)
-	if err != nil {
-		return fmt.Errorf("failed to unlink file: %s, %s, %+v", file, pointTo, err)
+	// err := os.Remove(file)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to unlink file: %s, %s, %+v", file, pointTo, err)
+	// }
+
+	// err = os.Symlink(pointTo, file)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to create new symlink: %s, %s, %+v", file, pointTo, err)
+	// }
+
+	if err := deleteFile(file); err != nil {
+		return err
 	}
 
-	err = os.Symlink(pointTo, file)
-	if err != nil {
-		return fmt.Errorf("failed to create new symlink: %s, %s, %+v", file, pointTo, err)
+	if err := createSymlink(pointTo, file); err != nil {
+		return err
 	}
+	return nil
+}
 
-	logger.LogSuccess("Updated:"+"%s -> %s.\n", file, pointTo)
+func createSymlink(from, to string) error {
+	err := os.Symlink(from, to)
+	if err != nil {
+		return fmt.Errorf("failed to create symlink from %s -> %s: %w", from, to, err)
+	}
+	logger.Log("Symlink successfully created from", from, "->", to)
 	return nil
 }
 

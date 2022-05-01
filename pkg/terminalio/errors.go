@@ -18,6 +18,14 @@ type NotFoundError struct {
 	path string
 }
 
+type FileAlreadyExistsError struct {
+	path string
+}
+
+func (e *FileAlreadyExistsError) Error() string {
+	return fmt.Sprintf("file or directory was already present at location: %s", e.path)
+}
+
 func (e *MergeFailError) Error() string {
 	return fmt.Sprintf("merge was unsuccessful and rolled back (aborted). Manual intervention required in '%s'", e.directory)
 }

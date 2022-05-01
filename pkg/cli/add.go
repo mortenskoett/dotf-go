@@ -34,7 +34,7 @@ func (c *addCommand) Run(args *CmdArguments) error {
 
 	// TODO: Implement this function
 
-	err := terminalio.AddFileToDotfiles("", "")
+	err := terminalio.AddFileToDotfiles("", "", "")
 	if err != nil {
 		return err
 	}
