@@ -54,8 +54,8 @@ func (c *moveCommand) Overview() string {
 	return "Iterates through configs in 'dotfiles-dir' and updates matching symlinks in 'userspace-dir'."
 }
 
-func (c *moveCommand) Arguments() *[]Arg {
-	return &[]Arg{
+func (c *moveCommand) Arguments() []Arg {
+	return []Arg{
 		{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
 		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 	}

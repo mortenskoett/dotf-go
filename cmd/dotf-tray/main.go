@@ -9,9 +9,20 @@ import (
 
 	"github.com/mortenskoett/dotf-go/pkg/concurrency"
 	"github.com/mortenskoett/dotf-go/pkg/config"
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 	"github.com/mortenskoett/dotf-go/pkg/resource"
 	"github.com/mortenskoett/dotf-go/pkg/systray"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
+)
+
+const logo = `    _       _     __         _		     _  _
+ __| | ___ | |_  / _|  ___  | |_  _ _  __ _ | || |
+/ _' |/ _ \|  _||  _| |___| |  _|| '_|/ _' | \_. |
+\__/_|\___/ \__||_|          \__||_|  \__/_| |__/
+`
+
+const (
+	programName string = "dotf-tray"
 )
 
 // State used by the event loop of the tray icon UI.
@@ -32,6 +43,8 @@ var (
 )
 
 func main() {
+	logger.LogWithColor(logger.Blue, logo)
+	logger.Log("A dotfiles updater tray service.\n")
 	log.SetPrefix("trayicon: ")
 	latestReadConf = readConfiguration()
 	updateWorker = *concurrency.NewIntervalWorkerParam(time.Minute*2, handleUpdateNowEvent)
@@ -49,12 +62,12 @@ func readConfiguration() config.DotfConfiguration {
 }
 
 func onExit() {
-	log.Println("dotf tray manager shutdown.")
+	logger.Log("Dotf tray manager shutdown")
 }
 
 // Main event loop.
 func onReady() {
-	log.Print("dotf tray manager starting up.")
+	logger.Log("Dotf tray manager starting up")
 	systray.SetTitle("Dotf Tray Manager")
 	systray.SetTemplateIcon(getDefaultIcon())
 	mLastUpdated.Disable()

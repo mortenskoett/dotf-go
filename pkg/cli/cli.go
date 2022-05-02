@@ -43,7 +43,7 @@ type Command interface {
 	ProgName() string             // Name of program used for pretty-printing.
 	CmdName() string              // Name of command.
 	Overview() string             // Oneliner description of the command.
-	Arguments() *[]Arg            // Needed arguments to use the command.
+	Arguments() []Arg             // Needed arguments to use the command.
 	Usage() string                // How to use the command.
 	Description() string          // Detailed description.
 	Run(args *CmdArguments) error // Attempt to runs the Command using the given args
@@ -61,9 +61,13 @@ func NewCliArguments() *CmdArguments {
 	}
 }
 
-// Get copy of all available CommandFuncs
-func GetCommandFuncs() map[string]CommandFunc {
-	return commands
+// Get copy of all available Commands.
+func GetAvailableCommands(programName string) []Command {
+	cmds := make([]Command, 0, len(commands))
+	for _, cmdf := range commands {
+		cmds = append(cmds, cmdf(programName))
+	}
+	return cmds
 }
 
 // Creates a Command or errors
@@ -93,10 +97,10 @@ func checkCmdArguments(args *CmdArguments, c Command) error {
 		return &CmdHelpFlagError{"help flag given"}
 	}
 
-	if len(args.PosArgs) != len(*c.Arguments()) {
+	if len(args.PosArgs) != len(c.Arguments()) {
 		fmt.Println(GenerateUsage(c))
 		return &CmdArgumentError{fmt.Sprintf(
-			"%d arguments given, but %d required. Try adding --help.", len(args.PosArgs), len(*c.Arguments()))}
+			"%d arguments given, but %d required. Try adding --help.", len(args.PosArgs), len(c.Arguments()))}
 	}
 
 	return nil
@@ -120,7 +124,7 @@ func GenerateUsage(c Command) string {
 	w := new(tabwriter.Writer)
 	w.Init(tabbuf, 0, 8, 8, ' ', 0)
 
-	for _, arg := range *c.Arguments() {
+	for _, arg := range c.Arguments() {
 		buf := &bytes.Buffer{}
 		buf.WriteString("<")
 		buf.WriteString(arg.Name)

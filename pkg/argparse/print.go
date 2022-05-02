@@ -7,32 +7,31 @@ import (
 	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/cli"
-	"github.com/mortenskoett/dotf-go/pkg/constant"
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
-func printBasicHelp(execName string) {
-	printHeader(execName)
-	printUsage(execName)
+func PrintBasicHelp(commands []cli.Command, programName, logo string) {
+	printHeader(logo)
+	printUsage(commands, programName)
 }
 
-func printFullHelp(execName string) {
-	printHeader(execName)
+func PrintFullHelp(commands []cli.Command, programName, logo string) {
+	printHeader(logo)
 	fmt.Println(`
 Details:
 	- User space describes where the symlinks are placed pointing into the dotfiles directory.
 	- The dotfiles directory is where the actual configuration files are stored.
 	- The folder structure in the dotfiles directory will match that of the user space.`)
-	printUsage(execName)
+	printUsage(commands, programName)
 }
 
-func printHeader(execName string) {
-	fmt.Println(logger.Color(constant.LogoCli, logger.Blue))
+func printHeader(logo string) {
+	fmt.Println(logger.Color(logo, logger.Blue))
 	fmt.Println("Dotfiles handler in Go.")
 }
 
-func printUsage(execName string) {
-	fmt.Println("\nUsage:", execName, "<command> <args> [--help]")
+func printUsage(commands []cli.Command, programName string) {
+	fmt.Println("\nUsage:", programName, "<command> <args> [--help]")
 	fmt.Println("")
 
 	w := new(tabwriter.Writer)
@@ -41,17 +40,16 @@ func printUsage(execName string) {
 	fmt.Println("Commands:")
 
 	// Print commands
-	for _, cmdFunc := range cli.GetCommandFuncs() {
-		c := cmdFunc(execName)
+	for _, cmd := range commands {
 		buf := &bytes.Buffer{}
-		for _, arg := range *c.Arguments() {
+		for _, arg := range cmd.Arguments() {
 			buf.WriteString("<")
 			buf.WriteString(arg.Name)
 			buf.WriteString(">")
 			buf.WriteString("  ")
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", c.CmdName(), buf.String(), c.Overview())
+		str := fmt.Sprintf("\t%s\t%s\t%s", cmd.CmdName(), buf.String(), cmd.Overview())
 		fmt.Fprintln(w, str)
 	}
 

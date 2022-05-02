@@ -14,29 +14,26 @@ type ValueFlags []string
 var valueflags ValueFlags = []string{"dummy"}
 
 // Parses the CLI input argument string. Expects complete input argument line.
-func ParseCliArguments(osargs []string) (string, string, *cli.CmdArguments, error) {
-	execName := osargs[0]
-
+func ParseCliArguments(osargs []string) (string, *cli.CmdArguments, error) {
+	// Ignore executable name
 	args := osargs[1:]
 
 	if len(args) < 1 {
-		printBasicHelp(execName)
-		return "", "", nil, &ParseNoArgumentError{"no arguments given"}
+		return "", nil, &ParseNoArgumentError{"no arguments given"}
 	}
 
 	cmdName := args[0]
 	count := len(args)
 	if cmdName == "" || cmdName == "help" || cmdName == "--help" || count == 0 {
-		printFullHelp(execName)
-		return "", "", nil, &ParseHelpFlagError{"showing full help."}
+		return "", nil, &ParseHelpFlagError{"showing full help."}
 	}
 
 	cmdName, cliargs, err := parse(args)
 	if err != nil {
-		return "", "", nil, &ParseError{fmt.Sprintf("failed to parse input: %s", err)}
+		return "", nil, &ParseError{fmt.Sprintf("failed to parse input: %s", err)}
 	}
 
-	return execName, cmdName, cliargs, nil
+	return cmdName, cliargs, nil
 }
 
 // Parses cli command and arguments without judgement on argument fit for Command.

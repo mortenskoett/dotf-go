@@ -50,8 +50,8 @@ func (c *addCommand) Overview() string {
 	return "Adds a file or dir from userspace to dotfiles by replacing it with a symlink and copying contents."
 }
 
-func (c *addCommand) Arguments() *[]Arg {
-	return &[]Arg{
+func (c *addCommand) Arguments() []Arg {
+	return []Arg{
 		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
 	}
 }

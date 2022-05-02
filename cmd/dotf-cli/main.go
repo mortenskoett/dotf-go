@@ -8,14 +8,26 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
+const logo = `    _       _     __             _  _
+ __| | ___ | |_  / _|  ___   __ | |(_)
+/ _' |/ _ \|  _||  _| |___| / _|| || |
+\__/_|\___/ \__||_|         \__||_||_|
+`
+
+const (
+	programName string = "dotf-cli"
+)
+
 func main() {
 	// Parse input to command
-	execName, cmdName, cliargs, err := argparse.ParseCliArguments(os.Args)
+	cmdName, cliargs, err := argparse.ParseCliArguments(os.Args)
 	if err != nil {
 		switch err.(type) {
 		case *argparse.ParseHelpFlagError:
+			argparse.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo)
 			logger.LogSuccess(err)
 		case *argparse.ParseNoArgumentError:
+			argparse.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo)
 			logger.LogWarn(err)
 		case *argparse.ParseInvalidArgumentError:
 			logger.LogWarn(err)
@@ -28,7 +40,7 @@ func main() {
 	}
 
 	// Create command
-	cmd, err := cli.CreateCommand(execName, cmdName)
+	cmd, err := cli.CreateCommand(programName, cmdName)
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdUnknownCommand:

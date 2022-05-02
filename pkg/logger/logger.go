@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	// programprefix string = constant.ProgramName + ": "
 	warn  string = "warn: "
 	fatal string = "fatal: "
 	error string = "error: "
@@ -34,6 +33,10 @@ func LogError(str ...interface{}) {
 	logWithColor(Red, error, str...)
 }
 
+func LogWithColor(color TerminalColor, str ...string) {
+	log.Println(ColorMultiple(color, str...))
+}
+
 // Logs and exits program
 func LogFatal(str ...interface{}) {
 	log.SetPrefix(Color(fatal, Red))
@@ -43,5 +46,4 @@ func LogFatal(str ...interface{}) {
 func logWithColor(color TerminalColor, prefix string, str ...interface{}) {
 	log.SetPrefix(Color(prefix, color))
 	log.Println(str...)
-	// log.SetPrefix(programprefix)
 }

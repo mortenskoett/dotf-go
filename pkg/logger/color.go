@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"strings"
 )
 
 type TerminalColor int
@@ -26,6 +27,16 @@ const (
 // interpreted in the terminal as color. The color is reset afterwards.
 func Color(text string, color TerminalColor) string {
 	return colorCode(color) + text + string(colorReset)
+}
+
+// Colors a slice of strings and returns a single string with each string separated by space.
+func ColorMultiple(color TerminalColor, text ...string) string {
+	var sb strings.Builder
+	for _, s := range text {
+		sb.WriteString(s)
+		sb.WriteString(" ")
+	}
+	return Color(sb.String(), color)
 }
 
 func colorCode(code TerminalColor) string {
