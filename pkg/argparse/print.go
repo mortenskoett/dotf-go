@@ -27,7 +27,7 @@ Details:
 }
 
 func printHeader(execName string) {
-	fmt.Println(logger.Color(constant.Logo, logger.Blue))
+	fmt.Println(logger.Color(constant.LogoCli, logger.Blue))
 	fmt.Println("Dotfiles handler in Go.")
 }
 
