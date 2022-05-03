@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 
+	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
@@ -18,7 +19,7 @@ func NewAddCommand(programName, commandName string) *addCommand {
 			commandName: commandName}}
 }
 
-func (c *addCommand) Run(args *CliArguments) error {
+func (c *addCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
 	if err := checkCliArguments(args, c); err != nil {
 		return err
 	}
@@ -31,6 +32,8 @@ func (c *addCommand) Run(args *CliArguments) error {
 
 	filepath := args.PosArgs[0]
 	logger.LogWarn("filepath:", filepath)
+
+	logger.Log(conf)
 
 	// TODO: Implement this function
 

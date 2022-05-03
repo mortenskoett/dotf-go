@@ -20,7 +20,7 @@ const (
 
 func main() {
 	// Parse input to command
-	cliargs, _, err := argparse.Parse(os.Args)
+	cliargs, config, err := argparse.Parse(os.Args)
 	if err != nil {
 		switch err.(type) {
 		case *argparse.ParseHelpFlagError:
@@ -31,6 +31,8 @@ func main() {
 			logger.LogWarn(err)
 		case *argparse.ParseInvalidArgumentError:
 			logger.LogWarn(err)
+		case *argparse.ParseConfigurationError:
+			logger.LogError(err)
 		case *argparse.ParseError:
 			logger.LogError(err)
 		default:
@@ -52,7 +54,7 @@ func main() {
 	}
 
 	// If no errors then run command
-	err = cmd.Run(cliargs)
+	err = cmd.Run(cliargs, config)
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdHelpFlagError:

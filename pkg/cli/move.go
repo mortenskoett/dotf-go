@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 
+	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
@@ -19,7 +20,7 @@ func NewMoveCommand(programName, commandName string) *moveCommand {
 			commandName: commandName}}
 }
 
-func (c *moveCommand) Run(args *CliArguments) error {
+func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
 	if err := checkCliArguments(args, c); err != nil {
 		return err
 	}

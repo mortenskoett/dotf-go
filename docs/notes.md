@@ -3,6 +3,9 @@
 
 # Tue May  3 09:30:50 PM CEST 2022
 Further thougths of config file reading and default settings.
+A need to refactor lib functions is arising:
+	- separate some of the pkg libs into sub modules e.g. terminalio
+	- make commands use the lib functions themselves in order to be able to reuse the lib code
 
 # Sun Apr 17 09:06:31 AM CEST 2022
 Reading config:

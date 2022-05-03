@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logger"
 )
 
@@ -40,13 +41,14 @@ type Arg struct {
 
 // Command is a definition of a main operation taking a number of cli args to work on
 type Command interface {
-	ProgName() string             // Name of program used for pretty-printing.
-	CmdName() string              // Name of command.
-	Overview() string             // Oneliner description of the command.
-	Arguments() []Arg             // Needed arguments to use the command.
-	Usage() string                // How to use the command.
-	Description() string          // Detailed description.
-	Run(args *CliArguments) error // Attempt to runs the Command using the given args
+	ProgName() string    // Name of program used for pretty-printing.
+	CmdName() string     // Name of command.
+	Overview() string    // Oneliner description of the command.
+	Arguments() []Arg    // Needed arguments to use the command.
+	Usage() string       // How to use the command.
+	Description() string // Detailed description.
+	Run(args *CliArguments,
+		conf *config.DotfConfiguration) error // Attempt to run the Command using the given args and config
 }
 
 // Parsed CLI arguments
