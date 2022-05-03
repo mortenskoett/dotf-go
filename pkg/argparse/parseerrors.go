@@ -18,6 +18,14 @@ type ParseInvalidArgumentError struct {
 	message string
 }
 
+type ParseConfigurationError struct {
+	message string
+}
+
+func (e *ParseConfigurationError) Error() string {
+	return fmt.Sprintf(e.message)
+}
+
 func (e *ParseHelpFlagError) Error() string {
 	return fmt.Sprintf(e.message)
 }

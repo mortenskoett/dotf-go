@@ -16,7 +16,7 @@ import (
 
 type DotfConfiguration struct {
 	RemoteURL         string
-	DotFilesDir       string
+	DotfilesDir       string
 	HomeDir           string
 	UpdateIntervalSec int
 }
@@ -26,23 +26,30 @@ func NewConfiguration() DotfConfiguration {
 
 	return DotfConfiguration{
 		RemoteURL:         "N/A",
-		DotFilesDir:       "N/A",
+		DotfilesDir:       "N/A",
 		HomeDir:           "~/",
 		UpdateIntervalSec: 120,
 	}
 }
 
-/* ReadFromFile parses and returns a representation of a *.toml file found at 'absPath'. */
-func ReadFromFile(absPath string) (DotfConfiguration, error) {
+/*
+* Config format:
+* key0 = value0
+* key1 = value1
+* # is a comment
+ */
+
+/* ReadFromFile parses and returns a representation of a config file found at 'absPath'. */
+func ReadFromFile(path string) (DotfConfiguration, error) {
 	config := NewConfiguration()
 
-	_, err := os.Stat(absPath)
+	_, err := os.Stat(path)
 	if err != nil {
-		fmt.Println("configuration missing at", absPath)
+		fmt.Println("configuration missing at", path)
 		return config, err
 	}
 
-	file, err := os.Open(absPath)
+	file, err := os.Open(path)
 	if err != nil {
 		return config, err
 	}
@@ -97,17 +104,17 @@ func buildConfiguration(config *DotfConfiguration, paramsToValues *map[string]st
 		case "RemoteURL":
 			config.RemoteURL = v
 		case "DotFilesDir":
-			config.DotFilesDir = v
+			config.DotfilesDir = v
 		case "HomeDir":
 			config.HomeDir = v
 		case "UpdateIntervalSec":
-			if v_num, err := strconv.Atoi(v); err == nil {
-				config.UpdateIntervalSec = v_num
-			} else {
+			if v_num, err := strconv.Atoi(v); err != nil {
 				return err
+			} else {
+				config.UpdateIntervalSec = v_num
 			}
 		default:
-			return errors.New("malformed parameter naming in configuration for: " + k)
+			return fmt.Errorf("malformed parameter naming in configuration for: %s", k)
 		}
 	}
 	return nil

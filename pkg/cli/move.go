@@ -19,8 +19,8 @@ func NewMoveCommand(programName, commandName string) *moveCommand {
 			commandName: commandName}}
 }
 
-func (c *moveCommand) Run(args *CmdArguments) error {
-	if err := checkCmdArguments(args, c); err != nil {
+func (c *moveCommand) Run(args *CliArguments) error {
+	if err := checkCliArguments(args, c); err != nil {
 		return err
 	}
 

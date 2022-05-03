@@ -1,3 +1,4 @@
 RemoteURL = https://www.github.com/mortenskoett/doesntexist
-DotFilesDir = Bla/MyDir/Test
+DotfilesDir = /Bla/MyDir/Test
+Homedir = /Bla/yadda/yeah
 UpdateIntervalSec = 120

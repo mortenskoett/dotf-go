@@ -18,8 +18,8 @@ func NewAddCommand(programName, commandName string) *addCommand {
 			commandName: commandName}}
 }
 
-func (c *addCommand) Run(args *CmdArguments) error {
-	if err := checkCmdArguments(args, c); err != nil {
+func (c *addCommand) Run(args *CliArguments) error {
+	if err := checkCliArguments(args, c); err != nil {
 		return err
 	}
 

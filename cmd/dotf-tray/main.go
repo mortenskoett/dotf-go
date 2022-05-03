@@ -57,7 +57,7 @@ func readConfiguration() config.DotfConfiguration {
 		log.Fatal(err)
 	}
 	// TODO: Change this path to either $CONFIG or set specifically using UI
-	conf.DotFilesDir = "/home/mskk/Repos/temp/git/example1"
+	conf.DotfilesDir = "/home/mskk/Repos/temp/git/example1"
 	return conf
 }
 
@@ -108,7 +108,7 @@ func handleUpdateNowEvent() {
 	log.Println("Updating now")
 	systray.SetTemplateIcon(getLoadingIcon())
 
-	err := terminalio.SyncLocalRemote(latestReadConf.DotFilesDir)
+	err := terminalio.SyncLocalRemote(latestReadConf.DotfilesDir)
 	if err != nil {
 		showError(err.Error())
 		return

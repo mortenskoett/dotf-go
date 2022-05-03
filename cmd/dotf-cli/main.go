@@ -20,7 +20,7 @@ const (
 
 func main() {
 	// Parse input to command
-	cmdName, cliargs, err := argparse.ParseCliArguments(os.Args)
+	cliargs, _, err := argparse.Parse(os.Args)
 	if err != nil {
 		switch err.(type) {
 		case *argparse.ParseHelpFlagError:
@@ -40,7 +40,7 @@ func main() {
 	}
 
 	// Create command
-	cmd, err := cli.CreateCommand(programName, cmdName)
+	cmd, err := cli.CreateCommand(programName, cliargs.CmdName)
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdUnknownCommand:
@@ -51,7 +51,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// If no errors run command
+	// If no errors then run command
 	err = cmd.Run(cliargs)
 	if err != nil {
 		switch err.(type) {

@@ -15,17 +15,17 @@ import (
 // Copies file in userspace to dotfiles dir using same relative path between 'homeDir' and
 // 'dotfilesDir'. The file is backed up first.
 func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
-	absUserspaceFile, err := getAndValidateAbsolutePath(userspaceFile)
+	absUserspaceFile, err := GetAndValidateAbsolutePath(userspaceFile)
 	if err != nil {
 		return err
 	}
 
-	absHomedir, err := getAndValidateAbsolutePath(homeDir)
+	absHomedir, err := GetAndValidateAbsolutePath(homeDir)
 	if err != nil {
 		return err
 	}
 
-	absDotfilesDir, err := getAndValidateAbsolutePath(dotfilesDir)
+	absDotfilesDir, err := GetAndValidateAbsolutePath(dotfilesDir)
 	if err != nil {
 		return err
 	}
@@ -41,13 +41,13 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	// create symlink in userspace
 
 	// Create path inside dotfiles dir
-	absNewFile, err := changeLeadingPath(absUserspaceFile, absHomedir, absDotfilesDir)
+	absNewFile, err := ChangeLeadingPath(absUserspaceFile, absHomedir, absDotfilesDir)
 	if err != nil {
 		return err
 	}
 
 	// Assert a file is not already in dotfiles dir at location
-	exists, err := checkIfFileExists(absNewFile)
+	exists, err := CheckIfFileExists(absNewFile)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// Backup file before copying it
-	_, err = backupFile(userspaceFile)
+	_, err = BackupFile(userspaceFile)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func deleteFile(file string) error {
 
 // Backs up file and returns the path to the backed up version of the file. The backed up file
 // should not be expected to persist between reboots.
-func backupFile(file string) (string, error) {
+func BackupFile(file string) (string, error) {
 	const backupDir string = "/tmp/dotf-go/backups/"
 
 	backupDst := backupDir + file
@@ -106,8 +106,8 @@ func backupFile(file string) (string, error) {
 // Copies src to dst without modifying src. Both src and dst should be actual file paths, not
 // directories. Returns path to dst. The function uses absolute paths for both src and dst.
 func copyFile(src, dst string) (string, error) {
-	srcAbs, err := getAbsolutePath(src)
-	dstAbs, err := getAbsolutePath(dst)
+	srcAbs, err := GetAbsolutePath(src)
+	dstAbs, err := GetAbsolutePath(dst)
 
 	in, err := os.Open(srcAbs)
 	if err != nil {
@@ -144,12 +144,12 @@ func copyFile(src, dst string) (string, error) {
 
 // Changes the leading path of 'filepath' from that of 'fromdir' to that of 'todir'. It is assumed
 // that 'filepath' points to a file that is contained in 'fromdir'.
-func changeLeadingPath(filepath, fromdir, todir string) (string, error) {
+func ChangeLeadingPath(filepath, fromdir, todir string) (string, error) {
 	relative, err := detachRelativePath(filepath, fromdir)
 	if err != nil {
 		return "", err
 	}
-	absTo, err := getAbsolutePath(todir)
+	absTo, err := GetAbsolutePath(todir)
 	if err != nil {
 		return "", err
 	}
@@ -165,11 +165,11 @@ func changeLeadingPath(filepath, fromdir, todir string) (string, error) {
 // Example:
 // detach(dotfiles/, dotfiles/d1/d2/file.txt) -> d1/d2/file.txt
 func detachRelativePath(filepath, basepath string) (string, error) {
-	absFile, err := getAbsolutePath(filepath)
+	absFile, err := GetAbsolutePath(filepath)
 	if err != nil {
 		return "", err
 	}
-	absBase, err := getAbsolutePath(basepath)
+	absBase, err := GetAbsolutePath(basepath)
 	if err != nil {
 		return "", err
 	}
@@ -181,12 +181,12 @@ func detachRelativePath(filepath, basepath string) (string, error) {
 
 // Returns the absolute path from current directory or an error if the created path does not point
 // to a file.
-func getAndValidateAbsolutePath(path string) (string, error) {
-	path, err := getAbsolutePath(path)
+func GetAndValidateAbsolutePath(path string) (string, error) {
+	path, err := GetAbsolutePath(path)
 	if err != nil {
 		return "", err
 	}
-	if exists, _ := checkIfFileExists(path); !exists {
+	if exists, _ := CheckIfFileExists(path); !exists {
 		return "", &NotFoundError{path}
 	}
 
@@ -194,7 +194,7 @@ func getAndValidateAbsolutePath(path string) (string, error) {
 }
 
 // Returns the absolute path from current directory.
-func getAbsolutePath(path string) (string, error) {
+func GetAbsolutePath(path string) (string, error) {
 	if path == "" {
 		return "", fmt.Errorf("cannot get absolute path of empty string")
 	}
@@ -209,7 +209,7 @@ func getAbsolutePath(path string) (string, error) {
 
 // Checks if file exists by trying to open it. The given path should be absolute or relative to
 // dotf executable. An error is return ed if the file does not exist.
-func checkIfFileExists(absPath string) (bool, error) {
+func CheckIfFileExists(absPath string) (bool, error) {
 	_, err := os.Open(absPath)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {

@@ -14,12 +14,12 @@ import (
 // `dotfilesDirPath` denotes the path to the dotfiles directory.
 // `userSpacePath` denotes the root of where the symlinks can be found.
 func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
-	absUserSpaceDir, err := getAbsolutePath(userSpaceDir)
+	absUserSpaceDir, err := GetAbsolutePath(userSpaceDir)
 	if err != nil {
 		return err
 	}
 
-	absDotfilesDir, err := getAbsolutePath(dotfilesDir)
+	absDotfilesDir, err := GetAbsolutePath(dotfilesDir)
 	if err != nil {
 		return err
 	}
@@ -31,12 +31,12 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 			return nil
 		}
 
-		absFilePath, err := getAbsolutePath(p)
+		absFilePath, err := GetAbsolutePath(p)
 		if err != nil {
 			return err
 		}
 
-		fileInUserspace, err := changeLeadingPath(absFilePath, absDotfilesDir, absUserSpaceDir)
+		fileInUserspace, err := ChangeLeadingPath(absFilePath, absDotfilesDir, absUserSpaceDir)
 		if err != nil {
 			return err
 		}

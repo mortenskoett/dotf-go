@@ -1,6 +1,9 @@
 # Development notes
 ===================
 
+# Tue May  3 09:30:50 PM CEST 2022
+Further thougths of config file reading and default settings.
+
 # Sun Apr 17 09:06:31 AM CEST 2022
 Reading config:
 	1. Read config at default location: ~/.config/dotf/config
