@@ -71,7 +71,7 @@ func (c *moveCommand) Description() string {
 	In case the dotfiles directory has been moved, it is necessary to update all symlinks pointing
 	back to the old location, to point to the new location. This application will iterate through
 	all directories and files in 'from' and attempt to locate a matching symlink in the same
-	location relative to the given argument 'to'. The given path 'to' is the root of the user space,
+	location relative to the given argument 'to'. The given path 'to' is the root of the userspace,
 	e.g. root of '~/' aka the home folder. Note that currently if a symlink is not found in the user
 	space, then it will not be touched, however a warning will be shown.
 

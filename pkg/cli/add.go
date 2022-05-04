@@ -33,11 +33,11 @@ func (c *addCommand) Run(args *CliArguments, conf *config.DotfConfiguration) err
 	filepath := args.PosArgs[0]
 	logger.LogWarn("filepath:", filepath)
 
-	logger.Log(conf)
+	logger.Log("Config:", conf)
 
 	// TODO: Implement this function
 
-	err := terminalio.AddFileToDotfiles("", "", "")
+	err := terminalio.AddFileToDotfiles(filepath, conf.HomeDir, conf.DotfilesDir)
 	if err != nil {
 		return err
 	}

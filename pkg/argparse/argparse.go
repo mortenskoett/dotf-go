@@ -7,6 +7,7 @@ import (
 
 	"github.com/mortenskoett/dotf-go/pkg/cli"
 	"github.com/mortenskoett/dotf-go/pkg/config"
+	"github.com/mortenskoett/dotf-go/pkg/logger"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 	"github.com/mortenskoett/dotf-go/pkg/utils"
 )
@@ -128,6 +129,7 @@ func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CliArgumen
 	return nil
 }
 
+// TODO: Refactor this function so that only one config is tried in any case
 // Parses the required dotf configuration file.
 // 1. First --config <path> flag is tried and used in case it is valid
 // 2. Then ${HOME}/.config/dotf/config is tried
@@ -139,7 +141,7 @@ func parseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error)
 			// logger.LogSuccess("Found config at given path:", path)
 			return config, nil
 		}
-		// logger.LogWarn(fmt.Errorf("failed to parse config path from flag: %w", err))
+		logger.LogWarn(fmt.Errorf("failed to parse config path from flag: %w", err))
 	}
 
 	configPath, _ := os.UserConfigDir()
@@ -150,7 +152,7 @@ func parseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error)
 		// logger.LogSuccess("Found config at default path: ", defaultPath)
 		return config, nil
 	}
-	// logger.LogWarn(fmt.Errorf("failed to parse config at default location: %w", err))
+	logger.LogWarn(fmt.Errorf("failed to parse config at default location: %w", err))
 
 	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
 }

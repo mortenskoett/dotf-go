@@ -16,7 +16,7 @@ This should be implemented across the application and will affect the CLI design
 		- stat (git status)
 		- list (list all dotfiles)
 
-## Add ability to install dotfiles in user space
+## Add ability to install dotfiles in userspace
 I.e. create symlinks for specific files in the dotfiles repo to that same location in user
 space. (logic from dotf-move can be used here)
 
@@ -26,13 +26,13 @@ compiled binary.
 
 
 # ------------------ FEATURES ------------------ 
-## Add functionality to change the location of a dotfile in user space 
+## Add functionality to change the location of a dotfile in userspace 
 I.e. have symlinks and actual file location in the dotfiles dir updated, e.g. `dotf move
 <current_symlink_location> <new_symlink_location>`
 
 ## Implement a CLI GUI 
-I.e. to give an overview of the status of both dotfiles and user space w. functionality:
-- Get overview of dotfiles / user space
+I.e. to give an overview of the status of both dotfiles and userspace w. functionality:
+- Get overview of dotfiles / userspace
 - Install specific dotfile.
 - Move specific dotfile.
 - See dotfiles that are not installed.

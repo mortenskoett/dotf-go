@@ -19,9 +19,9 @@ func PrintFullHelp(commands []cli.Command, programName, logo string) {
 	printHeader(logo)
 	fmt.Println(`
 Details:
-	- User space describes where the symlinks are placed pointing into the dotfiles directory.
+	- Userspace describes where the symlinks are placed pointing into the dotfiles directory.
 	- The dotfiles directory is where the actual configuration files are stored.
-	- The folder structure in the dotfiles directory will match that of the user space.`)
+	- The folder structure in the dotfiles directory will match that of the userspace.`)
 	printUsage(commands, programName)
 }
 

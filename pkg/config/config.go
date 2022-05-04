@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -86,8 +87,8 @@ func parseTOMLFile(file *os.File) (map[string]string, error) {
 			return nil, errors.New("malformed parameter line in configuration on line: " + nameAndValue[0])
 		}
 
-		parameter := strings.Trim(nameAndValue[0], " ")
-		value := strings.Trim(nameAndValue[1], " ")
+		parameter := strings.ToLower(strings.TrimFunc(nameAndValue[0], sanitize))
+		value := strings.TrimFunc(nameAndValue[1], sanitize)
 		parameterToValue[parameter] = value
 	}
 
@@ -98,16 +99,24 @@ func parseTOMLFile(file *os.File) (map[string]string, error) {
 	return parameterToValue, nil
 }
 
+func sanitize(r rune) bool {
+	return r == ' ' ||
+		r == '\t' ||
+		r == '\n' ||
+		r == '\r' ||
+		r == '"'
+}
+
 func buildConfiguration(config *DotfConfiguration, paramsToValues *map[string]string) error {
 	for k, v := range *paramsToValues {
 		switch k {
-		case "RemoteURL":
+		case "remoteurl":
 			config.RemoteURL = v
-		case "DotFilesDir":
-			config.DotfilesDir = v
-		case "HomeDir":
-			config.HomeDir = v
-		case "UpdateIntervalSec":
+		case "dotfilesdir":
+			config.DotfilesDir = expandTilde(v)
+		case "homedir":
+			config.HomeDir = expandTilde(v)
+		case "updateintervalsec":
 			if v_num, err := strconv.Atoi(v); err != nil {
 				return err
 			} else {
@@ -118,4 +127,13 @@ func buildConfiguration(config *DotfConfiguration, paramsToValues *map[string]st
 		}
 	}
 	return nil
+}
+
+func expandTilde(path string) string {
+	if strings.HasPrefix(path, "~/") {
+		dirname, _ := os.UserHomeDir()
+		path = filepath.Join(dirname, path[2:])
+		return path
+	}
+	return path
 }
