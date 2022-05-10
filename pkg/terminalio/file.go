@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
@@ -93,11 +94,56 @@ func BackupFile(file string) (string, error) {
 	return path, nil
 }
 
+// Copies src to dst without modifying src. Src should be either a file or directory and dst should
+// be a file path. Will copy directories recursively. Returns path to dst.
+func copyFileOrDir(src, dst string) (string, error) {
+	ok, err := isDir(src)
+	if err != nil {
+		return "", fmt.Errorf("failed to determine if file was a directory: %w", err)
+	}
+
+	if ok {
+		return copyDir(src, dst)
+	}
+
+	return copyFile(src, dst)
+}
+
+// Copies a directory and its contents recursively from src to dst and return the absolute path to
+// dst.
+func copyDir(src, dst string) (string, error) {
+	srcAbs, err := GetAbsolutePath(src)
+	if err != nil {
+		return "", err
+	}
+	dstAbs, err := GetAbsolutePath(dst)
+	if err != nil {
+		return "", err
+	}
+
+	err = filepath.WalkDir(srcAbs, func(p string, d fs.DirEntry, err error) error {
+		// if dir then create dir with same name at location
+		// if file then copy file to location
+		return nil
+	})
+
+	// finally delete original dir
+
+	return dstAbs, nil
+}
+
 // Copies src to dst without modifying src. Both src and dst should be actual file paths, not
 // directories. Returns path to dst. The function uses absolute paths for both src and dst.
+// Does not handle directories and will fail.
 func copyFile(src, dst string) (string, error) {
 	srcAbs, err := GetAbsolutePath(src)
+	if err != nil {
+		return "", err
+	}
 	dstAbs, err := GetAbsolutePath(dst)
+	if err != nil {
+		return "", err
+	}
 
 	in, err := os.Open(srcAbs)
 	if err != nil {
@@ -109,7 +155,7 @@ func copyFile(src, dst string) (string, error) {
 	dstPath := path.Dir(dstAbs)
 	err = os.MkdirAll(dstPath, os.ModePerm)
 	if err != nil {
-		return "", fmt.Errorf("couldn't nested directores in dst: %w", err)
+		return "", fmt.Errorf("couldn't because of nested directores in dst: %w", err)
 	}
 
 	out, err := os.Create(dstAbs)
@@ -209,4 +255,23 @@ func CheckIfFileExists(absPath string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func isDir(src string) (bool, error) {
+	in, err := os.Open(src)
+	if err != nil {
+		return false, fmt.Errorf("couldn't open src: %w", err)
+	}
+	defer in.Close()
+
+	file, err := in.Stat()
+	if err != nil {
+		return false, fmt.Errorf("couldn't stat src: %w", err)
+	}
+
+	if file.IsDir() {
+		return true, nil
+	}
+
+	return false, nil
 }
