@@ -41,18 +41,18 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	// create symlink in userspace
 
 	// Create path inside dotfiles dir
-	absNewFile, err := ChangeLeadingPath(absUserspaceFile, absHomedir, absDotfilesDir)
+	absNewDotFile, err := ChangeLeadingPath(absUserspaceFile, absHomedir, absDotfilesDir)
 	if err != nil {
 		return err
 	}
 
 	// Assert a file is not already in dotfiles dir at location
-	exists, err := CheckIfFileExists(absNewFile)
+	exists, err := CheckIfFileExists(absNewDotFile)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return &FileAlreadyExistsError{absNewFile}
+		return &FileAlreadyExistsError{absNewDotFile}
 	}
 
 	// Backup file before copying it
@@ -62,7 +62,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// Copy file to dotfiles
-	_, err = copyFile(absUserspaceFile, absNewFile)
+	_, err = copyFile(absUserspaceFile, absNewDotFile)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// Create symlink from userspace to the newly created file in dotfiles
-	if err := createSymlink(absNewFile, absUserspaceFile); err != nil {
+	if err := createSymlink(absNewDotFile, absUserspaceFile); err != nil {
 		return err
 	}
 

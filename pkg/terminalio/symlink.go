@@ -51,36 +51,28 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 	})
 }
 
-// UpdateSymlink updates an existing symlink 'file' to point to 'pointTo'
-func UpdateSymlink(pointTo string, file string) error {
+// UpdateSymlink updates an existing symlink found at location 'fromDest' to point to an existing
+// file 'toFile'
+func UpdateSymlink(toFile string, fromDest string) error {
 	// symlink info: https://stackoverflow.com/questions/37345844/how-to-overwrite-a-symlink-in-go
 
-	// err := os.Remove(file)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to unlink file: %s, %s, %+v", file, pointTo, err)
-	// }
-
-	// err = os.Symlink(pointTo, file)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to create new symlink: %s, %s, %+v", file, pointTo, err)
-	// }
-
-	if err := deleteFile(file); err != nil {
+	if err := deleteFile(fromDest); err != nil {
 		return err
 	}
 
-	if err := createSymlink(pointTo, file); err != nil {
+	if err := createSymlink(toFile, fromDest); err != nil {
 		return err
 	}
 	return nil
 }
 
-func createSymlink(from, to string) error {
-	err := os.Symlink(from, to)
+// Create a symlink at location 'fromDest' pointing to an actual file that should exist at 'toFile'.
+func createSymlink(toFile, fromDest string) error {
+	err := os.Symlink(toFile, fromDest)
 	if err != nil {
-		return fmt.Errorf("failed to create symlink from %s -> %s: %w", from, to, err)
+		return fmt.Errorf("failed to create symlink from %s -> %s: %w", toFile, fromDest, err)
 	}
-	logger.LogOk("Symlink successfully created from", from, "->", to)
+	logger.LogOk("Symlink successfully created from", toFile, "->", fromDest) // from symlink -> file
 	return nil
 }
 
