@@ -265,13 +265,31 @@ func TestCopyDir(t *testing.T) {
 		test.Fail(err, "Should not fail here", t)
 	}
 
+	dstInsideFile, err := ChangeLeadingPath(insideFile.Name(), src.Path, dst.Path)
+	if err != nil {
+		test.Fail(err, "Should not fail here", t)
+	}
+
+	dstHereFile, err := ChangeLeadingPath(hereFile.Name(), src.Path, dst.Path)
+	fmt.Println(dstInsideFile)
+	fmt.Println(dstHereFile)
+	if err != nil {
+	}
+
+	// Dst folder and content should exist
 	if exists, _ := CheckIfFileExists(res); !exists {
 		test.Fail(res, "File does not exist", t)
 	}
-	if exists, _ := CheckIfFileExists(insideFile.Name()); !exists {
-		test.Fail(insideFile.Name(), "File does not exist", t)
+
+	if exists, _ := CheckIfFileExists(dstInsideFile); !exists {
+		test.Fail(dstInsideFile, "File does not exist", t)
 	}
-	if exists, _ := CheckIfFileExists(hereFile.Name()); !exists {
-		test.Fail(hereFile.Name(), "File does not exist", t)
+	if exists, _ := CheckIfFileExists(dstHereFile); !exists {
+		test.Fail(dstHereFile, "File does not exist", t)
+	}
+
+	// Src folder should have been deleted
+	if exists, _ := CheckIfFileExists(src.Path); exists {
+		test.Fail(src.Path, "Dir should NOT exist", t)
 	}
 }

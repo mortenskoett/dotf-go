@@ -122,27 +122,18 @@ func copyDir(src, dst string) (string, error) {
 		return "", err
 	}
 
+	// Copy all files recursively
 	err = filepath.WalkDir(srcAbs, func(p string, d fs.DirEntry, err error) error {
-		// TODO Implement all this
-		// if dir then create dir with same name at dst location
-		// if file then copy file to location
-
 		newfilepath, err := ChangeLeadingPath(p, srcAbs, dstAbs)
-
-		logger.Log(p)
-		fmt.Println("new file: ", newfilepath)
 
 		isdir, err := isDir(p)
 		if err != nil {
 			return err
 		}
-
-		// if dir
 		if isdir {
 			return os.MkdirAll(newfilepath, os.ModePerm)
 		}
 
-		// if file
 		_, err = copyFile(p, newfilepath)
 		if err != nil {
 			return err
@@ -151,7 +142,11 @@ func copyDir(src, dst string) (string, error) {
 		return nil
 	})
 
-	// TODO finally delete original dir
+	// Remove src folder
+	err = os.RemoveAll(srcAbs)
+	if err != nil {
+		return "", err
+	}
 
 	return dstAbs, nil
 }
