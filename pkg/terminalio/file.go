@@ -30,16 +30,6 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 		return err
 	}
 
-	// TODO: Implement this function
-
-	// construct path relative to inside dotfiles dir
-	// check if file already exists and exit early
-	// create path in dotfiles dir
-	// make backup of userspace files
-	// copy files to dotfiles dir
-	// remove files from userspace
-	// create symlink in userspace
-
 	// Create path inside dotfiles dir
 	absNewDotFile, err := ChangeLeadingPath(absUserspaceFile, absHomedir, absDotfilesDir)
 	if err != nil {

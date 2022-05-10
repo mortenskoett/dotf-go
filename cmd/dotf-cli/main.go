@@ -67,5 +67,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.LogOk("Operation completed")
+	logger.LogOk("Operation completed.")
 }

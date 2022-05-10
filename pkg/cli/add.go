@@ -23,24 +23,12 @@ func (c *addCommand) Run(args *CliArguments, conf *config.DotfConfiguration) err
 		return err
 	}
 
-	// ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
-	// if !ok {
-	// 	logger.LogWarn("Aborted by user")
-	// 	return nil
-	// }
-
 	filepath := args.PosArgs[0]
-	// logger.LogWarn("filepath:", filepath)
-
-	// logger.Log("Config:", conf)
-
-	// TODO: Implement this function
 
 	err := terminalio.AddFileToDotfiles(filepath, conf.HomeDir, conf.DotfilesDir)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
