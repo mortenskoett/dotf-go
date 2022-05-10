@@ -21,7 +21,7 @@ func Log(str ...interface{}) {
 	logWithColor(Default, "", str...)
 }
 
-func LogSuccess(str ...interface{}) {
+func LogOk(str ...interface{}) {
 	logWithColor(Green, ok, str...)
 }
 

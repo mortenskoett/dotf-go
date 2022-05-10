@@ -39,7 +39,7 @@ func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) er
 		return err
 	}
 
-	logger.LogSuccess("\nAll symlinks have been updated successfully.")
+	logger.LogOk("\nAll symlinks have been updated successfully.")
 	return nil
 }
 

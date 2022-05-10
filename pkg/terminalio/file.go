@@ -56,13 +56,13 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// Backup file before copying it
-	_, err = BackupFile(userspaceFile)
+	_, err = BackupFile(absUserspaceFile)
 	if err != nil {
 		return err
 	}
 
 	// Copy file to dotfiles
-	_, err = copyFile(userspaceFile, absNewFile)
+	_, err = copyFile(absUserspaceFile, absNewFile)
 	if err != nil {
 		return err
 	}
@@ -85,12 +85,12 @@ func deleteFile(file string) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %s: %w", file, err)
 	}
-	logger.Log("File successfully deleted at:", file)
+	logger.LogOk("File successfully deleted at:", file)
 	return nil
 }
 
-// Backs up file and returns the path to the backed up version of the file. The backed up file
-// should not be expected to persist between reboots.
+// Backs up file and returns the path to the backed up version of the file. The given path should be
+// made absolute by the caller. The backed up file should not be expected to persist between reboots.
 func BackupFile(file string) (string, error) {
 	const backupDir string = "/tmp/dotf-go/backups/"
 
@@ -99,7 +99,7 @@ func BackupFile(file string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	logger.Log("File successfully backed up from", file, "->", path)
+	logger.LogOk("File successfully backed up from", file, "->", path)
 	return path, nil
 }
 

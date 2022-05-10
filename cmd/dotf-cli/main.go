@@ -25,7 +25,7 @@ func main() {
 		switch err.(type) {
 		case *argparse.ParseHelpFlagError:
 			argparse.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo)
-			logger.LogSuccess(err)
+			logger.LogOk(err)
 		case *argparse.ParseNoArgumentError:
 			argparse.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo)
 			logger.LogWarn(err)
@@ -58,7 +58,7 @@ func main() {
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdHelpFlagError:
-			logger.LogSuccess(err)
+			logger.LogOk(err)
 		case *cli.CmdArgumentError:
 			logger.LogWarn(err)
 		default:

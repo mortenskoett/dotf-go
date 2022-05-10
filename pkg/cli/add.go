@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/mortenskoett/dotf-go/pkg/config"
-	"github.com/mortenskoett/dotf-go/pkg/logger"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -31,9 +30,9 @@ func (c *addCommand) Run(args *CliArguments, conf *config.DotfConfiguration) err
 	// }
 
 	filepath := args.PosArgs[0]
-	logger.LogWarn("filepath:", filepath)
+	// logger.LogWarn("filepath:", filepath)
 
-	logger.Log("Config:", conf)
+	// logger.Log("Config:", conf)
 
 	// TODO: Implement this function
 

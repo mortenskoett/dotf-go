@@ -80,7 +80,7 @@ func createSymlink(from, to string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create symlink from %s -> %s: %w", from, to, err)
 	}
-	logger.Log("Symlink successfully created from", from, "->", to)
+	logger.LogOk("Symlink successfully created from", from, "->", to)
 	return nil
 }
 
