@@ -18,6 +18,7 @@ import (
 func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	absUserspaceFile, err := GetAndValidateAbsolutePath(userspaceFile)
 	if err != nil {
+
 		return err
 	}
 
@@ -122,12 +123,35 @@ func copyDir(src, dst string) (string, error) {
 	}
 
 	err = filepath.WalkDir(srcAbs, func(p string, d fs.DirEntry, err error) error {
-		// if dir then create dir with same name at location
+		// TODO Implement all this
+		// if dir then create dir with same name at dst location
 		// if file then copy file to location
+
+		newfilepath, err := ChangeLeadingPath(p, srcAbs, dstAbs)
+
+		logger.Log(p)
+		fmt.Println("new file: ", newfilepath)
+
+		isdir, err := isDir(p)
+		if err != nil {
+			return err
+		}
+
+		// if dir
+		if isdir {
+			return os.MkdirAll(newfilepath, os.ModePerm)
+		}
+
+		// if file
+		_, err = copyFile(p, newfilepath)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 
-	// finally delete original dir
+	// TODO finally delete original dir
 
 	return dstAbs, nil
 }
@@ -249,7 +273,6 @@ func CheckIfFileExists(absPath string) (bool, error) {
 	_, err := os.Open(absPath)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			// &NotFoundError{absPath}
 			return false, nil
 		}
 		return false, err

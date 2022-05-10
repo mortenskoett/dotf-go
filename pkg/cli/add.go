@@ -29,6 +29,7 @@ func (c *addCommand) Run(args *CliArguments, conf *config.DotfConfiguration) err
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

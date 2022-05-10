@@ -19,22 +19,22 @@ type DirectoryHandle struct {
 	Path string // Path to directory
 }
 
+// Returns a file hierachy based testing environment
+func NewTestEnvironment() *Environment {
+	return &Environment{
+		DotfilesDir:  newTestFilePathHandle("dotfiles-dir*"),
+		UserspaceDir: newTestFilePathHandle("userspace-dir*"),
+		BackupDir:    newTestFilePathHandle("backup-dir*"),
+	}
+}
+
 // Returns a filepath handle used in the test Environment
-func NewTestFilePathHandle(name string) *DirectoryHandle {
+func newTestFilePathHandle(name string) *DirectoryHandle {
 	dir, err := os.MkdirTemp("", name)
 	if err != nil {
 		log.Fatal("could not create testFileHandle:", err)
 	}
 	return &DirectoryHandle{Name: name, Path: dir}
-}
-
-// Returns a file hierachy based testing environment
-func NewTestEnvironment() Environment {
-	return Environment{
-		DotfilesDir:  NewTestFilePathHandle("dotfiles-dir*"),
-		UserspaceDir: NewTestFilePathHandle("userspace-dir*"),
-		BackupDir:    NewTestFilePathHandle("backup-dir*"),
-	}
 }
 
 // Adds a directory to the filepath and returns its handle

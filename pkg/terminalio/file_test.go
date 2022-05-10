@@ -237,3 +237,41 @@ func TestCheckIfFileExists(t *testing.T) {
 		test.Fail(exists, "Should not fail as file exists.", t)
 	}
 }
+
+func TestCopyDir(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	/* Dir structure example:
+	/tmp/userspace-dir1205530807
+	/tmp/userspace-dir1205530807/inside
+	/tmp/userspace-dir1205530807/inside/file-1561196035
+	/tmp/userspace-dir1205530807/inside/here
+	/tmp/userspace-dir1205530807/inside/here/file-4056809082
+	/tmp/userspace-dir1205530807/inside/here/is
+	/tmp/userspace-dir1205530807/inside/here/is/nice
+	*/
+	src := env.UserspaceDir
+	inside := src.AddTempDir("inside")
+	insideFile := inside.AddTempFile()
+	here := inside.AddTempDir("here")
+	hereFile := here.AddTempFile()
+	here.AddTempDir("is/nice")
+
+	dst := env.BackupDir
+
+	res, err := copyDir(src.Path, dst.Path)
+	if err != nil {
+		test.Fail(err, "Should not fail here", t)
+	}
+
+	if exists, _ := CheckIfFileExists(res); !exists {
+		test.Fail(res, "File does not exist", t)
+	}
+	if exists, _ := CheckIfFileExists(insideFile.Name()); !exists {
+		test.Fail(insideFile.Name(), "File does not exist", t)
+	}
+	if exists, _ := CheckIfFileExists(hereFile.Name()); !exists {
+		test.Fail(hereFile.Name(), "File does not exist", t)
+	}
+}
