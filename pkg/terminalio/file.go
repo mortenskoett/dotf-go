@@ -54,13 +54,13 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// Copy file to dotfiles
-	_, err = copyFile(absUserspaceFile, absNewDotFile)
+	_, err = copyFileOrDir(absUserspaceFile, absNewDotFile)
 	if err != nil {
 		return err
 	}
 
 	// Remove file in userspace
-	if err := deleteFile(absUserspaceFile); err != nil {
+	if err := deleteFileOrDir(absUserspaceFile); err != nil {
 		return err
 	}
 
@@ -72,38 +72,30 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	return nil
 }
 
-func deleteFile(file string) error {
-	err := os.Remove(file)
-	if err != nil {
-		return fmt.Errorf("failed to delete file: %s: %w", file, err)
-	}
-	logger.LogOk("File successfully deleted at:", file)
-	return nil
-}
-
 // Backs up file and returns the path to the backed up version of the file. The given path should be
 // made absolute by the caller. The backed up file should not be expected to persist between reboots.
 func BackupFile(file string) (string, error) {
 	const backupDir string = "/tmp/dotf-go/backups/"
 
 	backupDst := backupDir + file
-	path, err := copyFile(file, backupDst)
+	path, err := copyFileOrDir(file, backupDst)
 	if err != nil {
 		return "", err
 	}
-	logger.LogOk("File successfully backed up from", file, "->", path)
+	logger.LogOk("Successfully created backup from", file, "->", path)
 	return path, nil
 }
 
-// Copies src to dst without modifying src. Src should be either a file or directory and dst should
-// be a file path. Will copy directories recursively. Returns path to dst.
+// Will determine whether given 'src' points to a file or a directory and handle it accordingly. The
+// function copies src to dst without modifying src. Src should be either a file or directory and
+// dst should be a file path. Will copy directories recursively. Returns path to dst.
 func copyFileOrDir(src, dst string) (string, error) {
-	ok, err := isDir(src)
+	isDir, err := isDirectory(src)
 	if err != nil {
 		return "", fmt.Errorf("failed to determine if file was a directory: %w", err)
 	}
 
-	if ok {
+	if isDir {
 		return copyDir(src, dst)
 	}
 
@@ -126,11 +118,11 @@ func copyDir(src, dst string) (string, error) {
 	err = filepath.WalkDir(srcAbs, func(p string, d fs.DirEntry, err error) error {
 		newfilepath, err := ChangeLeadingPath(p, srcAbs, dstAbs)
 
-		isdir, err := isDir(p)
+		isDir, err := isDirectory(p)
 		if err != nil {
 			return err
 		}
-		if isdir {
+		if isDir {
 			return os.MkdirAll(newfilepath, os.ModePerm)
 		}
 
@@ -142,18 +134,12 @@ func copyDir(src, dst string) (string, error) {
 		return nil
 	})
 
-	// Remove src folder
-	err = os.RemoveAll(srcAbs)
-	if err != nil {
-		return "", err
-	}
-
 	return dstAbs, nil
 }
 
 // Copies src to dst without modifying src. Both src and dst should be actual file paths, not
-// directories. Returns path to dst. The function uses absolute paths for both src and dst.
-// Does not handle directories and will fail.
+// directories. The function uses absolute paths for both src and dst. Does not handle directories
+// and will fail.
 func copyFile(src, dst string) (string, error) {
 	srcAbs, err := GetAbsolutePath(src)
 	if err != nil {
@@ -275,7 +261,7 @@ func CheckIfFileExists(absPath string) (bool, error) {
 	return true, nil
 }
 
-func isDir(src string) (bool, error) {
+func isDirectory(src string) (bool, error) {
 	in, err := os.Open(src)
 	if err != nil {
 		return false, fmt.Errorf("couldn't open src: %w", err)
@@ -292,4 +278,36 @@ func isDir(src string) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func deleteFileOrDir(path string) error {
+	isDir, err := isDirectory(path)
+	if err != nil {
+		return err
+	}
+
+	if isDir {
+		return deleteDirectory(path)
+	}
+
+	return deleteFile(path)
+}
+
+func deleteDirectory(path string) error {
+	err := os.RemoveAll(path)
+	if err != nil {
+		return fmt.Errorf("failed to delete directory: %s: %w", path, err)
+	}
+
+	logger.LogOk("Directory successfully deleted at", path)
+	return nil
+}
+
+func deleteFile(file string) error {
+	err := os.Remove(file)
+	if err != nil {
+		return fmt.Errorf("failed to delete file: %s: %w", file, err)
+	}
+	logger.LogOk("File successfully deleted at", file)
+	return nil
 }
