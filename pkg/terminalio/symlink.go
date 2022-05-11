@@ -72,7 +72,7 @@ func createSymlink(toFile, fromDest string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create symlink from %s -> %s: %w", toFile, fromDest, err)
 	}
-	logging.LogOk("Symlink successfully created from", toFile, "->", fromDest) // from symlink -> file
+	logging.Ok("Symlink successfully created from", toFile, "->", fromDest) // from symlink -> file
 	return nil
 }
 
@@ -80,7 +80,7 @@ func createSymlink(toFile, fromDest string) error {
 func isFileSymlink(file string) bool {
 	fileInfo, err := os.Lstat(file)
 	if err != nil {
-		logging.LogWarn("Warning:", err)
+		logging.Warn("Warning:", err)
 		return false
 	}
 	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink

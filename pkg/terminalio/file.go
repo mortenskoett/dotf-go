@@ -30,6 +30,7 @@ func RevertFileToUserspace(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// TODO
+
 	// a) If filepath is in userspace
 	//	if NOT a symlink then return
 	//	verify file exists at relative location in dotfiles
@@ -38,7 +39,7 @@ func RevertFileToUserspace(userspaceFile, homeDir, dotfilesDir string) error {
 	//	if a symlink then return
 	//	verify symlink exists in userspace using same relative path
 
-	// all) then both cases
+	// both)
 	//	remove symlink
 	//	backup file in dotfiles
 	//	copy file to userspace
@@ -115,7 +116,7 @@ func BackupFile(file string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	logging.LogOk("Successfully created backup from", file, "->", path)
+	logging.Ok("Successfully created backup from", file, "->", path)
 	return path, nil
 }
 
@@ -332,7 +333,7 @@ func deleteDirectory(path string) error {
 		return fmt.Errorf("failed to delete directory: %s: %w", path, err)
 	}
 
-	logging.LogOk("Directory successfully deleted at", path)
+	logging.Ok("Directory successfully deleted at", path)
 	return nil
 }
 
@@ -341,6 +342,6 @@ func deleteFile(file string) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %s: %w", file, err)
 	}
-	logging.LogOk("File successfully deleted at", file)
+	logging.Ok("File successfully deleted at", file)
 	return nil
 }

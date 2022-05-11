@@ -21,24 +21,24 @@ func Log(str ...interface{}) {
 	logWithColor(Default, "", str...)
 }
 
-func LogOk(str ...interface{}) {
+func Ok(str ...interface{}) {
 	logWithColor(Green, ok, str...)
 }
 
-func LogWarn(str ...interface{}) {
+func Warn(str ...interface{}) {
 	logWithColor(Yellow, warn, str...)
 }
 
-func LogError(str ...interface{}) {
+func Error(str ...interface{}) {
 	logWithColor(Red, error, str...)
 }
 
-func LogWithColor(color TerminalColor, str ...string) {
+func WithColor(color TerminalColor, str ...string) {
 	log.Println(ColorMultiple(color, str...))
 }
 
 // Logs and exits program
-func LogFatal(str ...interface{}) {
+func Fatal(str ...interface{}) {
 	log.SetPrefix(Color(fatal, Red))
 	log.Fatalln(str...)
 }
