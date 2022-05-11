@@ -27,7 +27,7 @@ func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) er
 
 	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
 	if !ok {
-		logging.LogWarn("Aborted by user")
+		logging.Warn("Aborted by user")
 		return nil
 	}
 
@@ -39,7 +39,7 @@ func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) er
 		return err
 	}
 
-	logging.LogOk("\nAll symlinks have been updated successfully.")
+	logging.Ok("\nAll symlinks have been updated successfully.")
 	return nil
 }
 

@@ -9,7 +9,7 @@ import (
 
 	"github.com/mortenskoett/dotf-go/pkg/concurrency"
 	"github.com/mortenskoett/dotf-go/pkg/config"
-	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/resource"
 	"github.com/mortenskoett/dotf-go/pkg/systray"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
@@ -43,8 +43,8 @@ var (
 )
 
 func main() {
-	logger.LogWithColor(logger.Blue, logo)
-	logger.Log("A dotfiles updater tray service.\n")
+	logging.WithColor(logging.Blue, logo)
+	logging.Log("A dotfiles updater tray service.\n")
 	log.SetPrefix("trayicon: ")
 	latestReadConf = readConfiguration()
 	updateWorker = *concurrency.NewIntervalWorkerParam(time.Minute*2, handleUpdateNowEvent)
@@ -62,12 +62,12 @@ func readConfiguration() config.DotfConfiguration {
 }
 
 func onExit() {
-	logger.Log("Dotf tray manager shutdown")
+	logging.Log("Dotf tray manager shutdown")
 }
 
 // Main event loop.
 func onReady() {
-	logger.Log("Dotf tray manager starting up")
+	logging.Log("Dotf tray manager starting up")
 	systray.SetTitle("Dotf Tray Manager")
 	systray.SetTemplateIcon(getDefaultIcon())
 	mLastUpdated.Disable()

@@ -152,7 +152,7 @@ func confirmByUser(question string) bool {
 
 		resp, err := reader.ReadString('\n')
 		if err != nil {
-			logging.LogFatal(err)
+			logging.Fatal(err)
 		}
 
 		resp = strings.TrimSpace(resp)

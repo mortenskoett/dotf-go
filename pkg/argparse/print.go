@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/cli"
-	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
 func PrintBasicHelp(commands []cli.Command, programName, logo string) {
@@ -26,7 +26,7 @@ Details:
 }
 
 func printHeader(logo string) {
-	fmt.Println(logger.Color(logo, logger.Blue))
+	fmt.Println(logging.Color(logo, logging.Blue))
 	fmt.Println("Dotfiles handler in Go.")
 }
 

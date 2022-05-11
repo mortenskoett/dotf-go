@@ -5,7 +5,7 @@ import (
 
 	"github.com/mortenskoett/dotf-go/pkg/argparse"
 	"github.com/mortenskoett/dotf-go/pkg/cli"
-	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
 const logo = `    _       _     __             _  _
@@ -25,18 +25,18 @@ func main() {
 		switch err.(type) {
 		case *argparse.ParseHelpFlagError:
 			argparse.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo)
-			logger.LogOk(err)
+			logging.Ok(err)
 		case *argparse.ParseNoArgumentError:
 			argparse.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo)
-			logger.LogWarn(err)
+			logging.Warn(err)
 		case *argparse.ParseInvalidArgumentError:
-			logger.LogWarn(err)
+			logging.Warn(err)
 		case *argparse.ParseConfigurationError:
-			logger.LogError(err)
+			logging.Error(err)
 		case *argparse.ParseError:
-			logger.LogError(err)
+			logging.Error(err)
 		default:
-			logger.LogError("unknown parser error:", err)
+			logging.Error("unknown parser error:", err)
 		}
 		os.Exit(1)
 	}
@@ -46,9 +46,9 @@ func main() {
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdUnknownCommand:
-			logger.LogError(err)
+			logging.Error(err)
 		default:
-			logger.LogError("unknown command error:", err)
+			logging.Error("unknown command error:", err)
 		}
 		os.Exit(1)
 	}
@@ -58,14 +58,14 @@ func main() {
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdHelpFlagError:
-			logger.LogOk(err)
+			logging.Ok(err)
 		case *cli.CmdArgumentError:
-			logger.LogWarn(err)
+			logging.Warn(err)
 		default:
-			logger.LogError("unknown run error:", err)
+			logging.Error("unknown run error:", err)
 		}
 		os.Exit(1)
 	}
 
-	logger.LogOk("Command done.")
+	logging.Ok("Command done.")
 }

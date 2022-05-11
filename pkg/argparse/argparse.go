@@ -147,10 +147,9 @@ func parseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error)
 	if path, ok := flags["config"]; ok {
 		config, err := readConfigFrom(path)
 		if err == nil {
-			// logging.LogSuccess("Found config at given path:", path)
 			return config, nil
 		}
-		logging.LogWarn(fmt.Errorf("failed to parse config path from flag: %w", err))
+		logging.Warn(fmt.Errorf("failed to parse config path from flag: %w", err))
 	}
 
 	configPath, _ := os.UserConfigDir()
@@ -158,10 +157,9 @@ func parseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error)
 
 	config, err := readConfigFrom(defaultPath)
 	if err == nil {
-		// logging.LogSuccess("Found config at default path: ", defaultPath)
 		return config, nil
 	}
-	logging.LogWarn(fmt.Errorf("failed to parse config at default location: %w", err))
+	logging.Warn(fmt.Errorf("failed to parse config at default location: %w", err))
 
 	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
 }
