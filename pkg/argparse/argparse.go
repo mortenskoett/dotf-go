@@ -7,9 +7,8 @@ import (
 
 	"github.com/mortenskoett/dotf-go/pkg/cli"
 	"github.com/mortenskoett/dotf-go/pkg/config"
-	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
-	"github.com/mortenskoett/dotf-go/pkg/utils"
 )
 
 // Flags required to contain a value like 'exec cmd --flag value'. This is maintained by the parsing
@@ -108,7 +107,7 @@ func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CliArgumen
 		// flags
 		if strings.HasPrefix(arg, "--") {
 			flag := strings.ReplaceAll(arg, "--", "")
-			isValueFlag := utils.Contains(valueflags, flag)
+			isValueFlag := containsString(valueflags, flag)
 
 			if i == len(args)-1 && isValueFlag {
 				// if last element
@@ -129,6 +128,16 @@ func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CliArgumen
 	return nil
 }
 
+// Returns true if sl contains str.
+func containsString(sl []string, str string) bool {
+	for _, e := range sl {
+		if str == e {
+			return true
+		}
+	}
+	return false
+}
+
 // TODO: Refactor this function so that only one config is tried in any case
 // Parses the required dotf configuration file.
 // 1. First --config <path> flag is tried and used in case it is valid
@@ -138,10 +147,10 @@ func parseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error)
 	if path, ok := flags["config"]; ok {
 		config, err := readConfigFrom(path)
 		if err == nil {
-			// logger.LogSuccess("Found config at given path:", path)
+			// logging.LogSuccess("Found config at given path:", path)
 			return config, nil
 		}
-		logger.LogWarn(fmt.Errorf("failed to parse config path from flag: %w", err))
+		logging.LogWarn(fmt.Errorf("failed to parse config path from flag: %w", err))
 	}
 
 	configPath, _ := os.UserConfigDir()
@@ -149,10 +158,10 @@ func parseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error)
 
 	config, err := readConfigFrom(defaultPath)
 	if err == nil {
-		// logger.LogSuccess("Found config at default path: ", defaultPath)
+		// logging.LogSuccess("Found config at default path: ", defaultPath)
 		return config, nil
 	}
-	logger.LogWarn(fmt.Errorf("failed to parse config at default location: %w", err))
+	logging.LogWarn(fmt.Errorf("failed to parse config at default location: %w", err))
 
 	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
 }

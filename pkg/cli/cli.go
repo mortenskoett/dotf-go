@@ -10,7 +10,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/config"
-	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
 // ** ALL PROGRAM COMMANDS AVAILABLE BELOW ** //
@@ -152,7 +152,7 @@ func confirmByUser(question string) bool {
 
 		resp, err := reader.ReadString('\n')
 		if err != nil {
-			logger.LogFatal(err)
+			logging.LogFatal(err)
 		}
 
 		resp = strings.TrimSpace(resp)

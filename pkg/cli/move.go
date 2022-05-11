@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mortenskoett/dotf-go/pkg/config"
-	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -27,7 +27,7 @@ func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) er
 
 	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
 	if !ok {
-		logger.LogWarn("Aborted by user")
+		logging.LogWarn("Aborted by user")
 		return nil
 	}
 
@@ -39,7 +39,7 @@ func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) er
 		return err
 	}
 
-	logger.LogOk("\nAll symlinks have been updated successfully.")
+	logging.LogOk("\nAll symlinks have been updated successfully.")
 	return nil
 }
 

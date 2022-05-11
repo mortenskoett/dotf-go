@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
 // UpdateSymlinks walks over files and folders in the dotfiles dir, while updating their
@@ -72,7 +72,7 @@ func createSymlink(toFile, fromDest string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create symlink from %s -> %s: %w", toFile, fromDest, err)
 	}
-	logger.LogOk("Symlink successfully created from", toFile, "->", fromDest) // from symlink -> file
+	logging.LogOk("Symlink successfully created from", toFile, "->", fromDest) // from symlink -> file
 	return nil
 }
 
@@ -80,7 +80,7 @@ func createSymlink(toFile, fromDest string) error {
 func isFileSymlink(file string) bool {
 	fileInfo, err := os.Lstat(file)
 	if err != nil {
-		logger.LogWarn("Warning:", err)
+		logging.LogWarn("Warning:", err)
 		return false
 	}
 	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink

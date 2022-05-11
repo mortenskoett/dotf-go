@@ -10,8 +10,41 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mortenskoett/dotf-go/pkg/logger"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
+
+func RevertFileToUserspace(userspaceFile, homeDir, dotfilesDir string) error {
+	absUserspaceFile, err := GetAndValidateAbsolutePath(userspaceFile)
+	if err != nil {
+		return err
+	}
+
+	absHomedir, err := GetAndValidateAbsolutePath(homeDir)
+	if err != nil {
+		return err
+	}
+
+	absDotfilesDir, err := GetAndValidateAbsolutePath(dotfilesDir)
+	if err != nil {
+		return err
+	}
+
+	// TODO
+	// a) If filepath is in userspace
+	//	if NOT a symlink then return
+	//	verify file exists at relative location in dotfiles
+
+	// b) If filepath is in dotfiles
+	//	if a symlink then return
+	//	verify symlink exists in userspace using same relative path
+
+	// all) then both cases
+	//	remove symlink
+	//	backup file in dotfiles
+	//	copy file to userspace
+	//	delete file in dotfiles
+	return nil
+}
 
 // Copies file in userspace to dotfiles dir using same relative path between 'homeDir' and
 // 'dotfilesDir'. The file is backed up first.
@@ -82,7 +115,7 @@ func BackupFile(file string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	logger.LogOk("Successfully created backup from", file, "->", path)
+	logging.LogOk("Successfully created backup from", file, "->", path)
 	return path, nil
 }
 
@@ -299,7 +332,7 @@ func deleteDirectory(path string) error {
 		return fmt.Errorf("failed to delete directory: %s: %w", path, err)
 	}
 
-	logger.LogOk("Directory successfully deleted at", path)
+	logging.LogOk("Directory successfully deleted at", path)
 	return nil
 }
 
@@ -308,6 +341,6 @@ func deleteFile(file string) error {
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %s: %w", file, err)
 	}
-	logger.LogOk("File successfully deleted at", file)
+	logging.LogOk("File successfully deleted at", file)
 	return nil
 }

@@ -1,6 +1,6 @@
 // This package contains functions that wrap the default logger interface and enhance it with
 // coloring for the different logging levels.
-package logger
+package logging
 
 import (
 	"log"
