@@ -25,7 +25,7 @@ func (c *revertCommand) Run(args *CliArguments, conf *config.DotfConfiguration) 
 
 	filepath := args.PosArgs[0]
 
-	err := terminalio.RevertFileToUserspace(filepath, conf.HomeDir, conf.DotfilesDir)
+	err := terminalio.RevertDotfile(filepath, conf.HomeDir, conf.DotfilesDir)
 	if err != nil {
 		return err
 	}
@@ -38,12 +38,12 @@ func (c *revertCommand) CmdName() string {
 }
 
 func (c *revertCommand) Overview() string {
-	return "reverts a file or dir from userspace to dotfiles by replacing it with a symlink and copying contents."
+	return "Reverts a file or dir from dotfiles back to its original location in userspace."
 }
 
 func (c *revertCommand) Arguments() []Arg {
 	return []Arg{
-		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
+		{Name: "file/dir", Description: "Path to file or dir to revert back to original location."},
 	}
 }
 
@@ -53,10 +53,10 @@ func (c *revertCommand) Usage() string {
 
 func (c *revertCommand) Description() string {
 	return `
-	Will replace a file or directory in userspace with a symlink pointing to the dotfiles directory.
-	The file or the directory and its contents is copied to the dotfiles directory and a symlink is
-	placed in the original location. 
-	`
+	Will revert a file or directory previously added to dotfiles back to its original location in
+	userspace. The file is moved from the dotfiles directory back to userspace where the symlink is
+	removed. The command can be used both on files inside the dotfiles directory as well as symlinks
+	in userspace and will do the same thing. `
 }
 
 func (c *revertCommand) ProgName() string {

@@ -67,5 +67,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	logging.Ok("Command done.")
+	logging.Ok("All good bye")
 }

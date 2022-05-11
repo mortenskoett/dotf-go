@@ -13,8 +13,30 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-func RevertFileToUserspace(userspaceFile, homeDir, dotfilesDir string) error {
-	absUserspaceFile, err := GetAndValidateAbsolutePath(userspaceFile)
+// Reverts the insertion of a file into the dotfiles directory and return it to its original
+// location in userspace. The symlink is removed first. The operation can be applied both to the
+// symlink in userspace and the actual file in the dotfiles directory.
+func RevertDotfile(file, homeDir, dotfilesDir string) error {
+
+	// TODO
+	// a) If filepath is in userspace
+	//	if NOT a symlink then return
+	//	verify file exists at relative location in dotfiles
+
+	// b) If filepath is in dotfiles
+	//	if a symlink then return
+	//	verify symlink exists in userspace using same relative path
+	// if strings.HasPrefix(absFile, absDotfilesDir) {
+	// 	logging.Ok("Is in dotfiles!")
+	// }
+
+	// both)
+	//	remove symlink
+	//	backup file in dotfiles
+	//	copy file to userspace
+	//	delete file in dotfiles
+
+	absFile, err := GetAndValidateAbsolutePath(file)
 	if err != nil {
 		return err
 	}
@@ -29,21 +51,32 @@ func RevertFileToUserspace(userspaceFile, homeDir, dotfilesDir string) error {
 		return err
 	}
 
-	// TODO
+	dhome, _ := detachRelativePath(absFile, absHomedir)
+	ddot, _ := detachRelativePath(absFile, absDotfilesDir)
+	yeah, _ := detachRelativePath(absDotfilesDir, absHomedir)
+	logging.Log("detachhome", dhome)
+	logging.Log("detachdotf", ddot)
+	logging.Log("yeah", yeah)
+	logging.Log("file", absFile)
+	logging.Log("homedir", absHomedir)
+	logging.Log("dotfiles", absDotfilesDir)
 
-	// a) If filepath is in userspace
-	//	if NOT a symlink then return
-	//	verify file exists at relative location in dotfiles
+	// If dotfiles dir is contained inside homedir
+	// if strings.HasPrefix(absDotfilesDir, absHomedir) {
+	// 	logging.Ok("Dotfiles dir is placed under homedir")
 
-	// b) If filepath is in dotfiles
-	//	if a symlink then return
-	//	verify symlink exists in userspace using same relative path
+	// 	// Then we can know that
+	// 	if strings.HasPrefix(absFile, absDotfilesDir) {
+	// 		logging.Ok("Is in dotfiles!")
+	// 	} else {
+	// 		logging.Ok("Is in userspace!")
+	// 	}
+	// }
 
-	// both)
-	//	remove symlink
-	//	backup file in dotfiles
-	//	copy file to userspace
-	//	delete file in dotfiles
+	// if strings.HasPrefix(absFile, absHomedir) {
+	// 	logging.Ok("Is in userspace!")
+	// }
+
 	return nil
 }
 
