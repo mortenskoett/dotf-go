@@ -40,7 +40,7 @@ func (c *pushCommand) CmdName() string {
 }
 
 func (c *pushCommand) Overview() string {
-	return "Merges latest changes from remote and then pushes local changes"
+	return "Merges latest changes from remote and then pushes local changes."
 }
 
 func (c *pushCommand) Arguments() []Arg {

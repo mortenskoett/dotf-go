@@ -42,11 +42,15 @@ func printUsage(commands []cli.Command, programName string) {
 	// Print commands
 	for _, cmd := range commands {
 		buf := &bytes.Buffer{}
-		for _, arg := range cmd.Arguments() {
-			buf.WriteString("<")
-			buf.WriteString(arg.Name)
-			buf.WriteString(">")
-			buf.WriteString("  ")
+		if len(cmd.Arguments()) > 0 {
+			for _, arg := range cmd.Arguments() {
+				buf.WriteString("<")
+				buf.WriteString(arg.Name)
+				buf.WriteString(">")
+				buf.WriteString("  ")
+			}
+		} else {
+			buf.WriteString("-")
 		}
 
 		str := fmt.Sprintf("\t%s\t%s\t%s", cmd.CmdName(), buf.String(), cmd.Overview())

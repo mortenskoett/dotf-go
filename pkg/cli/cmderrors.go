@@ -32,5 +32,5 @@ func (e *CmdArgumentError) Error() string {
 }
 
 func (e *GitError) Error() string {
-	return fmt.Sprintf("failed to execute git command in path: %s: %v", e.Path, e.Err)
+	return fmt.Sprintf("failed to execute git command in dir: %s: %v", e.Path, e.Err)
 }

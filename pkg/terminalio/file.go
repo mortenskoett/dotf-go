@@ -13,6 +13,14 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
+// Installs a dotfile into its relative equal location in userspace by way of a symlink in userspace
+// pointing back to the file in dotfiles. The userspace file will be removed in the process.
+func InstallDotfile(file, homeDir, dotfilesDir string) error {
+	// TODO
+	//
+	return nil
+}
+
 // Reverts the insertion of a file into the dotfiles directory and return it to its original
 // location in userspace. The symlink is removed first. The operation can be applied both to the
 // symlink in userspace and the actual file in the dotfiles directory.
@@ -32,16 +40,8 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		return err
 	}
 
-	relativePath, err := detachRelativePath(absFile, absHomeDir)
-	if err != nil {
-		return err
-	}
-
-	// Determine whether filepath points to symlink in userspace or file in dotfiles to be able to
-	// exactly get relative path
-	dotfilesDirName := filepath.Join("/", filepath.Base(absDotfilesDir))
-	if strings.HasPrefix(relativePath, dotfilesDirName) {
-		// dotfiles dir
+	inside, relpath, err := isInsideDotfilesDir(absFile, absHomeDir, absDotfilesDir)
+	if inside {
 		ok, err := CheckIfFileExists(absFile)
 		if err != nil {
 			return err
@@ -49,10 +49,8 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		if !ok {
 			return &FileNotFoundError{absFile}
 		}
-		relativePath = strings.TrimPrefix(relativePath, dotfilesDirName)
-
 	} else {
-		// userspace dir
+		// outside
 		ok, err := IsFileSymlink(absFile)
 		if err != nil {
 			return err
@@ -62,8 +60,8 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		}
 	}
 
-	dotfile := filepath.Join(absDotfilesDir, relativePath)
-	usersymlink := filepath.Join(absHomeDir, relativePath)
+	dotfile := filepath.Join(absDotfilesDir, relpath)
+	usersymlink := filepath.Join(absHomeDir, relpath)
 
 	// Backup file before copying it
 	_, err = BackupFile(dotfile)
@@ -88,6 +86,26 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 	}
 
 	return nil
+}
+
+// Returns true if the given 'file' is inside dotfiles directory otherwise false. The relative path
+// to the file is also returned which is the same both when the file is inside as well as outside the
+// dotfiles dir. It is expected that the given arguments are fully qualified.
+func isInsideDotfilesDir(file, homeDir, dotfilesDir string) (bool, string, error) {
+	relativePath, err := detachRelativePath(file, homeDir)
+	if err != nil {
+		return false, "", err
+	}
+
+	dotfilesDirName := filepath.Join("/", filepath.Base(dotfilesDir))
+	if strings.HasPrefix(relativePath, dotfilesDirName) {
+		// dotfiles dir
+		relativePath = strings.TrimPrefix(relativePath, dotfilesDirName)
+		return true, relativePath, nil
+	}
+
+	// userspace dir
+	return false, relativePath, nil
 }
 
 // Copies file in userspace to dotfiles dir using same relative path between 'homeDir' and

@@ -24,10 +24,11 @@ type CommandFunc = func(execName string) Command
 // functions so the name of the application can be given as param. The program name is used for
 // pretty-printing.
 var commands = map[string]CommandFunc{
-	"add":    func(pname string) Command { return NewAddCommand(pname, "add") },
-	"revert": func(pname string) Command { return NewRevertCommand(pname, "revert") },
-	"move":   func(pname string) Command { return NewMoveCommand(pname, "move") },
-	"push":   func(pname string) Command { return NewPushCommand(pname, "push") },
+	"add":     func(pname string) Command { return NewAddCommand(pname, "add") },
+	"install": func(pname string) Command { return NewInstallCommand(pname, "install") },
+	"move":    func(pname string) Command { return NewMoveCommand(pname, "move") },
+	"push":    func(pname string) Command { return NewPushCommand(pname, "push") },
+	"revert":  func(pname string) Command { return NewRevertCommand(pname, "revert") },
 }
 
 // Contains basic program info for each Command
