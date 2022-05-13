@@ -48,7 +48,7 @@ func main() {
 		case *cli.CmdUnknownCommand:
 			logging.Error(err)
 		default:
-			logging.Error("unknown command error:", err)
+			logging.Error("unknown command init error:", err)
 		}
 		os.Exit(1)
 	}
@@ -61,6 +61,8 @@ func main() {
 			logging.Ok(err)
 		case *cli.CmdArgumentError:
 			logging.Warn(err)
+		case *cli.GitError:
+			logging.Error(err)
 		default:
 			logging.Error("unknown run error:", err)
 		}

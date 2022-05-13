@@ -17,44 +17,34 @@ const (
 	nothingToCommit commandReturn = "nothing to commit, working tree clean"
 	mergeSuccess    commandReturn = "Merge made by"
 	pushSuccess     commandReturn = "master -> master" // Something is making git push return only last line.
-	notGitRepoFail  commandReturn = "fatal: not a git repository"
 )
-
-// Verifies that the given path indeed is a git repository
-func VerifyGitRepository(absPath string) (bool, error) {
-	isNotGitRepo, err := executeWithResult(absPath, gitStatus, notGitRepoFail)
-	if err != nil {
-		return false, err
-	}
-	return !isNotGitRepo, nil
-}
 
 // SyncLocalRemote uses Git to update local and remote repository with newest changes from either place.
 // The given path 'absPathToLocalRepo' must point to a directory initialized with git and with push/pull
 // abilities to a remote.
 // If it is not possible to merge changes or if a command fails in the shell, an error will be returned.
-func SyncLocalRemote(absPathToLocalRepo string) error {
-	hasNoLocalChanges, err := executeWithResult(absPathToLocalRepo, gitStatus, nothingToCommit)
+func SyncLocalRemote(absPath string) error {
+	hasNoLocalChanges, err := executeWithResult(absPath, gitStatus, nothingToCommit)
 	if err != nil {
 		return err
 	}
 
 	if hasNoLocalChanges {
-		return pullMerge(absPathToLocalRepo)
+		return pullMerge(absPath)
 	}
 
-	err = addCommitAll(absPathToLocalRepo)
+	err = addCommitAll(absPath)
 	if err != nil {
 		return err
 	}
 
-	err = pullMerge(absPathToLocalRepo)
+	err = pullMerge(absPath)
 	if err != nil {
 		return err
 	}
 
 	expected := pushSuccess
-	found, err := executeWithResult(absPathToLocalRepo, gitPush, expected)
+	found, err := executeWithResult(absPath, gitPush, expected)
 	if err != nil {
 		return err
 	}

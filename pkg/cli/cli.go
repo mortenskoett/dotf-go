@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"text/tabwriter"
 
@@ -26,6 +27,7 @@ var commands = map[string]CommandFunc{
 	"add":    func(pname string) Command { return NewAddCommand(pname, "add") },
 	"revert": func(pname string) Command { return NewRevertCommand(pname, "revert") },
 	"move":   func(pname string) Command { return NewMoveCommand(pname, "move") },
+	"push":   func(pname string) Command { return NewPushCommand(pname, "push") },
 }
 
 // Contains basic program info for each Command
@@ -65,12 +67,15 @@ func NewCliArguments() *CliArguments {
 	}
 }
 
-// Get copy of all available Commands.
+// Get copy of all available Commands. Obs: Ineffective implementation.
 func GetAvailableCommands(programName string) []Command {
 	cmds := make([]Command, 0, len(commands))
 	for _, cmdf := range commands {
 		cmds = append(cmds, cmdf(programName))
 	}
+	sort.SliceStable(cmds, func(i, j int) bool {
+		return cmds[i].CmdName() < cmds[j].CmdName()
+	})
 	return cmds
 }
 

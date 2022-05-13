@@ -51,8 +51,9 @@ func (e *SymlinkNotFoundError) Error() string {
 /* The shellExecError occurs if an unexpected error happens while executing a TermCommand in the shell. */
 type shellExecError struct {
 	command termCommand
+	output  string
 }
 
 func (e *shellExecError) Error() string {
-	return fmt.Sprintf("an error has occured executing '%s' in the shell", e.command)
+	return fmt.Sprintf("an error has occured executing '%s' in the shell: %s", e.command, e.output)
 }
