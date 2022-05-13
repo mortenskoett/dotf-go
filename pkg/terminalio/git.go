@@ -10,14 +10,24 @@ const (
 	gitPush       termCommand = "git push origin master"
 )
 
-// Status returned by git.
-// Case sensitive substring contained in the returns from running commands with git version 2.32.0
+// Status returned by git. Case sensitive substring contained in the first line of the returns from
+// running commands with git version 2.32.0
 const (
 	allUpToDate     commandReturn = "Already up to date."
 	nothingToCommit commandReturn = "nothing to commit, working tree clean"
 	mergeSuccess    commandReturn = "Merge made by"
 	pushSuccess     commandReturn = "master -> master" // Something is making git push return only last line.
+	notGitRepoFail  commandReturn = "fatal: not a git repository"
 )
+
+// Verifies that the given path indeed is a git repository
+func VerifyGitRepository(absPath string) (bool, error) {
+	isNotGitRepo, err := executeWithResult(absPath, gitStatus, notGitRepoFail)
+	if err != nil {
+		return false, err
+	}
+	return !isNotGitRepo, nil
+}
 
 // SyncLocalRemote uses Git to update local and remote repository with newest changes from either place.
 // The given path 'absPathToLocalRepo' must point to a directory initialized with git and with push/pull

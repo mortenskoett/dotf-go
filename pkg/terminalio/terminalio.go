@@ -2,7 +2,6 @@
 package terminalio
 
 import (
-	"log"
 	"os/exec"
 	"strings"
 )
@@ -41,7 +40,7 @@ func execute(path string, command termCommand) (string, error) {
 	execCmd.Dir = path
 	output, err := execCmd.CombinedOutput()
 
-	log.Println("debug: ", strings.ReplaceAll(string(output), "\n", " "))
+	// logging.Debug(strings.ReplaceAll(string(output), "\n", " "))
 
 	if err != nil {
 		return "", &shellExecError{command}
