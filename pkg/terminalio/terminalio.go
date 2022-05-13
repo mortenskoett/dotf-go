@@ -16,7 +16,7 @@ type commandReturn string
 // Executes 'command' at 'path' and expects the result to contain one or more specific substrings
 // 'expected'. Returns a bool and an optional error. The bool depicts whether the result contains
 // any of the expected commandReturns. If the error is not nil then the boolean should be ignored.
-func executeExpectedResult(path string, command termCommand, expected ...commandReturn) (bool, error) {
+func executeWithResult(path string, command termCommand, expected ...commandReturn) (bool, error) {
 	result, err := execute(path, command)
 	if err != nil {
 		return false, err

@@ -1,0 +1,9 @@
+package logging
+
+// Default output messags from commands. Prefix all function with 'Msg'.
+
+// Ok
+func MsgBackupOk(from, to string) { Ok("Successfully created backup from", from, "->", to) }
+func MsgDirDeletedOk(p string)    { Ok("Directory successfully deleted at", p) }
+
+// Fails

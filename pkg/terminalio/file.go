@@ -17,21 +17,12 @@ import (
 // location in userspace. The symlink is removed first. The operation can be applied both to the
 // symlink in userspace and the actual file in the dotfiles directory.
 func RevertDotfile(file, homeDir, dotfilesDir string) error {
-
-	// TODO
-	//	verify file exists at relative location in dotfiles: if NOT then return
-	//	check relative location in userspace: if NOT a symlink then return
-	//	remove symlink
-	//	backup file in dotfiles
-	//	copy file to userspace
-	//	delete file in dotfiles
-
 	absFile, err := GetAbsolutePath(file)
 	if err != nil {
 		return err
 	}
 
-	absHomedir, err := GetAndValidateAbsolutePath(homeDir)
+	absHomeDir, err := GetAndValidateAbsolutePath(homeDir)
 	if err != nil {
 		return err
 	}
@@ -41,16 +32,16 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		return err
 	}
 
-	relativePath, err := detachRelativePath(absFile, absHomedir)
+	relativePath, err := detachRelativePath(absFile, absHomeDir)
 	if err != nil {
 		return err
 	}
 
-	// Determine whether filepath points to symlink in userspace or file in dotfiles
+	// Determine whether filepath points to symlink in userspace or file in dotfiles to be able to
+	// exactly get relative path
 	dotfilesDirName := filepath.Join("/", filepath.Base(absDotfilesDir))
 	if strings.HasPrefix(relativePath, dotfilesDirName) {
 		// dotfiles dir
-		logging.Log("INSIDE")
 		ok, err := CheckIfFileExists(absFile)
 		if err != nil {
 			return err
@@ -62,7 +53,6 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 
 	} else {
 		// userspace dir
-		logging.Log("OUTSIDE")
 		ok, err := IsFileSymlink(absFile)
 		if err != nil {
 			return err
@@ -72,7 +62,30 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		}
 	}
 
-	logging.Log(relativePath)
+	dotfile := filepath.Join(absDotfilesDir, relativePath)
+	usersymlink := filepath.Join(absHomeDir, relativePath)
+
+	// Backup file before copying it
+	_, err = BackupFile(dotfile)
+	if err != nil {
+		return err
+	}
+
+	// Remove symlink in userspace
+	if err := deleteFile(usersymlink); err != nil {
+		return err
+	}
+
+	// Copy dotfile back to userspace
+	_, err = copyFileOrDir(dotfile, usersymlink)
+	if err != nil {
+		return err
+	}
+
+	// Remove file in dotfiles
+	if err := deleteFileOrDir(dotfile); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -141,12 +154,13 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 func BackupFile(file string) (string, error) {
 	const backupDir string = "/tmp/dotf-go/backups/"
 
+	logging.Log("Creating backup")
+
 	backupDst := backupDir + file
 	path, err := copyFileOrDir(file, backupDst)
 	if err != nil {
 		return "", err
 	}
-	logging.Ok("Successfully created backup from", file, "->", path)
 	return path, nil
 }
 
@@ -198,6 +212,8 @@ func copyDir(src, dst string) (string, error) {
 		return nil
 	})
 
+	logging.Ok("Directory successfully copied from", src, "->", dstAbs)
+
 	return dstAbs, nil
 }
 
@@ -242,6 +258,8 @@ func copyFile(src, dst string) (string, error) {
 	if errors.Is(err, os.ErrNotExist) {
 		return "", fmt.Errorf("the created file was not found: %w", err)
 	}
+
+	logging.Ok("File successfully copied from", src, "->", out.Name())
 
 	// Return path to file
 	return out.Name(), nil

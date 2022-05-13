@@ -11,6 +11,7 @@ const (
 	fatal string = "fatal: "
 	error string = "error: "
 	ok    string = "ok: "
+	debug string = "DEBUG: "
 )
 
 func init() {
@@ -31,6 +32,10 @@ func Warn(str ...interface{}) {
 
 func Error(str ...interface{}) {
 	logWithColor(Red, error, str...)
+}
+
+func Debug(str ...interface{}) {
+	logWithColor(Yellow, debug, str...)
 }
 
 func WithColor(color TerminalColor, str ...string) {

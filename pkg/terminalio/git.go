@@ -24,7 +24,7 @@ const (
 // abilities to a remote.
 // If it is not possible to merge changes or if a command fails in the shell, an error will be returned.
 func SyncLocalRemote(absPathToLocalRepo string) error {
-	hasNoLocalChanges, err := executeExpectedResult(absPathToLocalRepo, gitStatus, nothingToCommit)
+	hasNoLocalChanges, err := executeWithResult(absPathToLocalRepo, gitStatus, nothingToCommit)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func SyncLocalRemote(absPathToLocalRepo string) error {
 	}
 
 	expected := pushSuccess
-	found, err := executeExpectedResult(absPathToLocalRepo, gitPush, expected)
+	found, err := executeWithResult(absPathToLocalRepo, gitPush, expected)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func addCommitAll(path string) error {
 
 // Pulls latest and attempts a merge if possible otherwise reverts the merge and returns an error.
 func pullMerge(path string) error {
-	success, err := executeExpectedResult(path, gitPullMerge, mergeSuccess, allUpToDate)
+	success, err := executeWithResult(path, gitPullMerge, mergeSuccess, allUpToDate)
 	if err != nil {
 		return err
 	}
