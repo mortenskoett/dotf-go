@@ -41,12 +41,18 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 			return err
 		}
 
-		if isFileSymlink(fileInUserspace) {
+		ok, err := IsFileSymlink(fileInUserspace)
+		if err != nil {
+			return err
+		}
+
+		if ok {
 			err = UpdateSymlink(absFilePath, fileInUserspace)
 			if err != nil {
 				return err
 			}
 		}
+
 		return nil
 	})
 }
@@ -76,12 +82,11 @@ func createSymlink(toFile, fromDest string) error {
 	return nil
 }
 
-// isFileSymlink returns true if the given path is an existsing symlink.
-func isFileSymlink(file string) bool {
+// IsFileSymlink returns true if the given path is an existsing symlink.
+func IsFileSymlink(file string) (bool, error) {
 	fileInfo, err := os.Lstat(file)
 	if err != nil {
-		logging.Warn("Warning:", err)
-		return false
+		return false, fmt.Errorf("failed to determine file is a symlink: %w", err)
 	}
-	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
+	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink, nil
 }

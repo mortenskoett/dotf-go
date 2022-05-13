@@ -14,11 +14,15 @@ type UnmatchedShellReturnError struct {
 	expected []commandReturn
 }
 
-type NotFoundError struct {
+type FileNotFoundError struct {
 	path string
 }
 
 type FileAlreadyExistsError struct {
+	path string
+}
+
+type SymlinkNotFoundError struct {
 	path string
 }
 
@@ -34,8 +38,12 @@ func (e *UnmatchedShellReturnError) Error() string {
 	return fmt.Sprintf("while executing '%s' in the shell, non of the following outputs where found: [%s]", e.command, e.expected)
 }
 
-func (e *NotFoundError) Error() string {
+func (e *FileNotFoundError) Error() string {
 	return fmt.Sprintf("file or directory was not found at: %s", e.path)
+}
+
+func (e *SymlinkNotFoundError) Error() string {
+	return fmt.Sprintf("file or directory was not a symlink at: %s", e.path)
 }
 
 /* Unexported */

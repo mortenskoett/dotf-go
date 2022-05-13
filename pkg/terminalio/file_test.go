@@ -42,7 +42,7 @@ func TestAddFileToDotfiles(t *testing.T) {
 	}
 
 	// check if new file at userspace location is symlink
-	if ok := isFileSymlink(userspaceFile.Name()); !ok {
+	if ok, _ := IsFileSymlink(userspaceFile.Name()); !ok {
 		test.Fail(ok, fmt.Sprintf(
 			"File in userspace dir should be a symlink at %s: %v", userspaceFile.Name(), err), t)
 	}
@@ -60,7 +60,7 @@ func TestAddFileToDotfilesNotFoundError(t *testing.T) {
 	userspacefile := "adsf"
 	dotfilesdir := "adsf"
 
-	expected := &NotFoundError{}
+	expected := &FileNotFoundError{}
 	actual := AddFileToDotfiles(file, userspacefile, dotfilesdir)
 
 	if !errors.As(actual, &expected) {

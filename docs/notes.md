@@ -1,6 +1,29 @@
 # Development notes
 ===================
 
+# Fri May 13 11:34:14 AM CEST 2022
+If revert is called. How do we know whether it is called on the symlink in userspace or the actual
+file in dotfiles?
+
+/home/msk/
+/home/msk/dotfiles/
+
+### detach absfiles and abshomedir to get name of dfiles or use filepath.Base
+= dotfiles
+
+/home/msk/dotfiles/bla/dotfiles/fil
+/home/msk/bla/dotfiles/fil
+
+### detach filepath w. homedir to get relative path
+= bla/dotfiles/fil
+
+1. we get the name of the dotfiles folder
+2. we detach the file using homedir:
+	- if prefix == dotfiles folder name then we know it is inside dotfiles
+	- if not then it is in userspace
+3. now we can assert correctly on symlink in userspace and file/folder in dotfiles
+
+
 # Tue May  3 09:30:50 PM CEST 2022
 Further thougths of config file reading and default settings.
 A need to refactor lib functions is arising:

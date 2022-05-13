@@ -19,24 +19,14 @@ import (
 func RevertDotfile(file, homeDir, dotfilesDir string) error {
 
 	// TODO
-	// a) If filepath is in userspace
-	//	if NOT a symlink then return
-	//	verify file exists at relative location in dotfiles
-
-	// b) If filepath is in dotfiles
-	//	if a symlink then return
-	//	verify symlink exists in userspace using same relative path
-	// if strings.HasPrefix(absFile, absDotfilesDir) {
-	// 	logging.Ok("Is in dotfiles!")
-	// }
-
-	// both)
+	//	verify file exists at relative location in dotfiles: if NOT then return
+	//	check relative location in userspace: if NOT a symlink then return
 	//	remove symlink
 	//	backup file in dotfiles
 	//	copy file to userspace
 	//	delete file in dotfiles
 
-	absFile, err := GetAndValidateAbsolutePath(file)
+	absFile, err := GetAbsolutePath(file)
 	if err != nil {
 		return err
 	}
@@ -51,31 +41,38 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		return err
 	}
 
-	dhome, _ := detachRelativePath(absFile, absHomedir)
-	ddot, _ := detachRelativePath(absFile, absDotfilesDir)
-	yeah, _ := detachRelativePath(absDotfilesDir, absHomedir)
-	logging.Log("detachhome", dhome)
-	logging.Log("detachdotf", ddot)
-	logging.Log("yeah", yeah)
-	logging.Log("file", absFile)
-	logging.Log("homedir", absHomedir)
-	logging.Log("dotfiles", absDotfilesDir)
+	relativePath, err := detachRelativePath(absFile, absHomedir)
+	if err != nil {
+		return err
+	}
 
-	// If dotfiles dir is contained inside homedir
-	// if strings.HasPrefix(absDotfilesDir, absHomedir) {
-	// 	logging.Ok("Dotfiles dir is placed under homedir")
+	// Determine whether filepath points to symlink in userspace or file in dotfiles
+	dotfilesDirName := filepath.Join("/", filepath.Base(absDotfilesDir))
+	if strings.HasPrefix(relativePath, dotfilesDirName) {
+		// dotfiles dir
+		logging.Log("INSIDE")
+		ok, err := CheckIfFileExists(absFile)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return &FileNotFoundError{absFile}
+		}
+		relativePath = strings.TrimPrefix(relativePath, dotfilesDirName)
 
-	// 	// Then we can know that
-	// 	if strings.HasPrefix(absFile, absDotfilesDir) {
-	// 		logging.Ok("Is in dotfiles!")
-	// 	} else {
-	// 		logging.Ok("Is in userspace!")
-	// 	}
-	// }
+	} else {
+		// userspace dir
+		logging.Log("OUTSIDE")
+		ok, err := IsFileSymlink(absFile)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return &SymlinkNotFoundError{absFile}
+		}
+	}
 
-	// if strings.HasPrefix(absFile, absHomedir) {
-	// 	logging.Ok("Is in userspace!")
-	// }
+	logging.Log(relativePath)
 
 	return nil
 }
@@ -295,7 +292,7 @@ func GetAndValidateAbsolutePath(path string) (string, error) {
 		return "", err
 	}
 	if exists, _ := CheckIfFileExists(path); !exists {
-		return "", &NotFoundError{path}
+		return "", &FileNotFoundError{path}
 	}
 
 	return path, nil
