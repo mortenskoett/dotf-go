@@ -23,12 +23,12 @@ const logo = `    _       _     __         _		     _  _
 `
 
 const (
-	programVersion string = "" // Inserted by build process
-	programName    string = "dotf-tray"
+	programName string = "dotf-tray"
 )
 
 // State used by the event loop of the tray icon UI.
 var (
+	programVersion   string                     = "" // Inserted by build process
 	shouldAutoUpdate bool                       = false
 	lastUpdated      string                     = "N/A"
 	latestReadConf   config.DotfConfiguration   = config.NewConfiguration()        // Configuration currently loaded.
@@ -46,7 +46,7 @@ var (
 
 func main() {
 	logging.WithColor(logging.Blue, logo)
-	logging.Info("Starting", programName, "service.")
+	logging.Info("Starting", programName, "service.", "Version:", programVersion)
 
 	latestReadConf = *readConfiguration()
 
