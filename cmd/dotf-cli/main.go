@@ -18,16 +18,18 @@ const (
 	programName string = "dotf-cli"
 )
 
+var programVersion = "" // Inserted by build process using -ldflags
+
 func main() {
 	// Parse input to command
 	cliargs, config, err := argparse.Parse(os.Args)
 	if err != nil {
 		switch err.(type) {
 		case *argparse.ParseHelpFlagError:
-			argparse.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo)
+			argparse.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
 			logging.Ok(err)
 		case *argparse.ParseNoArgumentError:
-			argparse.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo)
+			argparse.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
 			logging.Warn(err)
 		case *argparse.ParseInvalidArgumentError:
 			logging.Warn(err)

@@ -22,6 +22,7 @@ const logo = `    _       _     __         _		     _  _
 `
 
 const (
+	version            = "" // Inserted by build process
 	programName string = "dotf-tray"
 )
 

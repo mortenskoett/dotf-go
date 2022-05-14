@@ -10,13 +10,13 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-func PrintBasicHelp(commands []cli.Command, programName, logo string) {
-	printHeader(logo)
+func PrintBasicHelp(commands []cli.Command, programName, logo, version string) {
+	printHeader(logo, version)
 	printUsage(commands, programName)
 }
 
-func PrintFullHelp(commands []cli.Command, programName, logo string) {
-	printHeader(logo)
+func PrintFullHelp(commands []cli.Command, programName, logo, version string) {
+	printHeader(logo, version)
 	fmt.Println(`
 Details:
 	- Userspace describes where the symlinks are placed pointing into the dotfiles directory.
@@ -25,9 +25,10 @@ Details:
 	printUsage(commands, programName)
 }
 
-func printHeader(logo string) {
+func printHeader(logo, version string) {
 	fmt.Println(logging.Color(logo, logging.Blue))
 	fmt.Println("Dotfiles handler in Go.")
+	fmt.Println("Version:", version)
 }
 
 func printUsage(commands []cli.Command, programName string) {

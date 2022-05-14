@@ -14,8 +14,15 @@ import (
 )
 
 var (
-	resourcesDirName = path.Join(ProjectRoot, "assets")
+	resourcesDirName         = path.Join(ProjectRoot, "assets")
+	resourceManagerSingleton = newResourceContainer()
 )
+
+type resourceContainer struct {
+	storage map[string][]byte
+}
+
+// Publicly accessible through defined functions.
 
 /* Get resource found at 'path' relative to resource dir. */
 func Get(path string) ([]byte, error) {
@@ -31,13 +38,6 @@ func Add(path string, file []byte) {
 func Contains(path string) bool {
 	return resourceManagerSingleton.contains(path)
 }
-
-type resourceContainer struct {
-	storage map[string][]byte
-}
-
-// Publicly accessible through defined functions.
-var resourceManagerSingleton = newResourceContainer()
 
 // Loads and returns a container with the contents of the resource dir.
 func newResourceContainer() *resourceContainer {
