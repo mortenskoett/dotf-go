@@ -47,7 +47,7 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 		}
 
 		if ok {
-			err = UpdateSymlink(absFilePath, fileInUserspace)
+			err = UpdateSymlink(fileInUserspace, absFilePath)
 			if err != nil {
 				return err
 			}
@@ -59,26 +59,27 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 
 // UpdateSymlink updates an existing symlink found at location 'fromDest' to point to an existing
 // file 'toFile'
-func UpdateSymlink(toFile string, fromDest string) error {
+func UpdateSymlink(fromDest, toFile string) error {
 	// symlink info: https://stackoverflow.com/questions/37345844/how-to-overwrite-a-symlink-in-go
 
 	if err := deleteFile(fromDest); err != nil {
 		return err
 	}
 
-	if err := createSymlink(toFile, fromDest); err != nil {
+	if err := CreateSymlink(fromDest, toFile); err != nil {
 		return err
 	}
 	return nil
 }
 
 // Create a symlink at location 'fromDest' pointing to an actual file that should exist at 'toFile'.
-func createSymlink(toFile, fromDest string) error {
+// Symlink: fromDest -> toFile
+func CreateSymlink(fromDest, toFile string) error {
 	err := os.Symlink(toFile, fromDest)
 	if err != nil {
-		return fmt.Errorf("failed to create symlink from %s -> %s: %w", toFile, fromDest, err)
+		return fmt.Errorf("failed to create symlink from %s -> %s: %w", fromDest, toFile, err)
 	}
-	logging.Ok("Symlink successfully created from", toFile, "->", fromDest) // from symlink -> file
+	logging.Ok("Symlink successfully created from", fromDest, "->", toFile) // from symlink -> file
 	return nil
 }
 

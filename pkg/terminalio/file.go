@@ -24,31 +24,44 @@ type fileLocationInfo struct {
 // Installs a dotfile into its relative equal location in userspace by way of a symlink in userspace
 // pointing back to the file in dotfiles. The userspace file will be removed if 'overwriteFiles' is
 // true.
-func InstallDotfile(file, homeDir, dotfilesDir string, overwriteFiles bool) error {
-	// TODO
-	//	Get relative path for both dfiles in userspace
-	//	If filepath is inside dotfiles then check that a userspace file exists and prompt user to continue
-	//	Else Check that a dotfile exists that can be installed
-
+func InstallDotfile(file, homeDir, dotfilesDir string, overwriteAllowed bool) error {
 	info, err := getFileLocationInfo(file, homeDir, dotfilesDir)
 	if err != nil {
 		return err
 	}
 
-	logging.Debug(info)
+	// Check whether dotfile exists
+	exists, err := CheckIfFileExists(info.dotfilesFile)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return &FileNotFoundError{info.dotfilesFile}
+	}
 
-	if info.insideDotfiles {
-		// Check whtether file already exists in userspace
-		exists, err := CheckIfFileExists(info.userspaceFile)
-		if err != nil {
+	// Check whtether userspace file already exists
+	exists, err = CheckIfFileExists(info.userspaceFile)
+	if err != nil {
+		return err
+	}
+	if exists {
+		if !overwriteAllowed {
+			return &AbortOnOverwriteError{info.userspaceFile}
+		}
+
+		// Backup file before copying it
+		if _, err = BackupFile(info.userspaceFile); err != nil {
 			return err
 		}
-		if exists {
-			if !overwriteFiles {
-				return &AbortOnOverwriteError{info.fileOrgPath}
-			}
+
+		// Remove file in userspace
+		if err := deleteFile(info.userspaceFile); err != nil {
+			return err
 		}
-	} else {
+	}
+	// Create symlink in userspace pointing to dotfile
+	if err := CreateSymlink(info.userspaceFile, info.dotfilesFile); err != nil {
+		return err
 	}
 
 	return nil
@@ -63,7 +76,6 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		return err
 	}
 
-	file = info.fileOrgPath
 	dotfile := info.dotfilesFile
 	usersymlink := info.userspaceFile
 
@@ -73,7 +85,7 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		return err
 	}
 	if !ok {
-		return &FileNotFoundError{file}
+		return &FileNotFoundError{dotfile}
 	}
 
 	ok, err = IsFileSymlink(usersymlink)
@@ -81,7 +93,7 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		return err
 	}
 	if !ok {
-		return &SymlinkNotFoundError{file}
+		return &SymlinkNotFoundError{usersymlink}
 	}
 
 	// Backup file before copying it
@@ -200,7 +212,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// Create symlink from userspace to the newly created file in dotfiles
-	if err := createSymlink(absNewDotFile, absUserspaceFile); err != nil {
+	if err := CreateSymlink(absUserspaceFile, absNewDotFile); err != nil {
 		return err
 	}
 

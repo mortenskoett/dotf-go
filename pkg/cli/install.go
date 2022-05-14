@@ -30,12 +30,12 @@ func (c *installCommand) Run(args *CliArguments, conf *config.DotfConfiguration)
 	if err != nil {
 		switch e := err.(type) {
 		case *terminalio.AbortOnOverwriteError:
-			logging.Warn(fmt.Sprintf("A file already exist in userspace at: %s.", logging.Color(e.Path, logging.Green)))
+			logging.Warn(fmt.Sprintf("A file already exist in userspace: %s", logging.Color(e.Path, logging.Green)))
 			logging.Warn(fmt.Sprintf("%s needs to backup and delete this file to install the dotfile.", c.programName))
 
 			ok := confirmByUser("Do you want to continue?")
 			if ok {
-				return terminalio.InstallDotfile(filepath, conf.HomeDir, conf.DotfilesDir, true) // Overwrite file
+				return terminalio.InstallDotfile(filepath, conf.HomeDir, conf.DotfilesDir, ok) // Overwrite file
 			} else {
 				logging.Info("Aborted by user")
 				return nil
@@ -58,7 +58,7 @@ func (c *installCommand) Overview() string {
 
 func (c *installCommand) Arguments() []Arg {
 	return []Arg{
-		{Name: "file/dir", Description: "Path to file or dir inside dotfiles or path to file or dir in userspace."},
+		{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."},
 	}
 }
 
