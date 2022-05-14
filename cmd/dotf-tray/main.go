@@ -1,10 +1,9 @@
 /*
-Starts a running process visualized as an icon in the systray.
+Starts a running process as an icon in the systray.
 */
 package main
 
 import (
-	"log"
 	"time"
 
 	"github.com/mortenskoett/dotf-go/pkg/concurrency"
@@ -22,8 +21,8 @@ const logo = `    _       _     __         _		     _  _
 `
 
 const (
-	version            = "" // Inserted by build process
-	programName string = "dotf-tray"
+	programVersion string = "" // Inserted by build process
+	programName    string = "dotf-tray"
 )
 
 // State used by the event loop of the tray icon UI.
@@ -45,25 +44,24 @@ var (
 
 func main() {
 	logging.WithColor(logging.Blue, logo)
-	logging.Log("A dotfiles updater tray service.\n")
-	log.SetPrefix("trayicon: ")
+	logging.Info("Starting", programName, "service.\n")
 	latestReadConf = readConfiguration()
 	updateWorker = *concurrency.NewIntervalWorkerParam(time.Minute*2, handleUpdateNowEvent)
 	systray.Run(onReady, onExit)
+	logging.Info(programName, "service stopped")
 }
 
 func readConfiguration() config.DotfConfiguration {
 	conf, err := config.ReadFromFile(resource.ProjectRoot + "/config.toml")
 	if err != nil {
-		log.Fatal(err)
+		logging.Fatal(err)
 	}
-	// TODO: Change this path to either $CONFIG or set specifically using UI
 	conf.DotfilesDir = "/home/mskk/Repos/temp/git/example1"
 	return conf
 }
 
 func onExit() {
-	logging.Log("Dotf tray manager shutdown")
+	logging.Info(programName, "shutting down")
 }
 
 // Main event loop.
@@ -72,7 +70,6 @@ func onReady() {
 	systray.SetTitle("Dotf Tray Manager")
 	systray.SetTemplateIcon(getDefaultIcon())
 	mLastUpdated.Disable()
-	// mError.Disable()
 	mError.Hide()
 
 	// Handle events.
@@ -94,19 +91,19 @@ func handleToggleUpdateEvent() {
 	shouldAutoUpdate = !shouldAutoUpdate
 
 	if mToggleUpdate.Checked() {
-		log.Println("Toggle auto-update OFF.")
+		logging.Info("Toggle auto-update OFF.")
 		mToggleUpdate.Uncheck()
 		updateWorker.Stop()
 
 	} else {
-		log.Println("Toggle auto-update ON.")
+		logging.Info("Toggle auto-update ON.")
 		mToggleUpdate.Check()
 		updateWorker.Start()
 	}
 }
 
 func handleUpdateNowEvent() {
-	log.Println("Updating now")
+	logging.Info("Updating now")
 	systray.SetTemplateIcon(getLoadingIcon())
 
 	err := terminalio.SyncLocalRemote(latestReadConf.DotfilesDir)
@@ -117,37 +114,37 @@ func handleUpdateNowEvent() {
 
 	lastUpdated = time.Now().Format(time.Stamp)
 	systray.SetTemplateIcon(getDefaultIcon())
-	log.Println("Updating done")
+	logging.Info("Updating done")
 }
 
 func showError(err string) {
-	log.Print(err)
+	logging.Info(err)
 	systray.SetTemplateIcon(getErrorIcon())
 	mError.SetTitle(err)
 	mError.Show()
 }
 
 func getDefaultIcon() []byte {
-	bytes, err := resource.Get("icons/d_pink_lower_case.png")
+	bytes, err := resource.GetIcon(resource.PinkLowerCase)
 	if err != nil {
-		log.Fatal(err)
+		logging.Fatal(err)
 	}
 	return bytes
 }
 
 func getLoadingIcon() []byte {
-	bytes, err := resource.Get("icons/d_pink_lower_case_timeglass.png")
+	bytes, err := resource.GetIcon(resource.PinkLowerCaseTimeGlass)
 	if err != nil {
-		log.Fatal(err)
+		logging.Fatal(err)
 	}
 	return bytes
 }
 
 func getErrorIcon() []byte {
 	// TODO: Change icon to white exclamation mark
-	bytes, err := resource.Get("icons/d_pink_lower_case_dragon.png")
+	bytes, err := resource.GetIcon(resource.PinkLowerCaseDragon)
 	if err != nil {
-		log.Fatal(err)
+		logging.Fatal(err)
 	}
 	return bytes
 }
