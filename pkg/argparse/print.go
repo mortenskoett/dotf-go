@@ -27,8 +27,8 @@ Details:
 
 func printHeader(logo, version string) {
 	fmt.Println(logging.Color(logo, logging.Blue))
-	fmt.Println("Dotfiles handler in Go.")
-	fmt.Println("Version:", version)
+	fmt.Print("Dotfiles handler in Go.")
+	fmt.Println(" Version:", version)
 }
 
 func printUsage(commands []cli.Command, programName string) {

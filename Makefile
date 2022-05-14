@@ -1,5 +1,5 @@
 VNAME := programVersion
-DOTF_VERSION = $(shell git rev-parse --short HEAD)
+DOTF_VERSION := $(shell git rev-parse --short HEAD)
 
 help:
 	echo "Specify target"
