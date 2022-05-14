@@ -37,19 +37,22 @@ var (
 
 // Components registered in order seen in the trayicon dropdown.
 var (
-	mLastUpdated  = systray.AddMenuItem("Last Updated: "+lastUpdated, "Time the dotfiles were last updated.")
 	mError        = systray.AddMenuItem("No error.", "If an error happens, it pops up here.")
 	mUpdateNow    = systray.AddMenuItem("Update Now", "Pulls latest from remote and pushes changes.")
 	mToggleUpdate = systray.AddMenuItemCheckbox("Automatic Updates", "Will at intervals push/pull latest changes.", shouldAutoUpdate)
 	mQuit         = systray.AddMenuItem("Quit", "Quit dotf tray manager")
+	mLastUpdated  = systray.AddMenuItem("Last Updated: "+lastUpdated, "Time the dotfiles were last updated.")
 )
 
 func main() {
 	logging.WithColor(logging.Blue, logo)
 	logging.Info("Starting", programName, "service.")
+
 	latestReadConf = *readConfiguration()
+
 	updateWorker = *concurrency.NewIntervalWorkerParam(
 		time.Second*time.Duration(latestReadConf.UpdateIntervalSec), handleUpdateNowEvent)
+
 	systray.Run(onReady, onExit)
 	logging.Info(programName, "service stopped")
 }
@@ -123,6 +126,12 @@ func handleUpdateNowEvent() {
 	}
 
 	lastUpdated = time.Now().Format(time.Stamp)
+
+	// TODO: Super hack and heavy mem leak. This item should probably be instantiated separately
+	mLastUpdated.Hide()
+	mLastUpdated = systray.AddMenuItem("Last Updated: "+lastUpdated, "Time the dotfiles were last updated.")
+	mLastUpdated.Disable()
+
 	systray.SetTemplateIcon(getDefaultIcon())
 	logging.Info("Updating done")
 }
