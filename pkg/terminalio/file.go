@@ -17,7 +17,51 @@ import (
 // pointing back to the file in dotfiles. The userspace file will be removed in the process.
 func InstallDotfile(file, homeDir, dotfilesDir string) error {
 	// TODO
-	//
+	//	Get relative path for both dfiles in userspace
+	//	If filepath is inside dotfiles then check that a userspace file exists and prompt user to continue
+	//	Else Check that a dotfile exists that can be installed
+
+	absFile, err := GetAbsolutePath(file)
+	if err != nil {
+		return err
+	}
+
+	absHomeDir, err := GetAndValidateAbsolutePath(homeDir)
+	if err != nil {
+		return err
+	}
+
+	absDotfilesDir, err := GetAndValidateAbsolutePath(dotfilesDir)
+	if err != nil {
+		return err
+	}
+
+	inside, relpath, err := determineFileLocation(absFile, absHomeDir, absDotfilesDir)
+	if err != nil {
+		return err
+	}
+
+	logging.Debug(relpath)
+
+	if inside {
+		ok, err := CheckIfFileExists(absFile)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return &FileNotFoundError{absFile}
+		}
+	} else {
+		// outside
+		ok, err := IsFileSymlink(absFile)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return &SymlinkNotFoundError{absFile}
+		}
+	}
+
 	return nil
 }
 
@@ -40,32 +84,33 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		return err
 	}
 
-	inside, relpath, err := isInsideDotfilesDir(absFile, absHomeDir, absDotfilesDir)
-	if inside {
-		ok, err := CheckIfFileExists(absFile)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return &FileNotFoundError{absFile}
-		}
-	} else {
-		// outside
-		ok, err := IsFileSymlink(absFile)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			return &SymlinkNotFoundError{absFile}
-		}
+	_, relpath, err := determineFileLocation(absFile, absHomeDir, absDotfilesDir)
+	if err != nil {
+		return err
 	}
 
 	dotfile := filepath.Join(absDotfilesDir, relpath)
 	usersymlink := filepath.Join(absHomeDir, relpath)
 
-	// Backup file before copying it
-	_, err = BackupFile(dotfile)
+	// Check whtether file and symlink exists
+	ok, err := CheckIfFileExists(dotfile)
 	if err != nil {
+		return err
+	}
+	if !ok {
+		return &FileNotFoundError{absFile}
+	}
+
+	ok, err = IsFileSymlink(usersymlink)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return &SymlinkNotFoundError{absFile}
+	}
+
+	// Backup file before copying it
+	if _, err = BackupFile(dotfile); err != nil {
 		return err
 	}
 
@@ -75,8 +120,7 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 	}
 
 	// Copy dotfile back to userspace
-	_, err = copyFileOrDir(dotfile, usersymlink)
-	if err != nil {
+	if _, err = copyFileOrDir(dotfile, usersymlink); err != nil {
 		return err
 	}
 
@@ -88,24 +132,26 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 	return nil
 }
 
-// Returns true if the given 'file' is inside dotfiles directory otherwise false. The relative path
-// to the file is also returned which is the same both when the file is inside as well as outside the
-// dotfiles dir. It is expected that the given arguments are fully qualified.
-func isInsideDotfilesDir(file, homeDir, dotfilesDir string) (bool, string, error) {
-	relativePath, err := detachRelativePath(file, homeDir)
+// Returns a tuple with true if the given 'file' is inside dotfiles directory otherwise false and
+// the relative path to the file which is the same both when the file is inside and outside the
+// dotfiles dir. It is expected that the given path arguments are absolute. This function is useful
+// because often there are commands that should produce equal result both when called from dotfiles
+// and userspace.
+func determineFileLocation(file, homeDir, dotfilesDir string) (inside bool, relative string, err error) {
+	relative, err = detachRelativePath(file, homeDir)
 	if err != nil {
 		return false, "", err
 	}
 
 	dotfilesDirName := filepath.Join("/", filepath.Base(dotfilesDir))
-	if strings.HasPrefix(relativePath, dotfilesDirName) {
+	if strings.HasPrefix(relative, dotfilesDirName) {
 		// dotfiles dir
-		relativePath = strings.TrimPrefix(relativePath, dotfilesDirName)
-		return true, relativePath, nil
+		relative = strings.TrimPrefix(relative, dotfilesDirName)
+		return true, relative, nil
 	}
 
 	// userspace dir
-	return false, relativePath, nil
+	return false, relative, nil
 }
 
 // Copies file in userspace to dotfiles dir using same relative path between 'homeDir' and
@@ -172,7 +218,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 func BackupFile(file string) (string, error) {
 	const backupDir string = "/tmp/dotf-go/backups/"
 
-	logging.Log("Creating backup")
+	logging.Info("Creating backup")
 
 	backupDst := backupDir + file
 	path, err := copyFileOrDir(file, backupDst)
