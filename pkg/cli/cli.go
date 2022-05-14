@@ -155,7 +155,8 @@ func confirmByUser(question string) bool {
 	reader := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Printf("%s [Y(yes)/n(no)]\n", question)
+		logging.Warn(question)
+		logging.Input("[Y(yes)/n(no)]")
 
 		resp, err := reader.ReadString('\n')
 		if err != nil {

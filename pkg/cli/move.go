@@ -25,7 +25,7 @@ func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) er
 		return err
 	}
 
-	ok := confirmByUser("\nThis operation can be desctructive. Do you want to continue?")
+	ok := confirmByUser("This operation can be desctructive. Do you want to continue?")
 	if !ok {
 		logging.Warn("Aborted by user")
 		return nil

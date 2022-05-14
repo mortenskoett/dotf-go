@@ -22,8 +22,9 @@ type fileLocationInfo struct {
 }
 
 // Installs a dotfile into its relative equal location in userspace by way of a symlink in userspace
-// pointing back to the file in dotfiles. The userspace file will be removed in the process.
-func InstallDotfile(file, homeDir, dotfilesDir string, abortOnOverwrite bool) error {
+// pointing back to the file in dotfiles. The userspace file will be removed if 'overwriteFiles' is
+// true.
+func InstallDotfile(file, homeDir, dotfilesDir string, overwriteFiles bool) error {
 	// TODO
 	//	Get relative path for both dfiles in userspace
 	//	If filepath is inside dotfiles then check that a userspace file exists and prompt user to continue
@@ -43,8 +44,8 @@ func InstallDotfile(file, homeDir, dotfilesDir string, abortOnOverwrite bool) er
 			return err
 		}
 		if exists {
-			if abortOnOverwrite {
-				return AbortOnOverwriteError{info.fileOrgPath}
+			if !overwriteFiles {
+				return &AbortOnOverwriteError{info.fileOrgPath}
 			}
 		}
 	} else {

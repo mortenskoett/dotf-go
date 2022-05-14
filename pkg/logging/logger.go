@@ -13,6 +13,7 @@ const (
 	ok    string = "ok: "
 	debug string = "DEBUG: "
 	info  string = "info: "
+	input string = "input: "
 )
 
 func init() {
@@ -29,6 +30,10 @@ func Ok(str ...interface{}) {
 
 func Warn(str ...interface{}) {
 	logWithColor(Yellow, warn, str...)
+}
+
+func Input(str ...interface{}) {
+	logWithColor(Blue, input, str...)
 }
 
 func Error(str ...interface{}) {
