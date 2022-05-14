@@ -26,6 +26,14 @@ type SymlinkNotFoundError struct {
 	path string
 }
 
+type AbortOnOverwriteError struct {
+	path string
+}
+
+func (e *AbortOnOverwriteError) Error() string {
+	return fmt.Sprintf("file or directory was present at location: %s. User interaction required.", e.path)
+}
+
 func (e *FileAlreadyExistsError) Error() string {
 	return fmt.Sprintf("file or directory was already present at location: %s", e.path)
 }

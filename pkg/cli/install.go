@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mortenskoett/dotf-go/pkg/config"
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -25,9 +26,20 @@ func (c *installCommand) Run(args *CliArguments, conf *config.DotfConfiguration)
 
 	filepath := args.PosArgs[0]
 
-	err := terminalio.InstallDotfile(filepath, conf.HomeDir, conf.DotfilesDir)
+	err := terminalio.InstallDotfile(filepath, conf.HomeDir, conf.DotfilesDir, true)
 	if err != nil {
-		return err
+		switch err.(type) {
+		case *terminalio.AbortOnOverwriteError:
+			ok := confirmByUser(fmt.Sprintf("\nA file already exist in userspace. %s needs to backup and delete this file to install dotfile. Continue?", c.programName))
+			if ok {
+				return terminalio.InstallDotfile(filepath, conf.HomeDir, conf.DotfilesDir, false) // Overwrite file
+			} else {
+				logging.Warn("Aborted by user")
+				return nil
+			}
+		default:
+			return err
+		}
 	}
 
 	return nil

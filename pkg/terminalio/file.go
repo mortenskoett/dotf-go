@@ -23,52 +23,32 @@ type fileLocationInfo struct {
 
 // Installs a dotfile into its relative equal location in userspace by way of a symlink in userspace
 // pointing back to the file in dotfiles. The userspace file will be removed in the process.
-func InstallDotfile(file, homeDir, dotfilesDir string) error {
+func InstallDotfile(file, homeDir, dotfilesDir string, abortOnOverwrite bool) error {
 	// TODO
 	//	Get relative path for both dfiles in userspace
 	//	If filepath is inside dotfiles then check that a userspace file exists and prompt user to continue
 	//	Else Check that a dotfile exists that can be installed
 
-	absFile, err := GetAbsolutePath(file)
-	if err != nil {
-		return err
-	}
-
-	absHomeDir, err := GetAndValidateAbsolutePath(homeDir)
-	if err != nil {
-		return err
-	}
-
-	absDotfilesDir, err := GetAndValidateAbsolutePath(dotfilesDir)
-	if err != nil {
-		return err
-	}
-
-	info, err := determineFileLocation(absFile, absHomeDir, absDotfilesDir)
+	info, err := getFileLocationInfo(file, homeDir, dotfilesDir)
 	if err != nil {
 		return err
 	}
 
 	logging.Debug(info)
 
-	// if inside {
-	// 	ok, err := CheckIfFileExists(absFile)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	if !ok {
-	// 		return &FileNotFoundError{absFile}
-	// 	}
-	// } else {
-	// 	// outside
-	// 	ok, err := IsFileSymlink(absFile)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	if !ok {
-	// 		return &SymlinkNotFoundError{absFile}
-	// 	}
-	// }
+	if info.insideDotfiles {
+		// Check whtether file already exists in userspace
+		exists, err := CheckIfFileExists(info.userspaceFile)
+		if err != nil {
+			return err
+		}
+		if exists {
+			if abortOnOverwrite {
+				return AbortOnOverwriteError{info.fileOrgPath}
+			}
+		}
+	} else {
+	}
 
 	return nil
 }
@@ -77,7 +57,7 @@ func InstallDotfile(file, homeDir, dotfilesDir string) error {
 // location in userspace. The symlink is removed first. The operation can be applied both to the
 // symlink in userspace and the actual file in the dotfiles directory.
 func RevertDotfile(file, homeDir, dotfilesDir string) error {
-	info, err := determineFileLocation(file, homeDir, dotfilesDir)
+	info, err := getFileLocationInfo(file, homeDir, dotfilesDir)
 	if err != nil {
 		return err
 	}
@@ -129,7 +109,7 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 // Returns a struct containing information about the give 'file' and its relations to dotfiles and
 // to userspace. This is useful because often there are commands that should produce equal results
 // both when called from dotfiles and userspace.
-func determineFileLocation(file, homeDir, dotfilesDir string) (info *fileLocationInfo, err error) {
+func getFileLocationInfo(file, homeDir, dotfilesDir string) (info *fileLocationInfo, err error) {
 	info = &fileLocationInfo{}
 
 	absFile, err := GetAbsolutePath(file)
