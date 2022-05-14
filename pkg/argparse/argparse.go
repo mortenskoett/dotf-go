@@ -11,15 +11,23 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
-// Flags required to contain a value like 'exec cmd --flag value'. This is maintained by the parsing
-// routine which will fail.
+var (
+	userConfigDir, _ = os.UserConfigDir()
+	defaultConfigDir = userConfigDir + "/dotf/config"
+)
+
+// Type alias used to express flags with values
+type Flags = map[string]string
+
+// Specific flags required to contain a value like 'exec cmd --flag value'. This is maintained by
+// the parsing routine which will fail.
 type ValueFlags []string
 
-var valueflags ValueFlags = []string{"config"}
+var vflags ValueFlags = []string{"config"}
 
 // Parses the CLI input arguments and the dotf configuration. Expects complete input argument line.
 func Parse(osargs []string) (*cli.CliArguments, *config.DotfConfiguration, error) {
-	cliargs, err := parseCliArguments(osargs)
+	cliargs, err := parseCliArguments(osargs, vflags)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -33,7 +41,7 @@ func Parse(osargs []string) (*cli.CliArguments, *config.DotfConfiguration, error
 }
 
 // Parses CLI arguments into positional args and flags
-func parseCliArguments(osargs []string) (*cli.CliArguments, error) {
+func parseCliArguments(osargs []string, vflags ValueFlags) (*cli.CliArguments, error) {
 	// Ignore executable name
 	args := osargs[1:]
 
@@ -47,7 +55,7 @@ func parseCliArguments(osargs []string) (*cli.CliArguments, error) {
 		return nil, &ParseHelpFlagError{"showing full help."}
 	}
 
-	cliargs, err := parseArgsAndFlags(args)
+	cliargs, err := parseArgsAndFlags(args, vflags)
 	if err != nil {
 		return nil, &ParseError{fmt.Sprintf("failed to parse input: %s", err)}
 	}
@@ -56,50 +64,54 @@ func parseCliArguments(osargs []string) (*cli.CliArguments, error) {
 }
 
 // Parses cli command and arguments without judgement about whether arguments are fit for Command.
-func parseArgsAndFlags(osargs []string) (*cli.CliArguments, error) {
+func parseArgsAndFlags(osargs []string, vflags ValueFlags) (*cli.CliArguments, error) {
 	cliarg := cli.NewCliArguments()
 
 	cmdName := osargs[0]
 	args := osargs[1:]
 
 	cliarg.CmdName = cmdName
+	cliarg.PosArgs = parsePositionalArgs(args)
 
-	parsePositionalInto(args, cliarg)
-
-	if err := parseFlagsInto(args, valueflags, cliarg); err != nil {
+	flags, err := parseFlags(args, vflags)
+	if err != nil {
 		return nil, err
 	}
+
+	cliarg.Flags = flags
 
 	return cliarg, nil
 }
 
 // Parses only positional args and stops at the first flag e.g. '--flag'. The args are added to the
 // supplied cli.Arguments.
-func parsePositionalInto(args []string, cliarg *cli.CliArguments) {
+func parsePositionalArgs(args []string) (posArgs []string) {
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "--") {
 			break
 		} else {
-			cliarg.PosArgs = append(cliarg.PosArgs, arg)
+			posArgs = append(posArgs, arg)
 		}
 	}
+	return
 }
 
 // Parses only flags but both boolean and value holding flags The flags are added to the supplied
 // cli.Arguments.
-func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CliArguments) error {
-	var currentflag string
+func parseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
+	flags = Flags{}
 
+	var currentflag string
 	for i, arg := range args {
 		// previous arg was a value containing flag
 		if currentflag != "" {
 			if strings.HasPrefix(arg, "--") {
 				// next is also flag
-				return &ParseError{fmt.Sprintf(
+				return flags, &ParseError{fmt.Sprintf(
 					"given flag '--%s' must be followed by a value not a flag", currentflag)}
 			}
 
-			cliarg.Flags[currentflag] = arg
+			flags[currentflag] = arg
 			currentflag = ""
 			continue
 		}
@@ -111,7 +123,7 @@ func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CliArgumen
 
 			if i == len(args)-1 && isValueFlag {
 				// if last element
-				return &ParseError{fmt.Sprintf(
+				return flags, &ParseError{fmt.Sprintf(
 					"given flag '%s' must be followed by a value, but was empty", arg)}
 
 			} else if isValueFlag {
@@ -120,22 +132,12 @@ func parseFlagsInto(args []string, valueflags ValueFlags, cliarg *cli.CliArgumen
 
 			} else {
 				// no value
-				cliarg.Flags[flag] = flag
+				flags[flag] = flag
 			}
 
 		}
 	}
-	return nil
-}
-
-// Returns true if sl contains str.
-func containsString(sl []string, str string) bool {
-	for _, e := range sl {
-		if str == e {
-			return true
-		}
-	}
-	return false
+	return
 }
 
 // TODO: Refactor this function so that only one config is tried in any case
@@ -152,10 +154,7 @@ func parseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error)
 		logging.Warn(fmt.Errorf("failed to parse config path from flag: %w", err))
 	}
 
-	configPath, _ := os.UserConfigDir()
-	defaultPath := configPath + "/dotf/config"
-
-	config, err := readConfigFrom(defaultPath)
+	config, err := readConfigFrom(defaultConfigDir)
 	if err == nil {
 		return config, nil
 	}
@@ -175,4 +174,14 @@ func readConfigFrom(path string) (*config.DotfConfiguration, error) {
 		return nil, fmt.Errorf("couldn't load config: %w", err)
 	}
 	return &conf, nil
+}
+
+// Returns true if sl contains str.
+func containsString(sl []string, str string) bool {
+	for _, e := range sl {
+		if str == e {
+			return true
+		}
+	}
+	return false
 }
