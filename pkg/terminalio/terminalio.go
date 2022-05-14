@@ -48,8 +48,8 @@ func execute(path string, command termCommand) (string, error) {
 	output, err := execCmd.CombinedOutput()
 
 	// Show command output in terminal
-	logging.WithColor(logging.Yellow, string(command))
-	logging.WithColor(logging.Blue, (string(output)))
+	logging.Info(logging.Color(string(command), logging.Yellow))
+	logging.Info(logging.Color(string(output), logging.Green))
 
 	if err != nil {
 		return "", &shellExecError{command, string(output)}

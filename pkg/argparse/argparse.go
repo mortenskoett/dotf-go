@@ -16,7 +16,7 @@ var (
 	defaultConfigDir = userConfigDir + "/dotf/config"
 )
 
-// Type alias used to express flags with values
+// Type alias used to express flags by the parser
 type Flags = map[string]string
 
 // Specific flags required to contain a value like 'exec cmd --flag value'. This is maintained by
@@ -32,7 +32,7 @@ func Parse(osargs []string) (*cli.CliArguments, *config.DotfConfiguration, error
 		return nil, nil, err
 	}
 
-	conf, err := parseDotfConfig(cliargs.Flags)
+	conf, err := ParseDotfConfig(cliargs.Flags)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -73,7 +73,7 @@ func parseArgsAndFlags(osargs []string, vflags ValueFlags) (*cli.CliArguments, e
 	cliarg.CmdName = cmdName
 	cliarg.PosArgs = parsePositionalArgs(args)
 
-	flags, err := parseFlags(args, vflags)
+	flags, err := ParseFlags(args, vflags)
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +97,8 @@ func parsePositionalArgs(args []string) (posArgs []string) {
 }
 
 // Parses only flags but both boolean and value holding flags The flags are added to the supplied
-// cli.Arguments.
-func parseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
+// cli.Arguments. E.g. --config <path> and --help
+func ParseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
 	flags = Flags{}
 
 	var currentflag string
@@ -145,7 +145,7 @@ func parseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
 // 1. First --config <path> flag is tried and used in case it is valid
 // 2. Then ${HOME}/.config/dotf/config is tried
 // 3. If both fails a specifc parse config error is returned
-func parseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error) {
+func ParseDotfConfig(flags Flags) (*config.DotfConfiguration, error) {
 	if path, ok := flags["config"]; ok {
 		config, err := readConfigFrom(path)
 		if err == nil {

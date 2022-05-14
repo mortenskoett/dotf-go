@@ -4,8 +4,10 @@ Starts a running process as an icon in the systray.
 package main
 
 import (
+	"os"
 	"time"
 
+	"github.com/mortenskoett/dotf-go/pkg/argparse"
 	"github.com/mortenskoett/dotf-go/pkg/concurrency"
 	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logging"
@@ -44,19 +46,28 @@ var (
 
 func main() {
 	logging.WithColor(logging.Blue, logo)
-	logging.Info("Starting", programName, "service.\n")
-	latestReadConf = readConfiguration()
-	updateWorker = *concurrency.NewIntervalWorkerParam(time.Minute*2, handleUpdateNowEvent)
+	logging.Info("Starting", programName, "service.")
+	latestReadConf = *readConfiguration()
+	updateWorker = *concurrency.NewIntervalWorkerParam(
+		time.Second*time.Duration(latestReadConf.UpdateIntervalSec), handleUpdateNowEvent)
 	systray.Run(onReady, onExit)
 	logging.Info(programName, "service stopped")
 }
 
-func readConfiguration() config.DotfConfiguration {
-	conf, err := config.ReadFromFile(resource.ProjectRoot + "/config.toml")
+func readConfiguration() *config.DotfConfiguration {
+	args := os.Args[1:] // Ignore executable name
+	vflags := argparse.ValueFlags([]string{"config"})
+
+	flags, err := argparse.ParseFlags(args, vflags)
 	if err != nil {
 		logging.Fatal(err)
 	}
-	conf.DotfilesDir = "/home/mskk/Repos/temp/git/example1"
+
+	conf, err := argparse.ParseDotfConfig(flags)
+	if err != nil {
+		logging.Fatal(err)
+	}
+	logging.Info("Configuration successfully read")
 	return conf
 }
 
@@ -66,8 +77,7 @@ func onExit() {
 
 // Main event loop.
 func onReady() {
-	logging.Log("Dotf tray manager starting up")
-	systray.SetTitle("Dotf Tray Manager")
+	systray.SetTitle(programName)
 	systray.SetTemplateIcon(getDefaultIcon())
 	mLastUpdated.Disable()
 	mError.Hide()

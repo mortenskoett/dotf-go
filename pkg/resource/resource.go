@@ -10,14 +10,15 @@ import (
 type IconPath string
 
 const (
-	PinkLowerCase          IconPath = "d_pink_lower_case.png"
-	PinkLowerCaseDragon    IconPath = "d_pink_lower_case_dragon.png"
-	PinkLowerCaseTimeGlass IconPath = "d_pink_lower_case_timeglass.png"
+	icons                  IconPath = "assets/icons/"
+	PinkLowerCase          IconPath = icons + "d_pink_lower_case.png"
+	PinkLowerCaseDragon    IconPath = icons + "d_pink_lower_case_dragon.png"
+	PinkLowerCaseTimeGlass IconPath = icons + "d_pink_lower_case_timeglass.png"
 )
 
 //go:embed assets/icons
-var icons embed.FS
+var iconsEmbedded embed.FS
 
 func GetIcon(resource IconPath) ([]byte, error) {
-	return icons.ReadFile(string(resource))
+	return iconsEmbedded.ReadFile(string(resource))
 }
