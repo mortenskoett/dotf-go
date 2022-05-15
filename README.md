@@ -23,7 +23,7 @@ go, gotk, gcc, libappindicator-gtk3, git
 
 ### Setup
 - Create a local git repository and make sure it connects to remote using ssh.
-- Setup a config in ~${HOME}/.config/dotf/config with the following contents:
+- Setup a config in `~${HOME}/.config/dotf/config` with the following contents:
 ```
 remoteurl		= https://www.yourrepo.com/yourname/doesntexist
 dotfilesdir		= "~/yourdotfilesdir"
