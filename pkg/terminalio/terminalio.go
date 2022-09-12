@@ -49,7 +49,9 @@ func execute(path string, command termCommand) (string, error) {
 
 	// Show command output in terminal
 	logging.Info(logging.Color(string(command), logging.Yellow))
-	logging.Info(logging.Color(string(output), logging.Green))
+	if len(output) != 0 {
+		logging.Info(logging.Color(string(output), logging.Green))
+	}
 
 	if err != nil {
 		return "", &shellExecError{command, string(output)}

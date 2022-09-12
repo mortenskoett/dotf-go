@@ -2,10 +2,12 @@ package terminalio
 
 // Git commands.
 const (
-	gitStatus     termCommand = "git status"
-	gitAddAll     termCommand = "git add ."
-	gitCommit     termCommand = "git commit -am 'Commit made from dotf-go'"
-	gitPullMerge  termCommand = "git merge origin/master -m 'Merge made by dotf-go'"
+	gitStatus    termCommand = "git status"
+	gitAddAll    termCommand = "git add ."
+	gitCommit    termCommand = "git commit -am 'Commit made from dotf-go'"
+	gitFetch     termCommand = "git fetch"
+	gitPullMerge termCommand = "git merge origin/master -m 'Merge made by dotf-go'"
+	// gitPullMerge  termCommand = "git pull --no-edit" // Merge is default
 	gitAbortMerge termCommand = "git merge --abort"
 	gitPush       termCommand = "git push origin master"
 )
@@ -25,6 +27,11 @@ const (
 // If it is not possible to merge changes or if a command fails in the shell, an error will be returned.
 func SyncLocalRemote(absPath string) error {
 	hasNoLocalChanges, err := executeWithResult(absPath, gitStatus, nothingToCommit)
+	if err != nil {
+		return err
+	}
+
+	_, err = execute(absPath, gitFetch)
 	if err != nil {
 		return err
 	}
