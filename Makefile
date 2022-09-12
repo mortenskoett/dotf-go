@@ -23,7 +23,7 @@ install-tray: build-tray ## Installs tray app into default go location
 	cd cmd/dotf-tray/ && go install -ldflags "-X main.$(DOTF_VAR)=$(VERSION)"
 
 .PHONY: install-all
-install-all: build-all ## Install all applications.
+install-all: build-all install-cli install-tray ## Install all applications.
 
 test: build-all ## Run tests.
 	go test -v ./pkg/...
