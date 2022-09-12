@@ -1,17 +1,37 @@
 DOTF_VAR := programVersion
 VERSION := $(shell git rev-parse --short HEAD)
 
-help:
-	echo "Specify target"
+.DEFAULT_GOAL := help
 
-build:
-	echo hello $(DOTF_VAR)
+.PHONY: build-cli
+build-cli:	## Build the cli application
 	go build -ldflags "-X main.$(DOTF_VAR)=$(VERSION)" -o bin/dotf-cli  cmd/dotf-cli/main.go
+
+.PHONY: build-tray
+build-tray: ## Build the tray application
 	go build -ldflags "-X main.$(DOTF_VAR)=$(VERSION)" -o bin/dotf-tray cmd/dotf-tray/main.go
 
-install: build
+.PHONY: build-all
+build-all: build-cli build-tray ## Build all apps.
+
+.PHONY: install-cli
+install-cli: build-cli ## Installs cli app into default go location
 	cd cmd/dotf-cli/ && go install -ldflags "-X main.$(DOTF_VAR)=$(VERSION)"
+
+.PHONY: install-tray
+install-tray: build-tray ## Installs tray app into default go location
 	cd cmd/dotf-tray/ && go install -ldflags "-X main.$(DOTF_VAR)=$(VERSION)"
 
-test: build
+.PHONY: install-all
+install-all: build-all ## Install all applications.
+
+test: build-all ## Run tests.
 	go test -v ./pkg/...
+
+.PHONY: install-ubuntu-deps
+install-ubuntu-deps: ## Installs tray app deps for ubuntu
+	sudo apt-get install build-essential libgtk-3-dev libappindicator3-dev
+
+.PHONY: help
+help: ## Display this help
+	@grep -E '^[a-zA-Z_0-9-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
