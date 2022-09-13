@@ -2,14 +2,14 @@ package terminalio
 
 // Git commands.
 const (
-	gitStatus    termCommand = "git status"
-	gitAddAll    termCommand = "git add ."
-	gitCommit    termCommand = "git commit -am 'Commit made from dotf-go'"
-	gitFetch     termCommand = "git fetch"
-	gitPullMerge termCommand = "git merge origin/master -m 'Merge made by dotf-go'"
-	// gitPullMerge  termCommand = "git pull --no-edit" // Merge is default
+	gitStatus     termCommand = "git status"
+	gitAddAll     termCommand = "git add ."
+	gitCommit     termCommand = "git commit -am 'Commit made from dotf-go'"
+	gitFetch      termCommand = "git fetch"
+	gitPullMerge  termCommand = "git merge origin/master -m 'Merge made by dotf-go'"
 	gitAbortMerge termCommand = "git merge --abort"
 	gitPush       termCommand = "git push origin master"
+	gitPull       termCommand = "git pull origin master"
 )
 
 // Status returned by git. Case sensitive substring contained in the first line of the returns from
@@ -31,13 +31,11 @@ func SyncLocalRemote(absPath string) error {
 		return err
 	}
 
-	_, err = execute(absPath, gitFetch)
-	if err != nil {
-		return err
-	}
-
 	if hasNoLocalChanges {
-		return pullMerge(absPath)
+		if _, err = execute(absPath, gitPull); err != nil {
+			return err
+		}
+		return nil
 	}
 
 	err = addCommitAll(absPath)
@@ -79,6 +77,11 @@ func addCommitAll(path string) error {
 
 // Pulls latest and attempts a merge if possible otherwise reverts the merge and returns an error.
 func pullMerge(path string) error {
+	_, err := execute(path, gitFetch)
+	if err != nil {
+		return err
+	}
+
 	success, err := executeWithResult(path, gitPullMerge, mergeSuccess, allUpToDate)
 	if err != nil {
 		return err

@@ -7,18 +7,18 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
-type pushCommand struct {
+type syncCommand struct {
 	CommandBase
 }
 
-func NewPushCommand(programName, commandName string) *pushCommand {
-	return &pushCommand{
+func NewSyncCommand(programName, commandName string) *syncCommand {
+	return &syncCommand{
 		CommandBase{
 			programName: programName,
 			commandName: commandName}}
 }
 
-func (c *pushCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
+func (c *syncCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
 	if err := checkCliArguments(args, c); err != nil {
 		return err
 	}
@@ -35,29 +35,29 @@ func (c *pushCommand) Run(args *CliArguments, conf *config.DotfConfiguration) er
 	return nil
 }
 
-func (c *pushCommand) CmdName() string {
+func (c *syncCommand) CmdName() string {
 	return c.commandName
 }
 
-func (c *pushCommand) Overview() string {
+func (c *syncCommand) Overview() string {
 	return "Merges latest changes from remote and then pushes local changes."
 }
 
-func (c *pushCommand) Arguments() []Arg {
+func (c *syncCommand) Arguments() []Arg {
 	return []Arg{}
 }
 
-func (c *pushCommand) Usage() string {
+func (c *syncCommand) Usage() string {
 	return fmt.Sprintf("%s %s <filepath> [--help]", c.programName, c.commandName)
 }
 
-func (c *pushCommand) Description() string {
+func (c *syncCommand) Description() string {
 	return `
 	Uses local git instance to merge newest changes from git remote and then adds, commits and
 	pushes latest changes to remote.
 	`
 }
 
-func (c *pushCommand) ProgName() string {
+func (c *syncCommand) ProgName() string {
 	return c.programName
 }

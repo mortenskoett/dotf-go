@@ -27,7 +27,7 @@ var commands = map[string]CommandFunc{
 	"add":     func(pname string) Command { return NewAddCommand(pname, "add") },
 	"install": func(pname string) Command { return NewInstallCommand(pname, "install") },
 	"move":    func(pname string) Command { return NewMoveCommand(pname, "move") },
-	"push":    func(pname string) Command { return NewPushCommand(pname, "push") },
+	"sync":    func(pname string) Command { return NewSyncCommand(pname, "sync") },
 	"revert":  func(pname string) Command { return NewRevertCommand(pname, "revert") },
 }
 
