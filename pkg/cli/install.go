@@ -53,7 +53,7 @@ func (c *installCommand) CmdName() string {
 }
 
 func (c *installCommand) Overview() string {
-	return "Installs an existing dotfile into userspace by symlinking to the dotfile from userspace."
+	return "Install file/dir from dotfiles by creating symlink in userspace to the file."
 }
 
 func (c *installCommand) Arguments() []Arg {

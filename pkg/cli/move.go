@@ -52,7 +52,7 @@ func (c *moveCommand) CmdName() string {
 }
 
 func (c *moveCommand) Overview() string {
-	return "Iterates through configs in 'dotfiles-dir' and updates matching symlinks in 'userspace-dir'."
+	return "Iterate over files inside dotfiles and update matching symlinks in userspace."
 }
 
 func (c *moveCommand) Arguments() []Arg {
@@ -68,14 +68,16 @@ func (c *moveCommand) Usage() string {
 
 func (c *moveCommand) Description() string {
 	return `
-	In case the dotfiles directory has been moved, it is necessary to update all symlinks pointing
-	back to the old location, to point to the new location. This application will iterate through
-	all directories and files in 'from' and attempt to locate a matching symlink in the same
-	location relative to the given argument 'to'. The given path 'to' is the root of the userspace,
-	e.g. root of '~/' aka the home folder. Note that currently if a symlink is not found in the user
-	space, then it will not be touched, however a warning will be shown.
+	In case the dotfiles directory has been moved, here denoted by given 'dotfiles-dir', it is
+	necessary to update all symlinks pointing back to the previous location, to point to the new
+	location.
+	This command will iterate through all directories and files in given 'dotfiles-dir', and attempt
+	to locate a matching symlink in the same location relative to the given argument but in given
+	'userspace-dir'. The path 'userspace-dir' must be the root of the configured userspace, e.g.
+	'~/' aka the home folder. Note that currently if a symlink is not found in userspace, then it
+	will not be touched, however a warning will be shown.
 
-	It is expected that the dotfiles directory has already been moved and that 'from' is the new
-	location directory. 
+	It is expected that the dotfiles directory has already been moved and that 'dotfiles-dir' is the
+	new location directory.
 	`
 }

@@ -40,7 +40,7 @@ func (c *syncCommand) CmdName() string {
 }
 
 func (c *syncCommand) Overview() string {
-	return "Merges latest changes from remote and then pushes local changes."
+	return "Sync changes with remote using merge strategy if needed."
 }
 
 func (c *syncCommand) Arguments() []Arg {

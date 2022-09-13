@@ -38,7 +38,7 @@ func (c *addCommand) CmdName() string {
 }
 
 func (c *addCommand) Overview() string {
-	return "Adds a file or dir from userspace to dotfiles by replacing it with a symlink and copying contents."
+	return "Move file/dir from userspace to dotfiles and replace with symlink."
 }
 
 func (c *addCommand) Arguments() []Arg {

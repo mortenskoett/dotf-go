@@ -38,7 +38,7 @@ func (c *revertCommand) CmdName() string {
 }
 
 func (c *revertCommand) Overview() string {
-	return "Reverts a file or dir from dotfiles back to its original location in userspace."
+	return "Revert file/dir from dotfiles back to original location in userspace."
 }
 
 func (c *revertCommand) Arguments() []Arg {
