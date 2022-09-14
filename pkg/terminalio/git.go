@@ -18,7 +18,8 @@ const (
 	allUpToDate     commandReturn = "Already up to date."
 	nothingToCommit commandReturn = "nothing to commit, working tree clean"
 	mergeSuccess    commandReturn = "Merge made by"
-	pushSuccess     commandReturn = "master -> master" // Something is making git push return only last line.
+	pushSuccess     commandReturn = "master -> master"        // Something is making git push return only last line.
+	aheadOfOrigin   commandReturn = "Your branch is ahead of" // Essentially commits not pushed
 )
 
 // SyncLocalRemote uses Git to update local and remote repository with newest changes from either place.
@@ -26,6 +27,25 @@ const (
 // abilities to a remote.
 // If it is not possible to merge changes or if a command fails in the shell, an error will be returned.
 func SyncLocalRemote(absPath string) error {
+	_, err := execute(absPath, gitFetch)
+	if err != nil {
+		return err
+	}
+
+	// Push commits ahead of origin
+
+	aheadWithcommitsToPush, err := executeWithResult(absPath, gitStatus, aheadOfOrigin)
+	if err != nil {
+		return err
+	}
+
+	if aheadWithcommitsToPush {
+		_, err := execute(absPath, gitPush)
+		if err != nil {
+			return err
+		}
+	}
+
 	hasNoLocalChanges, err := executeWithResult(absPath, gitStatus, nothingToCommit)
 	if err != nil {
 		return err
@@ -37,6 +57,8 @@ func SyncLocalRemote(absPath string) error {
 		}
 		return nil
 	}
+
+	// There are changes to push to origin
 
 	err = addCommitAll(absPath)
 	if err != nil {
