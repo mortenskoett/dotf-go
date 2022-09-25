@@ -16,19 +16,19 @@ import (
 )
 
 type DotfConfiguration struct {
-	RemoteURL         string
-	DotfilesDir       string
-	HomeDir           string
-	UpdateIntervalSec int
+	SyncDir           string // Git initialized directory that dotf should sync with remote
+	UserspaceDir      string // Userspace dir is the root of the file hierachy dotf replicates
+	DotfilesDir       string // Directory inside SyncDir containing same structure as userspace dir
+	UpdateIntervalSec int    // Interval between syncing with remote using dotf-tray application
 }
 
 /* Creates an empty Configuration with default values. */
 func NewConfiguration() DotfConfiguration {
 
 	return DotfConfiguration{
-		RemoteURL:         "N/A",
+		SyncDir:           "N/A",
+		UserspaceDir:      "~/",
 		DotfilesDir:       "N/A",
-		HomeDir:           "~/",
 		UpdateIntervalSec: 120,
 	}
 }
@@ -107,15 +107,15 @@ func sanitize(r rune) bool {
 		r == '"'
 }
 
-func buildConfiguration(config *DotfConfiguration, paramsToValues *map[string]string) error {
-	for k, v := range *paramsToValues {
+func buildConfiguration(config *DotfConfiguration, keyToValue *map[string]string) error {
+	for k, v := range *keyToValue {
 		switch k {
-		case "remoteurl":
-			config.RemoteURL = v
 		case "dotfilesdir":
 			config.DotfilesDir = expandTilde(v)
-		case "homedir":
-			config.HomeDir = expandTilde(v)
+		case "userspacedir":
+			config.UserspaceDir = expandTilde(v)
+		case "syncdir":
+			config.SyncDir = expandTilde(v)
 		case "updateintervalsec":
 			if v_num, err := strconv.Atoi(v); err != nil {
 				return err
@@ -123,7 +123,7 @@ func buildConfiguration(config *DotfConfiguration, paramsToValues *map[string]st
 				config.UpdateIntervalSec = v_num
 			}
 		default:
-			return fmt.Errorf("malformed parameter naming in configuration for: %s", k)
+			return fmt.Errorf("malformed or unknown key encountered in configuration for: %s", k)
 		}
 	}
 	return nil

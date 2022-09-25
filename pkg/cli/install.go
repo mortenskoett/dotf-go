@@ -26,7 +26,7 @@ func (c *installCommand) Run(args *CliArguments, conf *config.DotfConfiguration)
 
 	filepath := args.PosArgs[0]
 
-	err := terminalio.InstallDotfile(filepath, conf.HomeDir, conf.DotfilesDir, false)
+	err := terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, false)
 	if err != nil {
 		switch e := err.(type) {
 		case *terminalio.AbortOnOverwriteError:
@@ -35,7 +35,7 @@ func (c *installCommand) Run(args *CliArguments, conf *config.DotfConfiguration)
 
 			ok := confirmByUser("Do you want to continue?")
 			if ok {
-				return terminalio.InstallDotfile(filepath, conf.HomeDir, conf.DotfilesDir, ok) // Overwrite file
+				return terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, ok) // Overwrite file
 			} else {
 				logging.Info("Aborted by user")
 				return nil

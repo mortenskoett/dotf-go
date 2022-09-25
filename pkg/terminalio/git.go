@@ -1,5 +1,7 @@
 package terminalio
 
+import "github.com/mortenskoett/dotf-go/pkg/logging"
+
 // Git commands.
 const (
 	gitStatus     termCommand = "git status"
@@ -22,37 +24,39 @@ const (
 	aheadOfOrigin   commandReturn = "Your branch is ahead of" // Essentially commits not pushed
 )
 
-// SyncLocalRemote uses Git to update local and remote repository with newest changes from either place.
-// The given path 'absPathToLocalRepo' must point to a directory initialized with git and with push/pull
-// abilities to a remote.
-// If it is not possible to merge changes or if a command fails in the shell, an error will be returned.
-func SyncLocalRemote(absPath string) error {
-	_, err := execute(absPath, gitFetch)
+// SyncLocalRemote uses Git to update local and remote repository with newest changes from either
+// place. The given path 'absPathToLocalRepo' must point to a directory initialized with git and
+// with push/pull abilities to a remote. If it is not possible to merge changes or if a command
+// fails in the shell, an error will be returned.
+func SyncLocalRemote(repoPath string) error {
+	logging.Info("Syncing", repoPath, "with remote")
+
+	_, err := execute(repoPath, gitFetch)
 	if err != nil {
 		return err
 	}
 
 	// Push commits ahead of origin
 
-	aheadWithcommitsToPush, err := executeWithResult(absPath, gitStatus, aheadOfOrigin)
+	aheadWithcommitsToPush, err := executeWithResult(repoPath, gitStatus, aheadOfOrigin)
 	if err != nil {
 		return err
 	}
 
 	if aheadWithcommitsToPush {
-		_, err := execute(absPath, gitPush)
+		_, err := execute(repoPath, gitPush)
 		if err != nil {
 			return err
 		}
 	}
 
-	hasNoLocalChanges, err := executeWithResult(absPath, gitStatus, nothingToCommit)
+	hasNoLocalChanges, err := executeWithResult(repoPath, gitStatus, nothingToCommit)
 	if err != nil {
 		return err
 	}
 
 	if hasNoLocalChanges {
-		if _, err = execute(absPath, gitPull); err != nil {
+		if _, err = execute(repoPath, gitPull); err != nil {
 			return err
 		}
 		return nil
@@ -60,18 +64,18 @@ func SyncLocalRemote(absPath string) error {
 
 	// There are changes to push to origin
 
-	err = addCommitAll(absPath)
+	err = addCommitAll(repoPath)
 	if err != nil {
 		return err
 	}
 
-	err = pullMerge(absPath)
+	err = pullMerge(repoPath)
 	if err != nil {
 		return err
 	}
 
 	expected := pushSuccess
-	found, err := executeWithResult(absPath, gitPush, expected)
+	found, err := executeWithResult(repoPath, gitPush, expected)
 	if err != nil {
 		return err
 	}

@@ -25,7 +25,7 @@ func (c *revertCommand) Run(args *CliArguments, conf *config.DotfConfiguration) 
 
 	filepath := args.PosArgs[0]
 
-	err := terminalio.RevertDotfile(filepath, conf.HomeDir, conf.DotfilesDir)
+	err := terminalio.RevertDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir)
 	if err != nil {
 		return err
 	}
