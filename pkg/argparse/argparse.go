@@ -28,7 +28,14 @@ var vflags ValueFlags = []string{"config"}
 // Parses the CLI input arguments and the Dotf configuration and returns potential errors
 func Parse(osargs []string) (*cli.CliArguments, *config.DotfConfiguration, error) {
 	cliargs, clierr := parseCliArguments(osargs, vflags)
-	conf, conferr := ParseDotfConfig(cliargs)
+
+	var conferr error
+	var conf *config.DotfConfiguration
+	if cliargs != nil {
+		conf, conferr = ParseDotfConfig(cliargs.Flags)
+	} else {
+		conf, conferr = ParseDotfConfig(nil)
+	}
 
 	// Fail on configuration error first
 	if conferr != nil {
@@ -146,9 +153,9 @@ func ParseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
 // 1. If flags not nil then --config <path> flag is tried and used in case it is valid
 // 2. Then ${HOME}/.config/dotf/config is tried
 // 3. If both fails a specifc parse config error is returned
-func ParseDotfConfig(args *cli.CliArguments) (*config.DotfConfiguration, error) {
-	if args != nil { // Only try config pointed to by flags if any flags
-		if path, ok := args.Flags["config"]; ok {
+func ParseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error) {
+	if flags != nil { // Only try config pointed to by flags if any flags
+		if path, ok := flags["config"]; ok {
 			config, err := readConfigFrom(path)
 			if err == nil {
 				return config, nil
