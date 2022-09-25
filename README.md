@@ -25,9 +25,9 @@ go, gotk, gcc, libappindicator-gtk3, git
 - Create a local git repository and make sure it connects to remote using ssh.
 - Setup a config in `~${HOME}/.config/dotf/config` with the following contents:
 ```
-remoteurl		= https://www.yourrepo.com/yourname/doesntexist
-dotfilesdir		= "~/yourdotfilesdir"
-homedir			= "~/"
-updateintervalsec = 120
+userspacedir 		= "~/"
+dotfilesdir 		= "path/to/dotfiles/dir/replicating/userspace"
+syncdir 			= "path/to/repo/root/used/to/sync"
+updateintervalsecs 	= "1200"
 ```
 
