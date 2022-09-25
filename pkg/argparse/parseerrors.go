@@ -2,6 +2,8 @@ package argparse
 
 import "fmt"
 
+/* Parse errors */
+
 type ParseHelpFlagError struct {
 	message string
 }
@@ -40,4 +42,18 @@ func (e *ParseError) Error() string {
 
 func (e *ParseInvalidArgumentError) Error() string {
 	return fmt.Sprintf(e.message)
+}
+
+/* Other errors */
+
+type CombinedError struct {
+	Errors []error
+}
+
+func (e *CombinedError) Error() string {
+	var error string
+	for _, err := range e.Errors {
+		error += err.Error()
+	}
+	return error
 }
