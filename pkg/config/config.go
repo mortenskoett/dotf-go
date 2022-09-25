@@ -15,21 +15,30 @@ import (
 	"strings"
 )
 
+var (
+	requiredConfigKeys = []string{
+		"syncdir",
+		"userspacedir",
+		"dotfilesdir",
+		"updateintervalsecs",
+	}
+)
+
 type DotfConfiguration struct {
-	SyncDir           string // Git initialized directory that dotf should sync with remote
-	UserspaceDir      string // Userspace dir is the root of the file hierachy dotf replicates
-	DotfilesDir       string // Directory inside SyncDir containing same structure as userspace dir
-	UpdateIntervalSec int    // Interval between syncing with remote using dotf-tray application
+	SyncDir            string // Git initialized directory that dotf should sync with remote
+	UserspaceDir       string // Userspace dir is the root of the file hierachy dotf replicates
+	DotfilesDir        string // Directory inside SyncDir containing same structure as userspace dir
+	UpdateIntervalSecs int    // Interval between syncing with remote using dotf-tray application
 }
 
 /* Creates an empty Configuration with default values. */
 func NewConfiguration() DotfConfiguration {
 
 	return DotfConfiguration{
-		SyncDir:           "N/A",
-		UserspaceDir:      "~/",
-		DotfilesDir:       "N/A",
-		UpdateIntervalSec: 120,
+		SyncDir:            "N/A",
+		UserspaceDir:       "~/",
+		DotfilesDir:        "N/A",
+		UpdateIntervalSecs: 120,
 	}
 }
 
@@ -40,7 +49,7 @@ func NewConfiguration() DotfConfiguration {
 * # is a comment
  */
 
-/* ReadFromFile parses and returns a representation of a config file found at 'absPath'. */
+// ReadFromFile parses and returns a representation of a config file found at 'path'.
 func ReadFromFile(path string) (DotfConfiguration, error) {
 	config := NewConfiguration()
 
@@ -56,12 +65,16 @@ func ReadFromFile(path string) (DotfConfiguration, error) {
 	}
 	defer file.Close()
 
-	parametersToValues, err := parseTOMLFile(file)
+	keysToValues, err := parseTOMLFile(file)
 	if err != nil {
 		return config, err
 	}
 
-	err = buildConfiguration(&config, &parametersToValues)
+	if err = checkRequiredKeys(keysToValues, requiredConfigKeys); err != nil {
+		return config, err
+	}
+
+	err = buildConfiguration(&config, keysToValues)
 	if err != nil {
 		return config, err
 	}
@@ -69,22 +82,40 @@ func ReadFromFile(path string) (DotfConfiguration, error) {
 	return config, nil
 }
 
+// Validate key values for required missing keys
+func checkRequiredKeys(keysToValues map[string]string, requiredConfigKeys []string) error {
+	for _, key := range requiredConfigKeys {
+		_, exists := keysToValues[key]
+		if !exists {
+			return &ConfigKeyNotFoundError{fmt.Sprint("missing key in configuration: ", key)}
+		}
+	}
+	return nil
+}
+
 /* parseTOMLFile parses the file found at 'file' and returns a key,value representation. */
 func parseTOMLFile(file *os.File) (map[string]string, error) {
 	parameterToValue := make(map[string]string)
 
 	scanner := bufio.NewScanner(file)
+	linenum := 0
 	for scanner.Scan() {
 		line := scanner.Text()
 		nameAndValue := strings.SplitN(line, "=", 2)
+		linenum++
 
 		if strings.HasPrefix(nameAndValue[0], "#") {
 			// Ignore outcommented lines.
 			continue
 		}
 
+		// Didn't get both key and value
 		if len(nameAndValue) < 2 {
-			return nil, errors.New("malformed parameter line in configuration on line: " + nameAndValue[0])
+			return nil, errors.New(
+				fmt.Sprintf(
+					"malformed key in configuration on line number: %d: %s",
+					linenum,
+					nameAndValue[0]))
 		}
 
 		parameter := strings.ToLower(strings.TrimFunc(nameAndValue[0], sanitize))
@@ -107,8 +138,9 @@ func sanitize(r rune) bool {
 		r == '"'
 }
 
-func buildConfiguration(config *DotfConfiguration, keyToValue *map[string]string) error {
-	for k, v := range *keyToValue {
+func buildConfiguration(config *DotfConfiguration, keyToValue map[string]string) error {
+	// TODO: Could be made into json parsing in smart go way
+	for k, v := range keyToValue {
 		switch k {
 		case "dotfilesdir":
 			config.DotfilesDir = expandTilde(v)
@@ -116,14 +148,15 @@ func buildConfiguration(config *DotfConfiguration, keyToValue *map[string]string
 			config.UserspaceDir = expandTilde(v)
 		case "syncdir":
 			config.SyncDir = expandTilde(v)
-		case "updateintervalsec":
+		case "updateintervalsecs":
 			if v_num, err := strconv.Atoi(v); err != nil {
 				return err
 			} else {
-				config.UpdateIntervalSec = v_num
+				config.UpdateIntervalSecs = v_num
 			}
 		default:
-			return fmt.Errorf("malformed or unknown key encountered in configuration for: %s", k)
+			return &MalformedConfigurationError{fmt.Sprint(
+				"malformed or unknown key encountered: ", k)}
 		}
 	}
 	return nil

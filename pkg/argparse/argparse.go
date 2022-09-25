@@ -25,16 +25,18 @@ type ValueFlags []string
 
 var vflags ValueFlags = []string{"config"}
 
-// Parses the CLI input arguments and the dotf configuration. Expects complete input argument line.
+// Parses the CLI input arguments and the Dotf configuration and returns potential errors
 func Parse(osargs []string) (*cli.CliArguments, *config.DotfConfiguration, error) {
-	cliargs, err := parseCliArguments(osargs, vflags)
-	if err != nil {
-		return nil, nil, err
+	cliargs, clierr := parseCliArguments(osargs, vflags)
+	conf, conferr := ParseDotfConfig(cliargs)
+
+	// Fail on configuration error first
+	if conferr != nil {
+		return nil, nil, conferr
 	}
 
-	conf, err := ParseDotfConfig(cliargs.Flags)
-	if err != nil {
-		return nil, nil, err
+	if clierr != nil {
+		return nil, nil, clierr
 	}
 
 	return cliargs, conf, nil
@@ -140,25 +142,26 @@ func ParseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
 	return
 }
 
-// TODO: Refactor this function so that only one config is tried in any case
 // Parses the required dotf configuration file.
 // 1. If flags not nil then --config <path> flag is tried and used in case it is valid
 // 2. Then ${HOME}/.config/dotf/config is tried
 // 3. If both fails a specifc parse config error is returned
-func ParseDotfConfig(flags Flags) (*config.DotfConfiguration, error) {
-	if path, ok := flags["config"]; ok {
-		config, err := readConfigFrom(path)
-		if err == nil {
-			return config, nil
+func ParseDotfConfig(args *cli.CliArguments) (*config.DotfConfiguration, error) {
+	if args != nil { // Only try config pointed to by flags if any flags
+		if path, ok := args.Flags["config"]; ok {
+			config, err := readConfigFrom(path)
+			if err == nil {
+				return config, nil
+			}
+			logging.Warn(fmt.Errorf("failed to parse config path from flag: %w", err))
 		}
-		logging.Warn(fmt.Errorf("failed to parse config path from flag: %w", err))
 	}
 
 	config, err := readConfigFrom(defaultConfigDir)
 	if err == nil {
 		return config, nil
 	}
-	logging.Warn(fmt.Errorf("failed to parse config at default location: %w", err))
+	logging.Error(fmt.Errorf("failed to parse config at default location: %w", err))
 
 	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
 }

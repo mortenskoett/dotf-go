@@ -51,7 +51,7 @@ func main() {
 	latestReadConf = *readConfiguration()
 
 	updateWorker = *concurrency.NewIntervalWorkerParam(
-		time.Second*time.Duration(latestReadConf.UpdateIntervalSec), handleUpdateNowEvent)
+		time.Second*time.Duration(latestReadConf.UpdateIntervalSecs), handleUpdateNowEvent)
 
 	systray.Run(onReady, onExit)
 	logging.Info(programName, "service stopped")
