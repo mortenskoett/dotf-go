@@ -1,6 +1,48 @@
 # Development notes
 ===================
 
+# Sat Sep 24 12:46:57 PM CEST 2022
+Rethinking shared dotfiles into multiple repos to fix git single repo issues as currently
+encountered.
+
+## Problem
+Problem is the dir structure of my dotfiles setup. The setup folder is on same level as dotfiles
+under each distro. This will confuse git because files are not added in the full repo.
+
+The complexity lies in the shared setup because then you'd need a pointer both to the root dotfiles
+dir but also the specific distro in that setup.
+
+Config is currently only read when any command is given i.e. if there is a config error is not read
+on ./dotf
+
+## New idea
+Basically to put repos like `shared`, `configs` etc in the config and then be able to pick and
+choose between these when setting up dotf locally.
+
+### Pros
+	- Then I would not have to have dotfiles from all systems placed on each system
+	- Then I would only have a single repo source of truth for each dotf instance
+	- Then I would be able to more meaningfully handle shared dotfiles between dotf instances
+
+### Cons
+	- How to deal with filenames and system env vars
+	- If repos are in the config, then we need to make assumptions about filepaths
+
+## New config
+```
+	dotfiles_main		= "www.github.com/mortenskoett/dotfiles"
+	dotfiles_sub		= "www.github.com/mortenskoett/shared_dfiles"
+	dotfiles_sub		= /home/mskk/dotfiles/configuration/
+	dotfiles_sub		= /home/mskk/dotfiles/dockerfiles/
+	userspace_root		= "~/"
+	updateintervalsec 	= 1200
+```
+
+## Minimum viable changes
+	- configuration must be read differently
+	- dotf must have another layer of flags to handle specific repos
+	- it should be possible to designate whether a configured repo is dotfiles or something else
+
 # Fri May 13 11:34:14 AM CEST 2022
 If revert is called. How do we know whether it is called on the symlink in userspace or the actual
 file in dotfiles?
@@ -8,13 +50,13 @@ file in dotfiles?
 /home/msk/
 /home/msk/dotfiles/
 
-### detach absfiles and abshomedir to get name of dfiles or use filepath.Base
+## detach absfiles and abshomedir to get name of dfiles or use filepath.Base
 = dotfiles
 
 /home/msk/dotfiles/bla/dotfiles/fil
 /home/msk/bla/dotfiles/fil
 
-### detach filepath w. homedir to get relative path
+## detach filepath w. homedir to get relative path
 = bla/dotfiles/fil
 
 1. we get the name of the dotfiles folder
@@ -41,7 +83,7 @@ Arg-parser that handles:
 	2. Both bool and Value Flags specific to each command
 	3. General flags should be parsed first or propogated to command
 
-	Order of parsing: 
+	Order of parsing:
 	Command -> General flags -> Specific flags
 
 	Types
