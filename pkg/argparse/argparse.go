@@ -142,7 +142,7 @@ func ParseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
 
 // TODO: Refactor this function so that only one config is tried in any case
 // Parses the required dotf configuration file.
-// 1. First --config <path> flag is tried and used in case it is valid
+// 1. If flags not nil then --config <path> flag is tried and used in case it is valid
 // 2. Then ${HOME}/.config/dotf/config is tried
 // 3. If both fails a specifc parse config error is returned
 func ParseDotfConfig(flags Flags) (*config.DotfConfiguration, error) {

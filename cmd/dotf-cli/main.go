@@ -30,7 +30,7 @@ func main() {
 			logging.Ok(err)
 		case *argparse.ParseNoArgumentError:
 			argparse.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
-			logging.Warn(err)
+			logging.Ok(err)
 		case *argparse.ParseInvalidArgumentError:
 			logging.Warn(err)
 		case *argparse.ParseConfigurationError:

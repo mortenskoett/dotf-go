@@ -21,7 +21,7 @@ func NewMoveCommand(programName, commandName string) *moveCommand {
 }
 
 func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
-	if err := checkCliArguments(args, c); err != nil {
+	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
 
@@ -52,7 +52,7 @@ func (c *moveCommand) CmdName() string {
 }
 
 func (c *moveCommand) Overview() string {
-	return "Iterate over files inside dotfiles and update matching symlinks in userspace."
+	return "Update userspace on dotfiles location change."
 }
 
 func (c *moveCommand) Arguments() []Arg {

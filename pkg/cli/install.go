@@ -20,7 +20,7 @@ func NewInstallCommand(programName, commandName string) *installCommand {
 }
 
 func (c *installCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
-	if err := checkCliArguments(args, c); err != nil {
+	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
 
@@ -53,7 +53,7 @@ func (c *installCommand) CmdName() string {
 }
 
 func (c *installCommand) Overview() string {
-	return "Install file/dir from dotfiles by creating symlink in userspace to the file."
+	return "Install file/dir from dotfiles into userspace."
 }
 
 func (c *installCommand) Arguments() []Arg {

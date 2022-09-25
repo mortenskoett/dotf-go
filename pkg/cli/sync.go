@@ -19,11 +19,11 @@ func NewSyncCommand(programName, commandName string) *syncCommand {
 }
 
 func (c *syncCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
-	if err := checkCliArguments(args, c); err != nil {
+	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
 
-	absDotfilesDir, err := terminalio.GetAndValidateAbsolutePath(conf.DotfilesDir)
+	absDotfilesDir, err := terminalio.GetAndValidateAbsolutePath(conf.SyncDir)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (c *syncCommand) CmdName() string {
 }
 
 func (c *syncCommand) Overview() string {
-	return "Sync changes with remote using merge strategy if needed."
+	return "Sync with remote using merge strategy."
 }
 
 func (c *syncCommand) Arguments() []Arg {

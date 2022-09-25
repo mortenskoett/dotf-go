@@ -19,7 +19,7 @@ func NewAddCommand(programName, commandName string) *addCommand {
 }
 
 func (c *addCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
-	if err := checkCliArguments(args, c); err != nil {
+	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
 
@@ -38,7 +38,7 @@ func (c *addCommand) CmdName() string {
 }
 
 func (c *addCommand) Overview() string {
-	return "Move file/dir from userspace to dotfiles and replace with symlink."
+	return "Move file/dir from userspace to dotfiles."
 }
 
 func (c *addCommand) Arguments() []Arg {
@@ -55,7 +55,7 @@ func (c *addCommand) Description() string {
 	return `
 	Will replace a file or directory in userspace with a symlink pointing to the dotfiles directory.
 	The file or the directory and its contents is copied to the dotfiles directory and a symlink is
-	placed in the original location. 
+	placed in the original location.
 	`
 }
 

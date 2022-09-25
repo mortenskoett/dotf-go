@@ -99,7 +99,7 @@ func parseToCommandFunc(cmdName string) (CommandFunc, error) {
 }
 
 // Validates and handles the given Arguments generally against the Command and errors if not valid
-func checkCliArguments(args *CliArguments, c Command) error {
+func validateCliArguments(args *CliArguments, c Command) error {
 
 	if _, ok := args.Flags["help"]; ok {
 		fmt.Println(GenerateUsage(c))

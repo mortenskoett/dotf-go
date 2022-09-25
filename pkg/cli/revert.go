@@ -19,7 +19,7 @@ func NewRevertCommand(programName, commandName string) *revertCommand {
 }
 
 func (c *revertCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
-	if err := checkCliArguments(args, c); err != nil {
+	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
 
@@ -38,7 +38,7 @@ func (c *revertCommand) CmdName() string {
 }
 
 func (c *revertCommand) Overview() string {
-	return "Revert file/dir from dotfiles back to original location in userspace."
+	return "Revert file to its original location in userspace."
 }
 
 func (c *revertCommand) Arguments() []Arg {
