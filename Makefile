@@ -30,7 +30,7 @@ test: build-all ## Run tests.
 
 .PHONY: install-ubuntu-deps
 install-ubuntu-deps: ## Installs tray app deps for ubuntu
-	sudo apt-get install build-essential libgtk-3-dev libappindicator3-dev
+	sudo apt-get install build-essential libgtk-3-dev libappindicator3-1 libappindicator3-dev
 
 .PHONY: help
 help: ## Display this help
