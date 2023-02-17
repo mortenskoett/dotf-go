@@ -38,7 +38,7 @@ func executeWithResult(path string, command termCommand, expected ...commandRetu
 
 // Executes the termCommand in the given location 'path'.
 // Returns the output of the operation or an error.
-// WARNING! because the command is executed as a string in the shell in order to handle
+// WARNING! Because the command is executed as a string in the shell in order to handle
 // more advaned arguments used in the called commands, this function can be used for
 // malicious operations.
 func execute(path string, command termCommand) (string, error) {
