@@ -50,9 +50,6 @@ func main() {
 
 	latestReadConf = *readConfiguration()
 
-	updateWorker = *concurrency.NewIntervalWorkerParam(
-		time.Second*time.Duration(latestReadConf.UpdateIntervalSecs), handleUpdateNowEvent)
-
 	systray.Run(onReady, onExit)
 	logging.Info(programName, "service stopped")
 }
@@ -103,15 +100,24 @@ func onReady() {
 func handleToggleUpdateEvent() {
 	shouldAutoUpdate = !shouldAutoUpdate
 
+	// When being checked to ON by user
+	if !mToggleUpdate.Checked() {
+		logging.Info("Toggle auto-update ON.")
+
+		updateWorker = *concurrency.NewIntervalWorkerParam(
+			time.Second*time.Duration(latestReadConf.UpdateIntervalSecs), handleUpdateNowEvent)
+
+		mToggleUpdate.Check()
+		updateWorker.Start()
+		return
+	}
+
+	// When being checked to OFF by user
 	if mToggleUpdate.Checked() {
 		logging.Info("Toggle auto-update OFF.")
 		mToggleUpdate.Uncheck()
 		updateWorker.Stop()
-
-	} else {
-		logging.Info("Toggle auto-update ON.")
-		mToggleUpdate.Check()
-		updateWorker.Start()
+		return
 	}
 }
 

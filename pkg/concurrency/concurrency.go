@@ -1,5 +1,4 @@
-/* The concurrency package contains an implementation of a worker that can be used
-to run and manage background goroutines that should run with intervals. */
+// The concurrency package contains concurrency related implementations
 package concurrency
 
 import (
@@ -7,6 +6,8 @@ import (
 	"time"
 )
 
+// IntervalWorker is an implementation of a worker that can be used to run and manage background
+// goroutines that should run with intervals.
 type IntervalWorker struct {
 	Interval time.Duration // Interval between Action is executed.
 	Action   func()        // Action is a simple function that is called at every interval.
@@ -29,6 +30,7 @@ func NewIntervalWorkerParam(interval time.Duration, action func()) *IntervalWork
 
 func (w *IntervalWorker) Start() {
 	go runWorker(w)
+	log.Println("Worker started")
 }
 
 func runWorker(w *IntervalWorker) {
