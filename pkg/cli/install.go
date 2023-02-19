@@ -30,7 +30,7 @@ func (c *installCommand) Run(args *CliArguments, conf *config.DotfConfiguration)
 	if err != nil {
 		switch e := err.(type) {
 		case *terminalio.AbortOnOverwriteError:
-			logging.Warn(fmt.Sprintf("A file already exist in userspace: %s", logging.Color(e.Path, logging.Green)))
+			logging.Warn(fmt.Sprintf("A file already exists in userspace: %s", logging.Color(e.Path, logging.Green)))
 			logging.Warn(fmt.Sprintf("%s needs to backup and delete this file to install the dotfile.", c.programName))
 
 			ok := confirmByUser("Do you want to continue?")
