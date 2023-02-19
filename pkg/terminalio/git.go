@@ -17,11 +17,11 @@ const (
 // Status returned by git. Case sensitive substring contained in the first line of the returns from
 // running commands with git version 2.32.0
 const (
-	allUpToDate     commandReturn = "Already up to date."
-	nothingToCommit commandReturn = "nothing to commit, working tree clean"
-	mergeSuccess    commandReturn = "Merge made by"
-	pushSuccess     commandReturn = "master -> master"        // Something is making git push return only last line.
-	aheadOfOrigin   commandReturn = "Your branch is ahead of" // Essentially commits not pushed
+	allUpToDate      commandReturn = "Already up to date."
+	nothingToCommit  commandReturn = "nothing to commit, working tree clean"
+	mergeSuccess     commandReturn = "Merge made by"
+	pushSuccess      commandReturn = "master -> master"        // Something is making git push return only last line.
+	aheadOfOrigin    commandReturn = "Your branch is ahead of" // Essentially commits not pushed
 )
 
 // SyncLocalRemote uses Git to update local and remote repository with newest changes from either
@@ -50,11 +50,11 @@ func SyncLocalRemote(repoPath string) error {
 		}
 	}
 
+	// No local changes we can pull and exit
 	hasNoLocalChanges, err := executeWithResult(repoPath, gitStatus, nothingToCommit)
 	if err != nil {
 		return err
 	}
-
 	if hasNoLocalChanges {
 		if _, err = execute(repoPath, gitPull); err != nil {
 			return err
@@ -62,8 +62,7 @@ func SyncLocalRemote(repoPath string) error {
 		return nil
 	}
 
-	// There are changes to push to origin
-
+	// There are changes staged or unstaged local changes
 	err = addCommitAll(repoPath)
 	if err != nil {
 		return err

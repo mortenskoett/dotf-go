@@ -119,7 +119,7 @@ func handleUpdateNowEvent() {
 	logging.Info("Updating now")
 	systray.SetTemplateIcon(getLoadingIcon())
 
-	err := terminalio.SyncLocalRemote(latestReadConf.DotfilesDir)
+	err := terminalio.SyncLocalRemote(latestReadConf.SyncDir)
 	if err != nil {
 		showError(err.Error())
 		return
