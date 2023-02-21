@@ -119,7 +119,7 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 	return nil
 }
 
-// Returns a struct containing information about the give 'file' and its relations to dotfiles and
+// Returns a struct containing information about the given 'file' and its relations to dotfiles and
 // to userspace. This is useful because often there are commands that should produce equal results
 // both when called from dotfiles and userspace.
 func getFileLocationInfo(file, homeDir, dotfilesDir string) (info *fileLocationInfo, err error) {
@@ -139,23 +139,21 @@ func getFileLocationInfo(file, homeDir, dotfilesDir string) (info *fileLocationI
 	if err != nil {
 		return nil, err
 	}
-	relpath, err := detachRelativePath(absFile, absHomeDir)
-	if err != nil {
-		return nil, err
-	}
 
-	dotfilesDirName := filepath.Join("/", filepath.Base(absDotfilesDir))
-	if strings.HasPrefix(relpath, dotfilesDirName) {
-		// dotfiles dir
-		relpath = strings.TrimPrefix(relpath, dotfilesDirName)
-		info.insideDotfiles = true
+	// Determine whether given filepath is inside or outside dotfiles dir
+	if strings.HasPrefix(absFile, absDotfilesDir) {
+		// Inside dotfiles
+		info.dotfilesFile = absFile
+		info.userspaceFile = strings.TrimPrefix(absFile, absDotfilesDir)
+
 	} else {
-		// userspace dir so no need to change relative
+		// In userspace
+		info.userspaceFile = absFile
+		relativePathToFile := strings.TrimPrefix(absFile, absHomeDir)
+		info.dotfilesFile = filepath.Join(absDotfilesDir, relativePathToFile)
 	}
 
 	info.fileOrgPath = absFile
-	info.dotfilesFile = filepath.Join(absDotfilesDir, relpath)
-	info.userspaceFile = filepath.Join(absHomeDir, relpath)
 
 	return
 }
