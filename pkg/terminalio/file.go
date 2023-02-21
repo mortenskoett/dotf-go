@@ -392,12 +392,23 @@ func GetAbsolutePath(path string) (string, error) {
 		return "", fmt.Errorf("cannot get absolute path of empty string")
 	}
 
+	path = expandTilde(path)
+
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to create absolute path for %s: %s", path, err)
 	}
 
 	return absPath, nil
+}
+
+// Expand ~/ to path of home dir of current user.
+func expandTilde(path string) string {
+	if strings.HasPrefix(path, "~/") {
+		dirname, _ := os.UserHomeDir()
+		return filepath.Join(dirname, path[2:])
+	}
+	return path
 }
 
 // Checks if file exists by trying to open it. The given path should be absolute or relative to
