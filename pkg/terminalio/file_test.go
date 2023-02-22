@@ -114,11 +114,11 @@ func TestCopyFile(t *testing.T) {
 }
 
 func TestChangeLeadingPathStrings(t *testing.T) {
-	file := "/dotfiles/dir1/dir2/file.txt"
+	file := "/dir1/dir2/file.txt"
 	from := "/userdir"
 	to := "/dotfiles"
 
-	result, err := ChangeLeadingPath(file, from, to)
+	result, err := changeLeadingPath(from+file, from, to)
 	if err != nil {
 		test.Fail(err, "Shouldn't fail here", t)
 	}
