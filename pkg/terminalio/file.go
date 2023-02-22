@@ -350,10 +350,11 @@ func copyFile(src, dst string) (string, error) {
 // Changes the leading path of 'filepath' from that of 'fromdir' to that of 'todir'. It is assumed
 // that 'filepath' points to a file that is contained in 'fromdir'.
 func changeLeadingPath(filepath, fromdir, todir string) (string, error) {
-	relative, err := detachRelativePath(filepath, fromdir)
+	relative, err := trimBasePath(filepath, fromdir)
 	if err != nil {
 		return "", err
 	}
+
 	absTo, err := getAbsolutePath(todir)
 	if err != nil {
 		return "", err
@@ -364,12 +365,10 @@ func changeLeadingPath(filepath, fromdir, todir string) (string, error) {
 	return newpath, nil
 }
 
-// Detaches 'filepath' from 'basepath' and returns the path-suffix of 'filepath' which is relative
-// to 'basepath'. It is assumed that basepath is part of filepath.
-// Aka removes the prefix of filepath that matches basepath.
-// Example:
-// detach(dotfiles/, dotfiles/d1/d2/file.txt) -> d1/d2/file.txt
-func detachRelativePath(filepath, basepath string) (string, error) {
+// Trims away 'basepath' from 'filepath' returning the remaining suffix of 'filepath'. It is assumed
+// that basepath is part of filepath. It is assumed that that 'basepath' is part of 'filepath'.
+// Example: detach(dotfiles/, dotfiles/d1/d2/file.txt) -> d1/d2/file.txt
+func trimBasePath(filepath, basepath string) (string, error) {
 	absFile, err := getAbsolutePath(filepath)
 	if err != nil {
 		return "", err
@@ -378,9 +377,6 @@ func detachRelativePath(filepath, basepath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	// TODO: Potentially there is a problem below because relative is returned with leading
-	// '/' indicating it's placed on root
 
 	// Removes the leading part of 'absFile'. The part that matches that of absBase.
 	relative := strings.TrimPrefix(absFile, absBase)

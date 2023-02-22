@@ -137,26 +137,25 @@ func TestChangeLeadingPath(t *testing.T) {
 	subfolderPath := "/bla1/bla2/"
 	subfolders := fromdir.AddTempDir(subfolderPath)
 	fp := subfolders.AddTempFile()
-
 	todir := env.UserspaceDir
+	expected := filepath.Join(todir.Path, subfolderPath, filepath.Base(fp.Name()))
 
 	result, err := changeLeadingPath(fp.Name(), fromdir.Path, todir.Path)
 	if err != nil {
 		test.Fail(result, err, t)
 	}
 
-	expected := filepath.Join(todir.Path, subfolderPath, filepath.Base(fp.Name()))
 	if result != expected {
 		test.Fail(result, expected, t)
 	}
 }
 
-func TestDetachRelativePathWithStrings(t *testing.T) {
+func TestTrimBasePathWithStrings(t *testing.T) {
 	df := "/dotfiles/d1/d2/d3/"
 	bp := "/d1/d2/d3/"
 	fp := bp + "file.txt"
 
-	p, err := detachRelativePath(fp, df)
+	p, err := trimBasePath(fp, df)
 
 	if err != nil {
 		test.Fail(err, "Shouldn't fail here", t)
@@ -167,7 +166,7 @@ func TestDetachRelativePathWithStrings(t *testing.T) {
 	}
 }
 
-func TestDetachRelativePath(t *testing.T) {
+func TestTrimBasePath(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -180,7 +179,7 @@ func TestDetachRelativePath(t *testing.T) {
 	basepath := somedir.AddTempDir("/bla1/bla2/")
 	f := basepath.AddTempFile()
 
-	p, err := detachRelativePath(f.Name(), basepath.Path)
+	p, err := trimBasePath(f.Name(), basepath.Path)
 	if err != nil {
 		test.Fail(err, "Should not fail here", t)
 	}
