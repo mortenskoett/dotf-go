@@ -7,12 +7,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/getlantern/systray"
+
 	"github.com/mortenskoett/dotf-go/pkg/argparse"
 	"github.com/mortenskoett/dotf-go/pkg/concurrency"
 	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/resource"
-	"github.com/mortenskoett/dotf-go/pkg/systray"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -78,7 +79,7 @@ func onExit() {
 // Main event loop.
 func onReady() {
 	systray.SetTitle(programName)
-	systray.SetTemplateIcon(getDefaultIcon())
+	systray.SetIcon(getDefaultIcon())
 	mLastUpdated.Disable()
 	mError.Hide()
 
@@ -123,7 +124,7 @@ func handleToggleUpdateEvent() {
 
 func handleUpdateNowEvent() {
 	logging.Info("Updating now")
-	systray.SetTemplateIcon(getLoadingIcon())
+	systray.SetIcon(getLoadingIcon())
 
 	err := terminalio.SyncLocalRemote(latestReadConf.SyncDir)
 	if err != nil {
@@ -138,13 +139,13 @@ func handleUpdateNowEvent() {
 	mLastUpdated = systray.AddMenuItem("Last Updated: "+lastUpdated, "Time the dotfiles were last updated.")
 	mLastUpdated.Disable()
 
-	systray.SetTemplateIcon(getDefaultIcon())
+	systray.SetIcon(getDefaultIcon())
 	logging.Info("Updating done")
 }
 
 func showError(err string) {
 	logging.Info(err)
-	systray.SetTemplateIcon(getErrorIcon())
+	systray.SetIcon(getErrorIcon())
 	mError.SetTitle(err)
 	mError.Show()
 }
