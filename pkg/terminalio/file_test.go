@@ -31,12 +31,12 @@ func TestAddFileToDotfiles(t *testing.T) {
 	expectedBackupFile := filepath.Join("/tmp/dotf-go/backups", userspaceFile.Name())
 
 	// check if new file in dotfiles exist
-	if exists, _ := CheckIfFileExists(expectedUserspaceFile); !exists {
+	if exists, _ := checkIfFileExists(expectedUserspaceFile); !exists {
 		test.Fail(exists, fmt.Sprintf("File in dotfiles dir should exist at %s", expectedUserspaceFile), t)
 	}
 
 	// check if new file at userspace location exists
-	if exists, err := CheckIfFileExists(userspaceFile.Name()); !exists {
+	if exists, err := checkIfFileExists(userspaceFile.Name()); !exists {
 		test.Fail(exists, fmt.Sprintf(
 			"File in userspace dir should still exist at %s: %v", userspaceFile.Name(), err), t)
 	}
@@ -48,7 +48,7 @@ func TestAddFileToDotfiles(t *testing.T) {
 	}
 
 	// check if backup exists
-	if exists, err := CheckIfFileExists(expectedBackupFile); !exists {
+	if exists, err := checkIfFileExists(expectedBackupFile); !exists {
 		test.Fail(exists, fmt.Sprintf(
 			"File from userspace should be backed up to %s: %v", expectedBackupFile, err), t)
 	}
@@ -75,7 +75,7 @@ func TestBackupFile(t *testing.T) {
 	fileToBackup := env.UserspaceDir.AddTempFile().Name()
 	expectedBackupPath := "/tmp/dotf-go/backups" + fileToBackup
 
-	actual, err := BackupFile(fileToBackup)
+	actual, err := backupFile(fileToBackup)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -140,7 +140,7 @@ func TestChangeLeadingPath(t *testing.T) {
 
 	todir := env.UserspaceDir
 
-	result, err := ChangeLeadingPath(fp.Name(), fromdir.Path, todir.Path)
+	result, err := changeLeadingPath(fp.Name(), fromdir.Path, todir.Path)
 	if err != nil {
 		test.Fail(result, err, t)
 	}
@@ -200,7 +200,7 @@ func TestGetAndValidateAbsolutePathSame(t *testing.T) {
 
 	f := env.UserspaceDir.AddTempFile()
 
-	actual, err := GetAbsolutePath(f.Name())
+	actual, err := getAbsolutePath(f.Name())
 
 	// Check error
 	if err != nil {
@@ -233,7 +233,7 @@ func TestCheckIfFileExists(t *testing.T) {
 
 	file := env.UserspaceDir.AddTempFile()
 
-	if exists, _ := CheckIfFileExists(file.Name()); !exists {
+	if exists, _ := checkIfFileExists(file.Name()); !exists {
 		test.Fail(exists, "Should not fail as file exists.", t)
 	}
 }
@@ -265,27 +265,27 @@ func TestCopyDir(t *testing.T) {
 		test.Fail(err, "Should not fail here", t)
 	}
 
-	dstInsideFile, err := ChangeLeadingPath(insideFile.Name(), src.Path, dst.Path)
+	dstInsideFile, err := changeLeadingPath(insideFile.Name(), src.Path, dst.Path)
 	if err != nil {
 		test.Fail(err, "Should not fail here", t)
 	}
 
-	dstHereFile, err := ChangeLeadingPath(hereFile.Name(), src.Path, dst.Path)
+	dstHereFile, err := changeLeadingPath(hereFile.Name(), src.Path, dst.Path)
 	if err != nil {
 	}
 
 	// Dst folder and content should exist
-	if exists, _ := CheckIfFileExists(res); !exists {
+	if exists, _ := checkIfFileExists(res); !exists {
 		test.Fail(res, "File does not exist", t)
 	}
-	if exists, _ := CheckIfFileExists(dstInsideFile); !exists {
+	if exists, _ := checkIfFileExists(dstInsideFile); !exists {
 		test.Fail(dstInsideFile, "File does not exist", t)
 	}
-	if exists, _ := CheckIfFileExists(dstHereFile); !exists {
+	if exists, _ := checkIfFileExists(dstHereFile); !exists {
 		test.Fail(dstHereFile, "File does not exist", t)
 	}
 	// Src folder should NOT have been deleted
-	if exists, _ := CheckIfFileExists(src.Path); !exists {
+	if exists, _ := checkIfFileExists(src.Path); !exists {
 		test.Fail(src.Path, "Dir should still exist", t)
 	}
 }
