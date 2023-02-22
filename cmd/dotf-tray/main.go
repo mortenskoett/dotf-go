@@ -134,8 +134,9 @@ func handleUpdateNowEvent() {
 
 	lastUpdated = time.Now().Format(time.Stamp)
 
-	// TODO: Super hack and heavy mem leak. This item should probably be instantiated separately
 	mLastUpdated.Hide()
+	mLastUpdated = nil
+
 	mLastUpdated = systray.AddMenuItem("Last Updated: "+lastUpdated, "Time the dotfiles were last updated.")
 	mLastUpdated.Disable()
 
