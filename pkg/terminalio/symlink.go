@@ -36,7 +36,7 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 			return err
 		}
 
-		fileInUserspace, err := changeLeadingPath(absFilePath, absDotfilesDir, absUserSpaceDir)
+		fileInUserspace, err := replacePrefixPath(absFilePath, absDotfilesDir, absUserSpaceDir)
 		if err != nil {
 			return err
 		}

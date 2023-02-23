@@ -113,12 +113,12 @@ func TestCopyFile(t *testing.T) {
 	}
 }
 
-func TestChangeLeadingPathStrings(t *testing.T) {
+func TestReplacePrefixPathStrings(t *testing.T) {
 	file := "/dir1/dir2/file.txt"
 	from := "/userdir"
 	to := "/dotfiles"
 
-	result, err := changeLeadingPath(from+file, from, to)
+	result, err := replacePrefixPath(from+file, from, to)
 	if err != nil {
 		test.Fail(err, "Shouldn't fail here", t)
 	}
@@ -129,7 +129,7 @@ func TestChangeLeadingPathStrings(t *testing.T) {
 	}
 }
 
-func TestChangeLeadingPath(t *testing.T) {
+func TestReplacePrefixPath(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -140,7 +140,7 @@ func TestChangeLeadingPath(t *testing.T) {
 	todir := env.UserspaceDir
 	expected := filepath.Join(todir.Path, subfolderPath, filepath.Base(fp.Name()))
 
-	result, err := changeLeadingPath(fp.Name(), fromdir.Path, todir.Path)
+	result, err := replacePrefixPath(fp.Name(), fromdir.Path, todir.Path)
 	if err != nil {
 		test.Fail(result, err, t)
 	}
@@ -264,12 +264,12 @@ func TestCopyDir(t *testing.T) {
 		test.Fail(err, "Should not fail here", t)
 	}
 
-	dstInsideFile, err := changeLeadingPath(insideFile.Name(), src.Path, dst.Path)
+	dstInsideFile, err := replacePrefixPath(insideFile.Name(), src.Path, dst.Path)
 	if err != nil {
 		test.Fail(err, "Should not fail here", t)
 	}
 
-	dstHereFile, err := changeLeadingPath(hereFile.Name(), src.Path, dst.Path)
+	dstHereFile, err := replacePrefixPath(hereFile.Name(), src.Path, dst.Path)
 	if err != nil {
 	}
 

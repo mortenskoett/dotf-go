@@ -139,7 +139,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// Create path inside dotfiles dir
-	absNewDotFile, err := changeLeadingPath(absUserspaceFile, absHomedir, absDotfilesDir)
+	absNewDotFile, err := replacePrefixPath(absUserspaceFile, absHomedir, absDotfilesDir)
 	if err != nil {
 		return err
 	}
@@ -276,7 +276,7 @@ func copyDir(src, dst string) (string, error) {
 
 	// Copy all files recursively
 	err = filepath.WalkDir(srcAbs, func(p string, d fs.DirEntry, err error) error {
-		newfilepath, err := changeLeadingPath(p, srcAbs, dstAbs)
+		newfilepath, err := replacePrefixPath(p, srcAbs, dstAbs)
 
 		isDir, err := isDirectory(p)
 		if err != nil {
@@ -347,9 +347,10 @@ func copyFile(src, dst string) (string, error) {
 	return out.Name(), nil
 }
 
-// Changes the leading path of 'filepath' from that of 'fromdir' to that of 'todir'. It is assumed
-// that 'filepath' points to a file that is contained in 'fromdir'.
-func changeLeadingPath(filepath, fromdir, todir string) (string, error) {
+// Replaces the shared prefix path in 'filepath' from that of 'fromdir' to that of 'todir'. It is
+// assumed that 'filepath' points to a file that is contained under 'fromdir'.
+// E.g. func("/a/b/c/d", "/a/b/", "/e/f/") -> "/e/f/c/d"
+func replacePrefixPath(filepath, fromdir, todir string) (string, error) {
 	relative, err := trimBasePath(filepath, fromdir)
 	if err != nil {
 		return "", err
