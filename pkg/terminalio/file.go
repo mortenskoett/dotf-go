@@ -238,7 +238,7 @@ func backupFile(file string) (string, error) {
 
 	logging.Info("Creating backup")
 
-	backupDst := backupDir + file
+	backupDst := filepath.Join(backupDir, file)
 	path, err := copyFileOrDir(file, backupDst)
 	if err != nil {
 		return "", err
@@ -301,50 +301,74 @@ func copyDir(src, dst string) (string, error) {
 
 // Copies src to dst without modifying src. Both src and dst should be actual file paths, not
 // directories. The function uses absolute paths for both src and dst. Does not handle directories
-// and will fail.
+// and will fail. The path of the new file is returned.
 func copyFile(src, dst string) (string, error) {
 	srcAbs, err := getAbsolutePath(src)
 	if err != nil {
 		return "", err
 	}
+
 	dstAbs, err := getAbsolutePath(dst)
 	if err != nil {
 		return "", err
 	}
 
-	in, err := os.Open(srcAbs)
+	fstat, err := os.Stat(srcAbs)
 	if err != nil {
-		return "", fmt.Errorf("couldn't open src: %w", err)
+		if errors.Is(err, os.ErrNotExist) {
+			return "", fmt.Errorf("the src file was not found: %w", err)
+		}
+		return "", fmt.Errorf("failed to stat src file: %w", err)
 	}
-	defer in.Close()
+
+	fperm := fstat.Mode().Perm()
+
+	// Open src file
+	fsrc, err := os.Open(srcAbs)
+	if err != nil {
+		return "", fmt.Errorf("failed to open src: %w", err)
+	}
+	defer fsrc.Close()
 
 	// Create path to destination file
 	dstPath := path.Dir(dstAbs)
 	err = os.MkdirAll(dstPath, os.ModePerm)
 	if err != nil {
-		return "", fmt.Errorf("couldn't because of nested directores in dst: %w", err)
+		return "", fmt.Errorf("failed to create directories: %w", err)
 	}
 
-	out, err := os.Create(dstAbs)
+	// Create dst file
+	fdst, err := os.Create(dstAbs)
 	if err != nil {
-		return "", fmt.Errorf("couldn't create dst: %w", err)
+		return "", fmt.Errorf("failed to create dst: %w", err)
 	}
-	defer out.Close()
+	defer fdst.Close()
 
-	_, err = io.Copy(out, in)
+	// Check dst file exists
+	_, err = os.Stat(dstAbs)
 	if err != nil {
-		return "", fmt.Errorf("couldn't copy src to dst: %w", err)
+		if errors.Is(err, os.ErrNotExist) {
+			return "", fmt.Errorf("the created file was not found: %w", err)
+		}
+		return "", fmt.Errorf("failed to stat dst file: %w", err)
 	}
 
-	_, err = os.Stat(out.Name())
-	if errors.Is(err, os.ErrNotExist) {
-		return "", fmt.Errorf("the created file was not found: %w", err)
+	// Copy actual contents to new dst
+	_, err = io.Copy(fdst, fsrc)
+	if err != nil {
+		return "", fmt.Errorf("failed to copy src to dst: %w", err)
 	}
 
-	logging.Ok("File successfully copied from", src, "->", out.Name())
+	// Set permissions from src file
+	err = os.Chmod(dstAbs, fperm)
+	if err != nil {
+		return "", fmt.Errorf("failed to set permissions on dst file: %w", err)
+	}
+
+	logging.Ok("File successfully copied from", src, "->", dstAbs)
 
 	// Return path to file
-	return out.Name(), nil
+	return dstAbs, nil
 }
 
 // Replaces the shared prefix path in 'filepath' from that of 'fromdir' to that of 'todir'. It is

@@ -10,6 +10,7 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
+// Functional test
 func TestAddFileToDotfiles(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
@@ -73,7 +74,7 @@ func TestBackupFile(t *testing.T) {
 	defer env.Cleanup()
 
 	fileToBackup := env.UserspaceDir.AddTempFile().Name()
-	expectedBackupPath := "/tmp/dotf-go/backups" + fileToBackup
+	expectedBackupPath := filepath.Join("/tmp/dotf-go/backups", fileToBackup)
 
 	actual, err := backupFile(fileToBackup)
 	if err != nil {
@@ -91,11 +92,11 @@ func TestCopyFile(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
-	todir := env.BackupDir
+	todir := env.BackupDir.Path
 	fileToMove := env.UserspaceDir.AddTempFile().Name()
 	dstFilename := "dstFileName"
 
-	expectedPath := fmt.Sprintf("%s/%s", todir.Path, dstFilename)
+	expectedPath := filepath.Join(todir, dstFilename)
 
 	actualpath, err := copyFile(fileToMove, expectedPath)
 	if err != nil {
