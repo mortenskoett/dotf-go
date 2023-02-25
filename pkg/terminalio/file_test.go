@@ -109,8 +109,23 @@ func TestCopyFile(t *testing.T) {
 	}
 
 	// check if file exists
-	if _, err := os.Stat(actualpath); errors.Is(err, os.ErrNotExist) {
+	actualStat, err := os.Stat(actualpath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			test.Fail(err, expectedPath, t)
+		}
+	}
+
+	expectedStat, err := os.Stat(expectedPath)
+	if err != nil {
 		test.Fail(err, expectedPath, t)
+	}
+
+	fmt.Println(expectedStat, actualStat)
+
+	// check if permissions are the same
+	if actualStat.Mode() != expectedStat.Mode() {
+		test.FailMsg("file mode not identical", actualStat, expectedStat, t)
 	}
 }
 
