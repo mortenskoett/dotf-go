@@ -9,18 +9,18 @@ import (
 )
 
 // Implements Command interface
-type moveCommand struct {
+type migrateCommand struct {
 	commandBase
 }
 
-func NewMoveCommand(programName, commandName string) *moveCommand {
-	return &moveCommand{
+func NewMigrateCommand(programName, commandName string) *migrateCommand {
+	return &migrateCommand{
 		commandBase{
 			programName: programName,
 			commandName: commandName}}
 }
 
-func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
+func (c *migrateCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
 	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
@@ -43,33 +43,33 @@ func (c *moveCommand) Run(args *CliArguments, conf *config.DotfConfiguration) er
 	return nil
 }
 
-func (c *moveCommand) ProgName() string {
+func (c *migrateCommand) ProgName() string {
 	return c.programName
 }
 
-func (c *moveCommand) CmdName() string {
+func (c *migrateCommand) CmdName() string {
 	return c.commandName
 }
 
-func (c *moveCommand) Overview() string {
-	return "Update userspace on dotfiles location change."
+func (c *migrateCommand) Overview() string {
+	return "Migrate userspace symlinks on dotfiles dir location change."
 }
 
-func (c *moveCommand) Arguments() []arg {
+func (c *migrateCommand) Arguments() []arg {
 	return []arg{
 		{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
 		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 	}
 }
 
-func (c *moveCommand) Usage() string {
+func (c *migrateCommand) Usage() string {
 	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", c.programName, c.commandName)
 }
 
-func (c *moveCommand) Description() string {
+func (c *migrateCommand) Description() string {
 	return `
 	In case the dotfiles directory has been moved, here denoted by given 'dotfiles-dir', it is
-	necessary to update all symlinks pointing back to the previous location, to point to the new
+	necessary to migrate all symlinks pointing back to the previous location, to point to the new
 	location.
 	This command will iterate through all directories and files in given 'dotfiles-dir', and attempt
 	to locate a matching symlink in the same location relative to the given argument but in given

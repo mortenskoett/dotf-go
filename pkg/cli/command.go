@@ -48,7 +48,7 @@ type commandFunc = func(execName string) Command
 var commands = map[string]commandFunc{
 	"add":     func(pname string) Command { return NewAddCommand(pname, "add") },
 	"install": func(pname string) Command { return NewInstallCommand(pname, "install") },
-	"move":    func(pname string) Command { return NewMoveCommand(pname, "move") },
+	"migrate":    func(pname string) Command { return NewMigrateCommand(pname, "migrate") },
 	"sync":    func(pname string) Command { return NewSyncCommand(pname, "sync") },
 	"revert":  func(pname string) Command { return NewRevertCommand(pname, "revert") },
 }
