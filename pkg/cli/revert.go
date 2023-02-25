@@ -8,12 +8,12 @@ import (
 )
 
 type revertCommand struct {
-	CommandBase
+	commandBase
 }
 
 func NewRevertCommand(programName, commandName string) *revertCommand {
 	return &revertCommand{
-		CommandBase{
+		commandBase{
 			programName: programName,
 			commandName: commandName}}
 }
@@ -41,8 +41,8 @@ func (c *revertCommand) Overview() string {
 	return "Revert file to its original location in userspace."
 }
 
-func (c *revertCommand) Arguments() []Arg {
-	return []Arg{
+func (c *revertCommand) Arguments() []arg {
+	return []arg{
 		{Name: "file/dir", Description: "Path to file or dir to revert back to original location."},
 	}
 }

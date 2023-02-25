@@ -8,12 +8,12 @@ import (
 )
 
 type addCommand struct {
-	CommandBase
+	commandBase
 }
 
 func NewAddCommand(programName, commandName string) *addCommand {
 	return &addCommand{
-		CommandBase{
+		commandBase{
 			programName: programName,
 			commandName: commandName}}
 }
@@ -41,8 +41,8 @@ func (c *addCommand) Overview() string {
 	return "Move file/dir from userspace to dotfiles."
 }
 
-func (c *addCommand) Arguments() []Arg {
-	return []Arg{
+func (c *addCommand) Arguments() []arg {
+	return []arg{
 		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
 	}
 }

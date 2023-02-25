@@ -8,12 +8,12 @@ import (
 )
 
 type syncCommand struct {
-	CommandBase
+	commandBase
 }
 
 func NewSyncCommand(programName, commandName string) *syncCommand {
 	return &syncCommand{
-		CommandBase{
+		commandBase{
 			programName: programName,
 			commandName: commandName}}
 }
@@ -43,8 +43,8 @@ func (c *syncCommand) Overview() string {
 	return "Sync with remote using merge strategy."
 }
 
-func (c *syncCommand) Arguments() []Arg {
-	return []Arg{}
+func (c *syncCommand) Arguments() []arg {
+	return []arg{}
 }
 
 func (c *syncCommand) Usage() string {

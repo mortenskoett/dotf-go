@@ -14,41 +14,12 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-// ** ALL PROGRAM COMMANDS AVAILABLE BELOW ** //
-
-// CommandFunc defines a function that given the name of the executable (most likely dotf-go) will
-// return a valid Command.
-type CommandFunc = func(execName string) Command
-
-// Contains the CLI Commands that are currently implemented in dotf. The commands are returned as
-// functions so the name of the application can be given as param. The program name is used for
-// pretty-printing.
-var commands = map[string]CommandFunc{
-	"add":     func(pname string) Command { return NewAddCommand(pname, "add") },
-	"install": func(pname string) Command { return NewInstallCommand(pname, "install") },
-	"move":    func(pname string) Command { return NewMoveCommand(pname, "move") },
-	"sync":    func(pname string) Command { return NewSyncCommand(pname, "sync") },
-	"revert":  func(pname string) Command { return NewRevertCommand(pname, "revert") },
-}
-
-// Contains basic program info for each Command
-type CommandBase struct {
-	programName string
-	commandName string
-}
-
-// Defines a required argument for a specific Command
-type Arg struct {
-	Name        string
-	Description string
-}
-
 // Command is a definition of a main operation taking a number of cli args to work on
 type Command interface {
 	ProgName() string    // Name of program used for pretty-printing.
 	CmdName() string     // Name of command.
 	Overview() string    // Oneliner description of the command.
-	Arguments() []Arg    // Needed arguments to use the command.
+	Arguments() []arg    // Needed arguments to use the command.
 	Usage() string       // How to use the command.
 	Description() string // Detailed description.
 	Run(args *CliArguments,
@@ -66,6 +37,32 @@ func NewCliArguments() *CliArguments {
 	return &CliArguments{
 		Flags: make(map[string]string),
 	}
+}
+
+// commandFunc defines a function that given the name of the executable will return a valid Command.
+type commandFunc = func(execName string) Command
+
+// Contains the CLI Commands that are currently implemented in dotf. The commands are returned as
+// functions so the name of the application can be given as param. The program name is used for
+// pretty-printing.
+var commands = map[string]commandFunc{
+	"add":     func(pname string) Command { return NewAddCommand(pname, "add") },
+	"install": func(pname string) Command { return NewInstallCommand(pname, "install") },
+	"move":    func(pname string) Command { return NewMoveCommand(pname, "move") },
+	"sync":    func(pname string) Command { return NewSyncCommand(pname, "sync") },
+	"revert":  func(pname string) Command { return NewRevertCommand(pname, "revert") },
+}
+
+// Contains basic program info for each Command
+type commandBase struct {
+	programName string
+	commandName string
+}
+
+// Defines a required argument for a specific Command
+type arg struct {
+	Name        string
+	Description string
 }
 
 // Get copy of all available Commands. Obs: Ineffective implementation.
@@ -90,7 +87,7 @@ func CreateCommand(programName, cmdName string) (Command, error) {
 }
 
 // Parses a Command name to a CommandFunc or errors
-func parseToCommandFunc(cmdName string) (CommandFunc, error) {
+func parseToCommandFunc(cmdName string) (commandFunc, error) {
 	cmdfunc, ok := commands[cmdName]
 	if ok {
 		return cmdfunc, nil
@@ -102,14 +99,14 @@ func parseToCommandFunc(cmdName string) (CommandFunc, error) {
 func validateCliArguments(args *CliArguments, c Command) error {
 
 	if _, ok := args.Flags["help"]; ok {
-		fmt.Println(GenerateUsage(c))
+		fmt.Println(generateUsage(c))
 		fmt.Print("Description:")
 		fmt.Println(c.Description())
 		return &CmdHelpFlagError{"help flag given"}
 	}
 
 	if len(args.PosArgs) != len(c.Arguments()) {
-		fmt.Println(GenerateUsage(c))
+		fmt.Println(generateUsage(c))
 		return &CmdArgumentError{fmt.Sprintf(
 			"%d arguments given, but %d required. Try adding --help.", len(args.PosArgs), len(c.Arguments()))}
 	}
@@ -118,7 +115,7 @@ func validateCliArguments(args *CliArguments, c Command) error {
 }
 
 // Generates a pretty-printed usage description of a Command
-func GenerateUsage(c Command) string {
+func generateUsage(c Command) string {
 	var sb strings.Builder
 
 	sb.WriteString("Name:\n\t")

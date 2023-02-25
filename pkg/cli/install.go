@@ -9,12 +9,12 @@ import (
 )
 
 type installCommand struct {
-	CommandBase
+	commandBase
 }
 
 func NewInstallCommand(programName, commandName string) *installCommand {
 	return &installCommand{
-		CommandBase{
+		commandBase{
 			programName: programName,
 			commandName: commandName}}
 }
@@ -56,8 +56,8 @@ func (c *installCommand) Overview() string {
 	return "Install file/dir from dotfiles into userspace."
 }
 
-func (c *installCommand) Arguments() []Arg {
-	return []Arg{
+func (c *installCommand) Arguments() []arg {
+	return []arg{
 		{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."},
 	}
 }

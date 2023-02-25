@@ -10,12 +10,12 @@ import (
 
 // Implements Command interface
 type moveCommand struct {
-	CommandBase
+	commandBase
 }
 
 func NewMoveCommand(programName, commandName string) *moveCommand {
 	return &moveCommand{
-		CommandBase{
+		commandBase{
 			programName: programName,
 			commandName: commandName}}
 }
@@ -55,8 +55,8 @@ func (c *moveCommand) Overview() string {
 	return "Update userspace on dotfiles location change."
 }
 
-func (c *moveCommand) Arguments() []Arg {
-	return []Arg{
+func (c *moveCommand) Arguments() []arg {
+	return []arg{
 		{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
 		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 	}
