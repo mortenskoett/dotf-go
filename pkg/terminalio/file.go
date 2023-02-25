@@ -60,7 +60,7 @@ func InstallDotfile(file, homeDir, dotfilesDir string, overwriteAllowed bool) er
 		}
 	}
 	// Create symlink in userspace pointing to dotfile
-	if err := CreateSymlink(info.userspaceFile, info.dotfilesFile); err != nil {
+	if err := createSymlink(info.userspaceFile, info.dotfilesFile); err != nil {
 		return err
 	}
 
@@ -88,7 +88,7 @@ func RevertDotfile(file, homeDir, dotfilesDir string) error {
 		return &FileNotFoundError{dotfile}
 	}
 
-	ok, err = IsFileSymlink(usersymlink)
+	ok, err = isFileSymlink(usersymlink)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 		return err
 	}
 
-	// Create path inside dotfiles dir
+	// Construct path inside dotfiles dir
 	absNewDotFile, err := replacePrefixPath(absUserspaceFile, absHomedir, absDotfilesDir)
 	if err != nil {
 		return err
@@ -171,7 +171,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 	}
 
 	// Create symlink from userspace to the newly created file in dotfiles
-	if err := CreateSymlink(absUserspaceFile, absNewDotFile); err != nil {
+	if err := createSymlink(absUserspaceFile, absNewDotFile); err != nil {
 		return err
 	}
 
@@ -434,7 +434,7 @@ func expandTilde(path string) string {
 }
 
 // Checks if file exists by trying to open it. The given path should be absolute or relative to
-// dotf executable. An error is return ed if the file does not exist.
+// dotf executable. An error is returned if the file does not exist.
 func checkIfFileExists(absPath string) (bool, error) {
 	_, err := os.Open(absPath)
 	if err != nil {

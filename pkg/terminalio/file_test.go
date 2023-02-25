@@ -43,7 +43,7 @@ func TestAddFileToDotfiles(t *testing.T) {
 	}
 
 	// check if new file at userspace location is symlink
-	if ok, _ := IsFileSymlink(userspaceFile.Name()); !ok {
+	if ok, _ := isFileSymlink(userspaceFile.Name()); !ok {
 		test.Fail(ok, fmt.Sprintf(
 			"File in userspace dir should be a symlink at %s: %v", userspaceFile.Name(), err), t)
 	}
@@ -120,8 +120,6 @@ func TestCopyFile(t *testing.T) {
 	if err != nil {
 		test.Fail(err, expectedPath, t)
 	}
-
-	fmt.Println(expectedStat, actualStat)
 
 	// check if permissions are the same
 	if actualStat.Mode() != expectedStat.Mode() {
@@ -242,13 +240,24 @@ func TestGetAndValidateAbsolutePathNotExists(t *testing.T) {
 	}
 }
 
-func TestCheckIfFileExists(t *testing.T) {
+func Test_checkIfFileExists_correctly_determines_files_exist(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
 	file := env.UserspaceDir.AddTempFile()
 
 	if exists, _ := checkIfFileExists(file.Name()); !exists {
+		test.Fail(exists, "Should not fail as file exists.", t)
+	}
+}
+
+func Test_checkIfFileExists_handles_dirs_like_files(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	dir := env.UserspaceDir.AddTempDir("mytestdir")
+
+	if exists, _ := checkIfFileExists(dir.Path); !exists {
 		test.Fail(exists, "Should not fail as file exists.", t)
 	}
 }
