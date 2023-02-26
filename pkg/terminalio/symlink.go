@@ -58,7 +58,9 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 }
 
 // updateSymlink updates an existing symlink found at location 'fromDest' to point to an existing
-// file 'toFile'
+// file 'toFile'. It is assumed that 'toFile' is a different location from what the symlink
+// 'fromDest' previously pointed to. Otherwise the operation does not make sense.
+// Example: A->B can be changed to A->C.
 func updateSymlink(fromDest, toFile string) error {
 	// symlink info: https://stackoverflow.com/questions/37345844/how-to-overwrite-a-symlink-in-go
 

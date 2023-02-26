@@ -7,6 +7,48 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
+func Test_updateSymlink_makes_symlink_point_to_different_location(t *testing.T) {
+	env := test.NewTestEnvironment()
+
+	somefile := env.DotfilesDir.AddTempFile().Path
+	anotherfile := env.DotfilesDir.AddTempFile().Path
+
+	symlinkToSomefile := env.DotfilesDir.CreateTempSymlink(somefile).Path
+
+	type testinput struct {
+		from       string
+		to         string
+		shouldfail bool
+	}
+
+	testcases := []testinput{
+		{
+			from:       symlinkToSomefile,
+			to:         anotherfile,
+			shouldfail: false,
+		},
+		{
+			from:       symlinkToSomefile,
+			to:         "",
+			shouldfail: true,
+		},
+		{
+			from:       "",
+			to:         anotherfile,
+			shouldfail: true,
+		},
+	}
+
+	for _, in := range testcases {
+		err := updateSymlink(in.from, in.to)
+		if err != nil {
+			if !in.shouldfail {
+				test.Fail(err, "updateSymlink should have updated path", t)
+			}
+		}
+	}
+}
+
 func Test_createSymlink_fails_with_invalid_paths(t *testing.T) {
 	type input struct {
 		fpath      string
@@ -58,12 +100,12 @@ func Test_createSymlink_creates_dir_file_symlink(t *testing.T) {
 
 	happypaths := []input{
 		{
-			fpath:      somefile,
-			symlink:    fmt.Sprintf("%s-%s", somefile, "sym1"),
+			fpath:   somefile,
+			symlink: fmt.Sprintf("%s-%s", somefile, "sym1"),
 		},
 		{
-			fpath:      somedir,
-			symlink:    fmt.Sprintf("%s-%s", somedir, "sym2"),
+			fpath:   somedir,
+			symlink: fmt.Sprintf("%s-%s", somedir, "sym2"),
 		},
 	}
 
