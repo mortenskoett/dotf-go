@@ -9,19 +9,6 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-func TestAddFileToDotfilesNotFoundError(t *testing.T) {
-	file := "asdf"
-	userspacefile := "adsf"
-	dotfilesdir := "adsf"
-
-	expected := &FileNotFoundError{}
-	actual := AddFileToDotfiles(file, userspacefile, dotfilesdir)
-
-	if !errors.As(actual, &expected) {
-		test.Fail(actual, expected, t)
-	}
-}
-
 func TestBackupFile(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()

@@ -1,6 +1,7 @@
 package terminalio
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"testing"
@@ -8,9 +9,23 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-/* Functional tests implemented in terms of other terminalio function calls used for assertion. */
+/* Functional tests implemented in terms of other terminalio function calls used for assertion. This
+* requires that all units are tested individually. */
 
-func TestAddFileToDotfiles(t *testing.T) {
+func Test_AddFileToDotfiles_unknown_path_gives_error(t *testing.T) {
+	file := "asdf"
+	userspacefile := "adsf"
+	dotfilesdir := "adsf"
+
+	expected := &FileNotFoundError{}
+	actual := AddFileToDotfiles(file, userspacefile, dotfilesdir)
+
+	if !errors.As(actual, &expected) {
+		test.Fail(actual, expected, t)
+	}
+}
+
+func Test_AddFileToDotfiles_successfully_copies_file_creates_symlink(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
