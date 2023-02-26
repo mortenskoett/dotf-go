@@ -38,13 +38,13 @@ func Test_AddFileToDotfiles_successfully_copies_file_creates_symlink(t *testing.
 	userspaceFile := dir.AddTempFile()
 
 	// Function under test
-	err := AddFileToDotfiles(userspaceFile.Name(), userspacedir.Path, dfilesdir.Path)
+	err := AddFileToDotfiles(userspaceFile.Path, userspacedir.Path, dfilesdir.Path)
 	if err != nil {
 		test.Fail(err, "No error should have happened", t)
 	}
 
-	expectedUserspaceFile := filepath.Join(dfilesdir.Path, userdirpath, filepath.Base(userspaceFile.Name()))
-	expectedBackupFile := filepath.Join("/tmp/dotf-go/backups", userspaceFile.Name())
+	expectedUserspaceFile := filepath.Join(dfilesdir.Path, userdirpath, filepath.Base(userspaceFile.Path))
+	expectedBackupFile := filepath.Join("/tmp/dotf-go/backups", userspaceFile.Path)
 
 	// check if new file in dotfiles exist
 	if exists, _ := checkIfFileExists(expectedUserspaceFile); !exists {
@@ -52,15 +52,15 @@ func Test_AddFileToDotfiles_successfully_copies_file_creates_symlink(t *testing.
 	}
 
 	// check if new file at userspace location exists
-	if exists, err := checkIfFileExists(userspaceFile.Name()); !exists {
+	if exists, err := checkIfFileExists(userspaceFile.Path); !exists {
 		test.Fail(exists, fmt.Sprintf(
-			"File in userspace dir should still exist at %s: %v", userspaceFile.Name(), err), t)
+			"File in userspace dir should still exist at %s: %v", userspaceFile.Path, err), t)
 	}
 
 	// check if new file at userspace location is symlink
-	if ok, _ := isFileSymlink(userspaceFile.Name()); !ok {
+	if ok, _ := isFileSymlink(userspaceFile.Path); !ok {
 		test.Fail(ok, fmt.Sprintf(
-			"File in userspace dir should be a symlink at %s: %v", userspaceFile.Name(), err), t)
+			"File in userspace dir should be a symlink at %s: %v", userspaceFile.Path, err), t)
 	}
 
 	// check if backup exists

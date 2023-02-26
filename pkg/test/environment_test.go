@@ -30,9 +30,9 @@ func Test_AddTempFile_adds_file_to_env(t *testing.T) {
 	defer env.Cleanup()
 
 	paths := []string{
-		env.DotfilesDir.AddTempFile().Name(),
-		env.UserspaceDir.AddTempFile().Name(),
-		env.BackupDir.AddTempFile().Name(),
+		env.DotfilesDir.AddTempFile().Path,
+		env.UserspaceDir.AddTempFile().Path,
+		env.BackupDir.AddTempFile().Path,
 	}
 
 	for _, l := range paths {
@@ -51,7 +51,7 @@ func Test_CreateTempSymlink_creates_symlink(t *testing.T) {
 	dfile := dotfiles.AddTempFile()
 
 	userspace := env.UserspaceDir
-	symlinkpath := userspace.CreateTempSymlink(dfile.Name())
+	symlinkpath := userspace.CreateTempSymlink(dfile.Path)
 
 	fileInfo, err := os.Lstat(symlinkpath)
 	if err != nil {

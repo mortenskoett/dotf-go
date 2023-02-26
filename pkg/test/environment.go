@@ -15,6 +15,12 @@ type Environment struct {
 	DotfilesDir, UserspaceDir, BackupDir *DirectoryHandle
 }
 
+type FileHandle struct {
+	file *os.File
+	Name string // The base of the path
+	Path string // Path to directory
+}
+
 // Path file handle used by test Environment
 type DirectoryHandle struct {
 	Name string // The base of the path
@@ -50,12 +56,16 @@ func (e *DirectoryHandle) AddTempDir(relativePath string) *DirectoryHandle {
 }
 
 // Adds a file to the filepath and returns its handle
-func (e *DirectoryHandle) AddTempFile() *os.File {
+func (e *DirectoryHandle) AddTempFile() *FileHandle {
 	f, err := os.CreateTemp(e.Path, "file-*") // Suffixes a random string
 	if err != nil {
 		log.Fatal(err)
 	}
-	return f
+	return &FileHandle{
+		file: f,
+		Name: filepath.Base(f.Name()),
+		Path: f.Name(),
+	}
 }
 
 // Creates a randomly named symlink pointing at 'tofile'. The path of the symlink is returned.
@@ -83,5 +93,4 @@ func (e *Environment) Cleanup() {
 	if err := os.RemoveAll(e.BackupDir.Path); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Test environment was cleaned OK.")
 }

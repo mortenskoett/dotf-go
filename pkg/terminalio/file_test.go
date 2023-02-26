@@ -13,7 +13,7 @@ func Test_backupFile_saves_file(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
-	fileToBackup := env.UserspaceDir.AddTempFile().Name()
+	fileToBackup := env.UserspaceDir.AddTempFile().Path
 	expectedBackupPath := filepath.Join("/tmp/dotf-go/backups", fileToBackup)
 
 	actual, err := backupFile(fileToBackup)
@@ -33,7 +33,7 @@ func Test_copyFile_copies_file(t *testing.T) {
 	defer env.Cleanup()
 
 	todir := env.BackupDir.Path
-	fileToMove := env.UserspaceDir.AddTempFile().Name()
+	fileToMove := env.UserspaceDir.AddTempFile().Path
 	dstFilename := "dstFileName"
 
 	expectedPath := filepath.Join(todir, dstFilename)
@@ -92,9 +92,9 @@ func Test_replacePrefixPath_using_test_env(t *testing.T) {
 	subfolders := fromdir.AddTempDir(subfolderPath)
 	fp := subfolders.AddTempFile()
 	todir := env.UserspaceDir
-	expected := filepath.Join(todir.Path, subfolderPath, filepath.Base(fp.Name()))
+	expected := filepath.Join(todir.Path, subfolderPath, filepath.Base(fp.Path))
 
-	result, err := replacePrefixPath(fp.Name(), fromdir.Path, todir.Path)
+	result, err := replacePrefixPath(fp.Path, fromdir.Path, todir.Path)
 	if err != nil {
 		test.Fail(result, err, t)
 	}
@@ -133,13 +133,13 @@ func Test_trimBasePath_using_test_env(t *testing.T) {
 	basepath := somedir.AddTempDir("/bla1/bla2/")
 	f := basepath.AddTempFile()
 
-	p, err := trimBasePath(f.Name(), basepath.Path)
+	p, err := trimBasePath(f.Path, basepath.Path)
 	if err != nil {
 		test.Fail(err, "Should not fail here", t)
 	}
 
 	// Because result has leading slash
-	expected := "/" + filepath.Base(f.Name())
+	expected := "/" + filepath.Base(f.Path)
 
 	// Check filename
 	if p != expected {
@@ -153,14 +153,14 @@ func Test_getAbsolutePath_returns_equal_abs_path(t *testing.T) {
 
 	f := env.UserspaceDir.AddTempFile()
 
-	actual, err := getAbsolutePath(f.Name())
+	actual, err := getAbsolutePath(f.Path)
 
 	// Check error
 	if err != nil {
 		test.Fail(err, "Should not fail here", t)
 	}
 
-	expected := filepath.Join(f.Name())
+	expected := filepath.Join(f.Path)
 
 	// Check path -- should return the same path
 	if actual != expected {
@@ -186,7 +186,7 @@ func Test_checkIfFileExists_determines_files_exist(t *testing.T) {
 
 	file := env.UserspaceDir.AddTempFile()
 
-	if exists, _ := checkIfFileExists(file.Name()); !exists {
+	if exists, _ := checkIfFileExists(file.Path); !exists {
 		test.Fail(exists, "Should not fail as file exists.", t)
 	}
 }
@@ -229,12 +229,12 @@ func Test_copyDir_copies_recursively_files_folders(t *testing.T) {
 		test.Fail(err, "Should not fail here", t)
 	}
 
-	dstInsideFile, err := replacePrefixPath(insideFile.Name(), src.Path, dst.Path)
+	dstInsideFile, err := replacePrefixPath(insideFile.Path, src.Path, dst.Path)
 	if err != nil {
 		test.Fail(err, "Should not fail here", t)
 	}
 
-	dstHereFile, err := replacePrefixPath(hereFile.Name(), src.Path, dst.Path)
+	dstHereFile, err := replacePrefixPath(hereFile.Path, src.Path, dst.Path)
 	if err != nil {
 	}
 
@@ -290,7 +290,7 @@ func Test_deleteFile_deletes_existing_file(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
-	f := env.UserspaceDir.AddTempFile().Name()
+	f := env.UserspaceDir.AddTempFile().Path
 
 	if exists, _ := checkIfFileExists(f); !exists {
 		test.Fail(exists, "file should exist", t)
