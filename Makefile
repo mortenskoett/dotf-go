@@ -4,11 +4,11 @@ VERSION := $(shell git rev-parse --short HEAD)
 .DEFAULT_GOAL := help
 
 .PHONY: build-cli
-build-cli:	## Build the cli application
+build-cli: test ## Build the cli application
 	go build -ldflags "-X main.$(DOTF_VAR)=$(VERSION)" -o bin/dotf-cli  cmd/dotf-cli/main.go
 
 .PHONY: build-tray
-build-tray: ## Build the tray application
+build-tray: test ## Build the tray application
 	go build -ldflags "-X main.$(DOTF_VAR)=$(VERSION)" -o bin/dotf-tray cmd/dotf-tray/main.go
 
 .PHONY: build-all
