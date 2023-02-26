@@ -8,7 +8,7 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-// Functional tests
+/* Functional tests implemented in terms of other terminalio function calls used for assertion. */
 
 func TestAddFileToDotfiles(t *testing.T) {
 	env := test.NewTestEnvironment()
@@ -22,6 +22,7 @@ func TestAddFileToDotfiles(t *testing.T) {
 
 	userspaceFile := dir.AddTempFile()
 
+	// Function under test
 	err := AddFileToDotfiles(userspaceFile.Name(), userspacedir.Path, dfilesdir.Path)
 	if err != nil {
 		test.Fail(err, "No error should have happened", t)
@@ -52,6 +53,4 @@ func TestAddFileToDotfiles(t *testing.T) {
 		test.Fail(exists, fmt.Sprintf(
 			"File from userspace should be backed up to %s: %v", expectedBackupFile, err), t)
 	}
-
 }
-
