@@ -9,7 +9,7 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-func TestBackupFile(t *testing.T) {
+func Test_BackupFile_saves_file(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -28,7 +28,7 @@ func TestBackupFile(t *testing.T) {
 	}
 }
 
-func TestCopyFile(t *testing.T) {
+func Test_CopyFile_copies_file(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -67,7 +67,7 @@ func TestCopyFile(t *testing.T) {
 	}
 }
 
-func TestReplacePrefixPathStrings(t *testing.T) {
+func Test_ReplacePrefixPath_replaces_prefix_of_path(t *testing.T) {
 	file := "/dir1/dir2/file.txt"
 	from := "/userdir"
 	to := "/dotfiles"
@@ -83,7 +83,7 @@ func TestReplacePrefixPathStrings(t *testing.T) {
 	}
 }
 
-func TestReplacePrefixPath(t *testing.T) {
+func Test_ReplacePrefixPath_using_test_env(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -104,7 +104,7 @@ func TestReplacePrefixPath(t *testing.T) {
 	}
 }
 
-func TestTrimBasePathWithStrings(t *testing.T) {
+func Test_TrimBasePath_removes_shared_prefix(t *testing.T) {
 	df := "/dotfiles/d1/d2/d3/"
 	bp := "/d1/d2/d3/"
 	fp := bp + "file.txt"
@@ -120,7 +120,7 @@ func TestTrimBasePathWithStrings(t *testing.T) {
 	}
 }
 
-func TestTrimBasePath(t *testing.T) {
+func Test_TrimBasePath_using_test_env(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -147,7 +147,7 @@ func TestTrimBasePath(t *testing.T) {
 	}
 }
 
-func TestGetAndValidateAbsolutePathSame(t *testing.T) {
+func Test_GetAndValidateAbsolutePath_returns_equal_abs_path(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -168,7 +168,7 @@ func TestGetAndValidateAbsolutePathSame(t *testing.T) {
 	}
 }
 
-func TestGetAndValidateAbsolutePathNotExists(t *testing.T) {
+func Test_GetAndValidateAbsolutePath_fails_if_path_not_exist(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -180,7 +180,7 @@ func TestGetAndValidateAbsolutePathNotExists(t *testing.T) {
 	}
 }
 
-func Test_checkIfFileExists_correctly_determines_files_exist(t *testing.T) {
+func Test_checkIfFileExists_determines_files_exist(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -191,7 +191,7 @@ func Test_checkIfFileExists_correctly_determines_files_exist(t *testing.T) {
 	}
 }
 
-func Test_checkIfFileExists_handles_dirs_like_files(t *testing.T) {
+func Test_checkIfFileExists_determines_dirs_exist(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -202,7 +202,7 @@ func Test_checkIfFileExists_handles_dirs_like_files(t *testing.T) {
 	}
 }
 
-func TestCopyDir(t *testing.T) {
+func Test_CopyDir_copies_recursively_files_folders(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
