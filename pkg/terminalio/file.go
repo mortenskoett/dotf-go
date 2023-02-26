@@ -45,14 +45,21 @@ func getFileLocationInfo(file, userspaceDir, dotfilesDir string) (info *fileLoca
 	// Determine whether given filepath is inside or outside dotfiles dir
 	if strings.HasPrefix(absFile, absDotfilesDir) {
 		// Inside dotfiles
+
+		// TODO: I think this can be implemented in terms of other functionality already implemented
+		relativePathToFile := strings.TrimPrefix(absFile, absDotfilesDir)
+
+		info.userspaceFile = filepath.Join(absUserspaceDir, relativePathToFile)
 		info.dotfilesFile = absFile
-		info.userspaceFile = strings.TrimPrefix(absFile, absDotfilesDir)
+		info.insideDotfiles = true
 
 	} else {
 		// In userspace
-		info.userspaceFile = absFile
 		relativePathToFile := strings.TrimPrefix(absFile, absUserspaceDir)
+
+		info.userspaceFile = absFile
 		info.dotfilesFile = filepath.Join(absDotfilesDir, relativePathToFile)
+		info.insideDotfiles = false
 	}
 
 	info.fileOrgPath = absFile

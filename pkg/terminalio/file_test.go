@@ -317,41 +317,53 @@ func Test_getFileLocationInfo_returns_correct_fileinfo(t *testing.T) {
 		want   fileLocationInfo
 	}
 
-	f1 := env.DotfilesDir.AddTempFile().Name()
-	f1base := filepath.Base(f1)
+	uspace := env.UserspaceDir
+	dfiles := env.DotfilesDir
+
+	file1 := dfiles.AddTempFile()
+	file2 := uspace.AddTempFile()
 
 	cases := []testcase{
 		{
-			file:   f1,
-			uspace: env.UserspaceDir.Path,
-			dfiles: env.DotfilesDir.Path,
-			want:   fileLocationInfo{
+			file:   file1.Path,
+			want: fileLocationInfo{
 				insideDotfiles: true,
-				fileOrgPath:    f1,
-			userspaceFile:  filepath.Join(env.UserspaceDir.Path,),
-				dotfilesFile:   "",
+				fileOrgPath:    file1.Path,
+				userspaceFile:  filepath.Join(uspace.Path, file1.Name),
+				dotfilesFile:   filepath.Join(dfiles.Path, file1.Name),
+			},
+		},
+		{
+			file:   file2.Path,
+			want: fileLocationInfo{
+				insideDotfiles: false,
+				fileOrgPath:    file2.Path,
+				userspaceFile:  filepath.Join(uspace.Path, file2.Name),
+				dotfilesFile:   filepath.Join(dfiles.Path, file2.Name),
 			},
 		},
 	}
 
 	for _, tc := range cases {
-		result, err := getFileLocationInfo(tc.file, tc.uspace, tc.dfiles)
+		result, err := getFileLocationInfo(tc.file, uspace.Path, dfiles.Path)
 		if err != nil {
 			test.Fail(err, "shouldnt fail", t)
 		}
 
 		if result.fileOrgPath != tc.want.fileOrgPath {
-			test.Fail(tc.file, tc.want.fileOrgPath, t)
+			test.FailMsg("org file path", result.fileOrgPath, tc.want.fileOrgPath, t)
+		}
+
+		if result.dotfilesFile != tc.want.dotfilesFile {
+			test.FailMsg("Path in dotfiles dir", result.dotfilesFile, tc.want.dotfilesFile, t)
+		}
+
+		if result.userspaceFile != tc.want.userspaceFile {
+			test.FailMsg("Path in userspace", result.userspaceFile, tc.want.userspaceFile, t)
+		}
+
+		if result.insideDotfiles != tc.want.insideDotfiles {
+			test.FailMsg("inside dotfiles", result.insideDotfiles, tc.want.insideDotfiles, t)
 		}
 	}
 }
-
-// func Test_getFileLocationInfo_returns_correct_fileinfo_from_userspace(t *testing.T) {
-// 	env := test.NewTestEnvironment()
-// 	defer env.Cleanup()
-
-// 	dfiles := env.DotfilesDir
-// 	userspace := env.UserspaceDir
-
-// 	result, err := getFileLocationInfo()
-// }
