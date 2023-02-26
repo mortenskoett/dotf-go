@@ -25,6 +25,7 @@ install-tray: build-tray ## Installs tray app into default go location
 .PHONY: install-all
 install-all: build-all install-cli install-tray ## Install all applications.
 
+.PHONY: test
 test: build-all ## Run tests.
 	go test -v ./pkg/...
 
