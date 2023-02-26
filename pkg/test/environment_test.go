@@ -7,7 +7,43 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-func Test_CreateSymlink_creates_symlink(t *testing.T) {
+func Test_AddTempDir_adds_dir_to_env(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	paths := []string{
+		env.DotfilesDir.AddTempDir("testdotfiles").Path,
+		env.UserspaceDir.AddTempDir("testuserspace").Path,
+		env.BackupDir.AddTempDir("testbackup").Path,
+	}
+
+	for _, l := range paths {
+		_, err := os.Lstat(l)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func Test_AddTempFile_adds_file_to_env(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	paths := []string{
+		env.DotfilesDir.AddTempFile().Name(),
+		env.UserspaceDir.AddTempFile().Name(),
+		env.BackupDir.AddTempFile().Name(),
+	}
+
+	for _, l := range paths {
+		_, err := os.Lstat(l)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func Test_CreateTempSymlink_creates_symlink(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -15,7 +51,7 @@ func Test_CreateSymlink_creates_symlink(t *testing.T) {
 	dfile := dotfiles.AddTempFile()
 
 	userspace := env.UserspaceDir
-	symlinkpath := userspace.CreateSymlink(dfile.Name())
+	symlinkpath := userspace.CreateTempSymlink(dfile.Name())
 
 	fileInfo, err := os.Lstat(symlinkpath)
 	if err != nil {

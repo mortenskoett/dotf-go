@@ -59,7 +59,7 @@ func (e *DirectoryHandle) AddTempFile() *os.File {
 }
 
 // Creates a randomly named symlink pointing at 'tofile'. The path of the symlink is returned.
-func (e *DirectoryHandle) CreateSymlink(tofile string) string {
+func (e *DirectoryHandle) CreateTempSymlink(tofile string) string {
 	rnd := rand.Int31()
 	symname := fmt.Sprintf("symlink-%d", rnd)
 	symlinkpath := filepath.Join(e.Path, symname)
@@ -83,4 +83,5 @@ func (e *Environment) Cleanup() {
 	if err := os.RemoveAll(e.BackupDir.Path); err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Test environment was cleaned OK.")
 }
