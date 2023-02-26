@@ -69,7 +69,7 @@ func (e *DirectoryHandle) AddTempFile() *FileHandle {
 }
 
 // Creates a randomly named symlink pointing at 'tofile'. The path of the symlink is returned.
-func (e *DirectoryHandle) CreateTempSymlink(tofile string) string {
+func (e *DirectoryHandle) CreateTempSymlink(tofile string) *FileHandle {
 	rnd := rand.Int31()
 	symname := fmt.Sprintf("symlink-%d", rnd)
 	symlinkpath := filepath.Join(e.Path, symname)
@@ -79,7 +79,11 @@ func (e *DirectoryHandle) CreateTempSymlink(tofile string) string {
 		log.Fatal(err)
 	}
 
-	return symlinkpath
+	return &FileHandle{
+		file: nil,
+		Name: symname,
+		Path: symlinkpath,
+	}
 }
 
 // Cleans up the test environment. Should be called when done e.g. using defer

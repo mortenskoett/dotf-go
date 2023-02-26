@@ -53,7 +53,7 @@ func Test_CreateTempSymlink_creates_symlink(t *testing.T) {
 	userspace := env.UserspaceDir
 	symlinkpath := userspace.CreateTempSymlink(dfile.Path)
 
-	fileInfo, err := os.Lstat(symlinkpath)
+	fileInfo, err := os.Lstat(symlinkpath.Path)
 	if err != nil {
 		t.Fatal(err)
 	}
