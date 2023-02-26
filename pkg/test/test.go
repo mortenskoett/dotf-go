@@ -19,5 +19,5 @@ func Fail(actual, expected interface{}, t *testing.T) {
 
 // FailMsg fails and prints actual and expected with a message
 func FailMsg(msg string, actual, expected interface{}, t *testing.T) {
-	t.Errorf(msg, "\nactual = %v\nexpected = %v", actual, expected)
+	t.Errorf("%s: \nactual = %v\nexpected = %v", msg, actual, expected)
 }

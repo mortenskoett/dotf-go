@@ -2,7 +2,9 @@
 package test
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 )
@@ -54,6 +56,20 @@ func (e *DirectoryHandle) AddTempFile() *os.File {
 		log.Fatal(err)
 	}
 	return f
+}
+
+// Creates a randomly named symlink pointing at 'tofile'. The path of the symlink is returned.
+func (e *DirectoryHandle) CreateSymlink(tofile string) string {
+	rnd := rand.Int31()
+	symname := fmt.Sprintf("symlink-%d", rnd)
+	symlinkpath := filepath.Join(e.Path, symname)
+
+	err := os.Symlink(tofile, symlinkpath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return symlinkpath
 }
 
 // Cleans up the test environment. Should be called when done e.g. using defer
