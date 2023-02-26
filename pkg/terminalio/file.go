@@ -24,7 +24,7 @@ type fileLocationInfo struct {
 // Returns a struct containing information about the given 'file' and its relations to dotfiles and
 // to userspace. This is useful because often there are commands that should produce equal results
 // both when called from dotfiles and userspace.
-func getFileLocationInfo(file, homeDir, dotfilesDir string) (info *fileLocationInfo, err error) {
+func getFileLocationInfo(file, userspaceDir, dotfilesDir string) (info *fileLocationInfo, err error) {
 	info = &fileLocationInfo{}
 
 	absFile, err := getAbsolutePath(file)
@@ -32,7 +32,7 @@ func getFileLocationInfo(file, homeDir, dotfilesDir string) (info *fileLocationI
 		return nil, err
 	}
 
-	absHomeDir, err := GetAndValidateAbsolutePath(homeDir)
+	absUserspaceDir, err := GetAndValidateAbsolutePath(userspaceDir)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func getFileLocationInfo(file, homeDir, dotfilesDir string) (info *fileLocationI
 	} else {
 		// In userspace
 		info.userspaceFile = absFile
-		relativePathToFile := strings.TrimPrefix(absFile, absHomeDir)
+		relativePathToFile := strings.TrimPrefix(absFile, absUserspaceDir)
 		info.dotfilesFile = filepath.Join(absDotfilesDir, relativePathToFile)
 	}
 

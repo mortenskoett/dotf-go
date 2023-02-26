@@ -9,7 +9,7 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-func Test_BackupFile_saves_file(t *testing.T) {
+func Test_backupFile_saves_file(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -28,7 +28,7 @@ func Test_BackupFile_saves_file(t *testing.T) {
 	}
 }
 
-func Test_CopyFile_copies_file(t *testing.T) {
+func Test_copyFile_copies_file(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -67,7 +67,7 @@ func Test_CopyFile_copies_file(t *testing.T) {
 	}
 }
 
-func Test_ReplacePrefixPath_replaces_prefix_of_path(t *testing.T) {
+func Test_replacePrefixPath_replaces_prefix_of_path(t *testing.T) {
 	file := "/dir1/dir2/file.txt"
 	from := "/userdir"
 	to := "/dotfiles"
@@ -83,7 +83,7 @@ func Test_ReplacePrefixPath_replaces_prefix_of_path(t *testing.T) {
 	}
 }
 
-func Test_ReplacePrefixPath_using_test_env(t *testing.T) {
+func Test_replacePrefixPath_using_test_env(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -104,7 +104,7 @@ func Test_ReplacePrefixPath_using_test_env(t *testing.T) {
 	}
 }
 
-func Test_TrimBasePath_removes_shared_prefix(t *testing.T) {
+func Test_trimBasePath_removes_shared_prefix(t *testing.T) {
 	df := "/dotfiles/d1/d2/d3/"
 	bp := "/d1/d2/d3/"
 	fp := bp + "file.txt"
@@ -120,7 +120,7 @@ func Test_TrimBasePath_removes_shared_prefix(t *testing.T) {
 	}
 }
 
-func Test_TrimBasePath_using_test_env(t *testing.T) {
+func Test_trimBasePath_using_test_env(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -147,7 +147,7 @@ func Test_TrimBasePath_using_test_env(t *testing.T) {
 	}
 }
 
-func Test_GetAndValidateAbsolutePath_returns_equal_abs_path(t *testing.T) {
+func Test_getAbsolutePath_returns_equal_abs_path(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -202,7 +202,7 @@ func Test_checkIfFileExists_determines_dirs_exist(t *testing.T) {
 	}
 }
 
-func Test_CopyDir_copies_recursively_files_folders(t *testing.T) {
+func Test_copyDir_copies_recursively_files_folders(t *testing.T) {
 	env := test.NewTestEnvironment()
 	defer env.Cleanup()
 
@@ -253,3 +253,105 @@ func Test_CopyDir_copies_recursively_files_folders(t *testing.T) {
 		test.Fail(src.Path, "Dir should still exist", t)
 	}
 }
+
+func Test_deleteDirectory_deletes_existing_directory(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	d := env.UserspaceDir.AddTempDir("dirtodelete").Path
+
+	// check if dir exists
+	if exists, _ := checkIfFileExists(d); !exists {
+		test.Fail(exists, "dir should exist", t)
+	}
+
+	// check if what is created is considered dir
+	ok, err := isDirectory(d)
+	if err != nil {
+		test.Fail(err, "shouldnt fail", t)
+	}
+	if !ok {
+		test.Fail(ok, "this should be a directory", t)
+	}
+
+	// delete dir
+	err = deleteDirectory(d)
+	if err != nil {
+		test.Fail(err, "shouldnt fail", t)
+	}
+
+	// check if deleted properly
+	if exists, _ := checkIfFileExists(d); exists {
+		test.Fail(exists, "dir should NOT exist now", t)
+	}
+}
+
+func Test_deleteFile_deletes_existing_file(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	f := env.UserspaceDir.AddTempFile().Name()
+
+	if exists, _ := checkIfFileExists(f); !exists {
+		test.Fail(exists, "file should exist", t)
+	}
+
+	err := deleteFile(f)
+	if err != nil {
+		test.Fail(err, "shouldnt fail", t)
+	}
+
+	if exists, _ := checkIfFileExists(f); exists {
+		test.Fail(exists, "file should NOT exist now", t)
+	}
+}
+
+func Test_getFileLocationInfo_returns_correct_fileinfo(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	type testcase struct {
+		file   string
+		uspace string
+		dfiles string
+		want   fileLocationInfo
+	}
+
+	f1 := env.DotfilesDir.AddTempFile().Name()
+	f1base := filepath.Base(f1)
+
+	cases := []testcase{
+		{
+			file:   f1,
+			uspace: env.UserspaceDir.Path,
+			dfiles: env.DotfilesDir.Path,
+			want:   fileLocationInfo{
+				insideDotfiles: true,
+				fileOrgPath:    f1,
+			userspaceFile:  filepath.Join(env.UserspaceDir.Path,),
+				dotfilesFile:   "",
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		result, err := getFileLocationInfo(tc.file, tc.uspace, tc.dfiles)
+		if err != nil {
+			test.Fail(err, "shouldnt fail", t)
+		}
+
+		if result.fileOrgPath != tc.want.fileOrgPath {
+			test.Fail(tc.file, tc.want.fileOrgPath, t)
+		}
+	}
+}
+
+// func Test_getFileLocationInfo_returns_correct_fileinfo_from_userspace(t *testing.T) {
+// 	env := test.NewTestEnvironment()
+// 	defer env.Cleanup()
+
+// 	dfiles := env.DotfilesDir
+// 	userspace := env.UserspaceDir
+
+// 	result, err := getFileLocationInfo()
+// }
