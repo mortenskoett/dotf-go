@@ -72,14 +72,14 @@ func updateSymlink(fromDest, toFile string) error {
 	return nil
 }
 
-// Create a symlink at location 'fromDest' pointing to an actual file that should exist at 'toFile'.
-// Symlink: fromDest -> toFile
-func createSymlink(fromDest, toFile string) error {
-	err := os.Symlink(toFile, fromDest)
+// Create a symlink at location 'symlinkDest' pointing to an actual file that should exist at
+// 'fileDest'.
+func createSymlink(symlinkDest, fileDest string) error {
+	err := os.Symlink(fileDest, symlinkDest)
 	if err != nil {
-		return fmt.Errorf("failed to create symlink from %s -> %s: %w", fromDest, toFile, err)
+		return fmt.Errorf("failed to create symlink from %s -> %s: %w", symlinkDest, fileDest, err)
 	}
-	logging.Ok("Symlink successfully created from", fromDest, "->", toFile) // from symlink -> file
+	logging.Ok("Symlink successfully created from", symlinkDest, "->", fileDest) // from symlink -> file
 	return nil
 }
 
