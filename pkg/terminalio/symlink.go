@@ -9,8 +9,9 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-// UpdateSymlinks walks over files and folders in the dotfiles dir, while updating their
-// respective symlinks in userspace relative to the placement in the dotfiles directory.
+// UpdateSymlinks walks over files and folders in the dotfiles dir, while updating their respective
+// symlinks in userspace relative to the placement in the dotfiles directory. If a matching symlink
+// is not found in userspace, the file is ignored.
 // `dotfilesDirPath` denotes the path to the dotfiles directory.
 // `userSpacePath` denotes the root of where the symlinks can be found.
 func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
@@ -39,6 +40,15 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 		fileInUserspace, err := replacePrefixPath(absFilePath, absDotfilesDir, absUserSpaceDir)
 		if err != nil {
 			return err
+		}
+
+		exists, err := checkIfFileExists(fileInUserspace)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			logging.Warn("Ignoring file because it doesn't exist in userspace: ", fileInUserspace)
+			return nil
 		}
 
 		ok, err := isFileSymlink(fileInUserspace)
