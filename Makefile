@@ -11,8 +11,8 @@ build-cli: test ## Build the cli application
 build-tray: test ## Build the tray application
 	go build -ldflags "-X main.$(DOTF_VAR)=$(VERSION)" -o bin/dotf-tray cmd/dotf-tray/main.go
 
-.PHONY: build-all
-build-all: build-cli build-tray ## Build all apps.
+.PHONY: build
+build: build-cli build-tray ## Build all apps.
 
 .PHONY: install-cli
 install-cli: build-cli ## Installs cli app into default go location
@@ -26,7 +26,7 @@ install-tray: build-tray ## Installs tray app into default go location
 install-all: build-all install-cli install-tray ## Install all applications.
 
 .PHONY: test
-test: build-all ## Run tests.
+test: ## Run tests.
 	go test -v ./pkg/...
 
 .PHONY: install-ubuntu-deps
