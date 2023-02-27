@@ -2,10 +2,62 @@ package terminalio
 
 import (
 	"fmt"
+	"path/filepath"
 	"testing"
 
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
+
+func Test_UpdateSymlinks_recursively_changes_symlinks_in_userspace(t *testing.T) {
+	env := test.NewTestEnvironment()
+
+	// Construct dotfiles dir
+	dotfiles := env.DotfilesDir
+	dsomedir := dotfiles.AddTempDir("mydir1/mydir2")
+	dsomefile := dsomedir.AddTempFile()
+
+	// Construct userspace with symlinks with same paths/names as files in dotfiles
+	userspace := env.UserspaceDir
+	usomedir := userspace.AddTempDir("mydir1/mydir2")
+	usomefile := userspace.AddTempFile()
+	somesymlinkpath := filepath.Join(usomedir.Path, filepath.Base(dsomefile.Path))
+
+	// Create symlink with same path as somefile in dotfiles to random file in userspace
+	err := createSymlink(somesymlinkpath, usomefile.Path)
+	if err != nil {
+		t.Fail()
+	}
+
+	// Assert symlink exists
+	ok, err := isFileSymlink(somesymlinkpath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		test.FailHardMsg("This file should be a symlink", ok, true, t)
+	}
+
+	pathToLinkedFile, err := filepath.EvalSymlinks(somesymlinkpath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pathToLinkedFile != usomefile.Path {
+		test.FailHardMsg("This symlink should point to file in userspace", pathToLinkedFile, usomefile, t)
+	}
+
+	err = UpdateSymlinks(userspace.Path, dotfiles.Path)
+	if err != nil {
+		test.Fail(err, "Should not fail", t)
+	}
+
+	pathToLinkedFileAfterChange, err := filepath.EvalSymlinks(somesymlinkpath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pathToLinkedFileAfterChange != dsomefile.Path {
+		test.FailHardMsg("This symlink should point to file in userspace", pathToLinkedFile, usomefile, t)
+	}
+}
 
 func Test_updateSymlink_makes_symlink_point_to_different_location(t *testing.T) {
 	env := test.NewTestEnvironment()

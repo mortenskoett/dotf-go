@@ -17,6 +17,11 @@ func AssertEqual(want, got interface{}, t *testing.T) {
 func FailHard(actual, expected interface{}, t *testing.T) {
 	t.Fatalf("\nactual = %+v\nexpected = %+v", actual, expected)
 }
+// Fail fails hard, prints message, actual and expected and panics. Good to stop flow in a test with
+// multiple assertions.
+func FailHardMsg(msg string, actual, expected interface{}, t *testing.T) {
+	t.Fatalf("%s: \nactual = %+v\nexpected = %+v", msg, actual, expected)
+}
 
 // Fail fails and prints actual and expected
 func Fail(actual, expected interface{}, t *testing.T) {
