@@ -10,6 +10,7 @@ import (
 
 func Test_UpdateSymlinks_recursively_changes_symlinks_in_userspace(t *testing.T) {
 	env := test.NewTestEnvironment()
+	defer env.Cleanup()
 
 	// Construct dotfiles dir
 	dotfiles := env.DotfilesDir
@@ -61,6 +62,7 @@ func Test_UpdateSymlinks_recursively_changes_symlinks_in_userspace(t *testing.T)
 
 func Test_updateSymlink_makes_symlink_point_to_different_location(t *testing.T) {
 	env := test.NewTestEnvironment()
+	defer env.Cleanup()
 
 	somefile := env.DotfilesDir.AddTempFile().Path
 	anotherfile := env.DotfilesDir.AddTempFile().Path
@@ -109,6 +111,7 @@ func Test_createSymlink_fails_with_invalid_paths(t *testing.T) {
 	}
 
 	env := test.NewTestEnvironment()
+	defer env.Cleanup()
 	somefile := env.DotfilesDir.AddTempFile().Path
 
 	sadpaths := []input{
@@ -147,6 +150,7 @@ func Test_createSymlink_creates_dir_file_symlink(t *testing.T) {
 	}
 
 	env := test.NewTestEnvironment()
+	defer env.Cleanup()
 	somefile := env.DotfilesDir.AddTempFile().Path
 	somedir := env.DotfilesDir.AddTempDir("mylittledir").Path
 
@@ -185,6 +189,7 @@ func Test_isFileSymlink_determines_correctly_a_symlink(t *testing.T) {
 	}
 
 	env := test.NewTestEnvironment()
+	defer env.Cleanup()
 
 	file := env.DotfilesDir.AddTempFile()
 	symlink := env.UserspaceDir.CreateTempSymlink(file.Path)
