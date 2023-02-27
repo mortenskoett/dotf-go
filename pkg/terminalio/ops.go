@@ -49,8 +49,8 @@ func InstallDotfile(file, homeDir, dotfilesDir string, overwriteAllowed bool) er
 // Reverts the insertion of a file into the dotfiles directory and return it to its original
 // location in userspace. The symlink is removed first. The operation can be applied both to the
 // symlink in userspace and the actual file in the dotfiles directory.
-func RevertDotfile(file, homeDir, dotfilesDir string) error {
-	info, err := getFileLocationInfo(file, homeDir, dotfilesDir)
+func RevertDotfile(file, userspaceDir, dotfilesDir string) error {
+	info, err := getFileLocationInfo(file, userspaceDir, dotfilesDir)
 	if err != nil {
 		return err
 	}

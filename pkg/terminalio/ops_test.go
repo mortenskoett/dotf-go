@@ -12,6 +12,104 @@ import (
 /* Functional tests implemented in terms of other terminalio function calls used for assertion. This
 * requires that all units are tested individually. */
 
+func Test_RevertDotfile_deletes_symlink_and_moves_file_back_userspace(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	dfiles := env.DotfilesDir
+	uspace := env.UserspaceDir
+	dsomefile := dfiles.AddTempFile()
+	uspaceSymlinkPath := filepath.Join(uspace.Path, filepath.Base(dsomefile.Path))
+
+	// Create symlink from userspace to dfiles
+	err := createSymlink(uspaceSymlinkPath, dsomefile.Path)
+	if err != nil {
+		t.Fail()
+	}
+
+	// Assert symlink exists
+	ok, err := isFileSymlink(uspaceSymlinkPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		test.FailHardMsg("This file should be a symlink", ok, true, t)
+	}
+
+	// Actual test call
+	err = RevertDotfile(uspaceSymlinkPath, uspace.Path, dfiles.Path)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+
+	// Assert symlink has become a file and NOT still symlink
+	ok, err = isFileSymlink(uspaceSymlinkPath)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+	if ok {
+		test.FailHardMsg("This file should NOT be a symlink at this point", ok, false, t)
+	}
+
+	// Assert file is not there anymore
+	exists, err := checkIfFileExists(dsomefile.Path)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+	if exists {
+		test.FailHardMsg("This file should not exist anymore", exists, false, t)
+	}
+}
+
+func Test_RevertDotfile_deletes_symlink_and_moves_file_back_dotfiles(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	dfiles := env.DotfilesDir
+	uspace := env.UserspaceDir
+	dsomefile := dfiles.AddTempFile()
+	uspaceSymlinkPath := filepath.Join(uspace.Path, filepath.Base(dsomefile.Path))
+
+	// Create symlink from userspace to dfiles
+	err := createSymlink(uspaceSymlinkPath, dsomefile.Path)
+	if err != nil {
+		t.Fail()
+	}
+
+	// Assert symlink exists
+	ok, err := isFileSymlink(uspaceSymlinkPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		test.FailHardMsg("This file should be a symlink", ok, true, t)
+	}
+
+	// Actual test call
+	err = RevertDotfile(dsomefile.Path, uspace.Path, dfiles.Path)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+
+	// Assert symlink has become a file and NOT still symlink
+	ok, err = isFileSymlink(uspaceSymlinkPath)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+	if ok {
+		test.FailHardMsg("This file should NOT be a symlink at this point", ok, false, t)
+	}
+
+	// Assert file is not there anymore
+	exists, err := checkIfFileExists(dsomefile.Path)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+	if exists {
+		test.FailHardMsg("This file should not exist anymore", exists, false, t)
+	}
+}
+
 func Test_AddFileToDotfiles_unknown_path_gives_error(t *testing.T) {
 	file := "asdf"
 	userspacefile := "adsf"
