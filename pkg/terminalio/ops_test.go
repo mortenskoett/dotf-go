@@ -3,6 +3,7 @@ package terminalio
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -11,6 +12,107 @@ import (
 
 /* Functional tests implemented in terms of other terminalio function calls used for assertion. This
 * requires that all units are tested individually. */
+
+func Test_InstallDotfile_creates_existing_symlink_in_userspace_with_overwrite(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	dfiles := env.DotfilesDir
+	uspace := env.UserspaceDir
+
+	dsomefile := dfiles.AddTempFile()
+	uspaceSymlinkPath := filepath.Join(uspace.Path, filepath.Base(dsomefile.Path))
+
+	// Create file in userspace to take up filename uspaceSymlinkPath
+	fdst, err := os.Create(uspaceSymlinkPath)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+	defer fdst.Close()
+
+	// Assert file is indeed created
+	exists, err := checkIfFileExists(uspaceSymlinkPath)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+	if !exists {
+		test.FailHardMsg("This file should at this point", exists, true, t)
+	}
+
+	err = InstallDotfile(dsomefile.Path, uspace.Path, dfiles.Path, true)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+
+	// Assert symlink exists in uspace
+	ok, err := isFileSymlink(uspaceSymlinkPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		test.FailHardMsg("This file should now be a symlink", ok, true, t)
+	}
+}
+
+func Test_InstallDotfile_creates_existing_symlink_in_userspace_no_overwrite(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	dfiles := env.DotfilesDir
+	uspace := env.UserspaceDir
+
+	dsomefile := dfiles.AddTempFile()
+	rndfile := dfiles.AddTempFile()
+	uspaceSymlinkPath := filepath.Join(uspace.Path, filepath.Base(dsomefile.Path))
+
+	// Create symlink from userspace to random useless file to take up filename uspaceSymlinkPath
+	err := createSymlink(uspaceSymlinkPath, rndfile.Path)
+	if err != nil {
+		t.Fatal()
+	}
+
+	err = InstallDotfile(dsomefile.Path, uspace.Path, dfiles.Path, false)
+	if err != nil {
+		var abortErr *AbortOnOverwriteError
+		if !errors.As(err, &abortErr) {
+			test.FailHard(err, "No error should have happened", t)
+		}
+	}
+
+	// Assert symlink exists in uspace
+	ok, err := isFileSymlink(uspaceSymlinkPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		test.FailHardMsg("This file should be a symlink", ok, true, t)
+	}
+}
+
+func Test_InstallDotfile_creates_not_existing_symlink_in_userspace_no_overwrite(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+
+	dfiles := env.DotfilesDir
+	uspace := env.UserspaceDir
+
+	dsomefile := dfiles.AddTempFile()
+	uspaceSymlinkPath := filepath.Join(uspace.Path, filepath.Base(dsomefile.Path))
+
+	err := InstallDotfile(dsomefile.Path, uspace.Path, dfiles.Path, false)
+	if err != nil {
+		test.FailHard(err, "No error should have happened", t)
+	}
+
+	// Assert symlink exists in uspace
+	ok, err := isFileSymlink(uspaceSymlinkPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		test.FailHardMsg("This file should be a symlink", ok, true, t)
+	}
+}
 
 func Test_RevertDotfile_deletes_symlink_and_moves_file_back_userspace(t *testing.T) {
 	env := test.NewTestEnvironment()
@@ -24,7 +126,7 @@ func Test_RevertDotfile_deletes_symlink_and_moves_file_back_userspace(t *testing
 	// Create symlink from userspace to dfiles
 	err := createSymlink(uspaceSymlinkPath, dsomefile.Path)
 	if err != nil {
-		t.Fail()
+		t.Fatal()
 	}
 
 	// Assert symlink exists

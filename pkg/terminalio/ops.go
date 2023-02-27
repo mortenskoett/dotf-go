@@ -1,10 +1,10 @@
 package terminalio
 
 // Installs a dotfile into its relative equal location in userspace by way of a symlink in userspace
-// pointing back to the file in dotfiles. The userspace file will be removed if 'overwriteFiles' is
-// true.
-func InstallDotfile(file, homeDir, dotfilesDir string, overwriteAllowed bool) error {
-	info, err := getFileLocationInfo(file, homeDir, dotfilesDir)
+// pointing back to the file in dotfiles. The userspace file will be removed if 'overwrite' is true.
+// Both the filepath inside dotfile as well as in userspace can be given.
+func InstallDotfile(file, userspaceDir, dotfilesDir string, overwrite bool) error {
+	info, err := getFileLocationInfo(file, userspaceDir, dotfilesDir)
 	if err != nil {
 		return err
 	}
@@ -24,7 +24,7 @@ func InstallDotfile(file, homeDir, dotfilesDir string, overwriteAllowed bool) er
 		return err
 	}
 	if exists {
-		if !overwriteAllowed {
+		if !overwrite {
 			return &AbortOnOverwriteError{info.userspaceFile}
 		}
 
