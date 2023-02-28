@@ -20,7 +20,7 @@ WIP
 
 ### Dependencies
 - Ubuntu: `apt-get install go git gcc libgtk-3-dev libayatana-appindicator3-dev`
-- Arch: `pacman -Ss go git gcc libappindicator-gtk3`
+- Arch: `pacman -Ss go git gcc libayatana-appindicator`
 
 ### Installation
 1. Install dependencies
