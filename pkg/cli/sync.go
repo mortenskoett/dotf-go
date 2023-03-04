@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/mortenskoett/dotf-go/pkg/config"
+	"github.com/mortenskoett/dotf-go/pkg/parsing"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -18,7 +18,7 @@ func NewSyncCommand(programName, commandName string) *syncCommand {
 			commandName: commandName}}
 }
 
-func (c *syncCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
+func (c *syncCommand) Run(args *parsing.CliArguments, conf *parsing.DotfConfiguration) error {
 	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}

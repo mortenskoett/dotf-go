@@ -1,4 +1,4 @@
-package argparse
+package cli
 
 import (
 	"bytes"
@@ -6,16 +6,15 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/mortenskoett/dotf-go/pkg/cli"
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-func PrintBasicHelp(commands []cli.Command, programName, logo, version string) {
+func PrintBasicHelp(commands []Command, programName, logo, version string) {
 	printHeader(logo, version)
 	printUsage(commands, programName)
 }
 
-func PrintFullHelp(commands []cli.Command, programName, logo, version string) {
+func PrintFullHelp(commands []Command, programName, logo, version string) {
 	printHeader(logo, version)
 	fmt.Println(`
 Details:
@@ -31,7 +30,7 @@ func printHeader(logo, version string) {
 	fmt.Println(" Version:", version)
 }
 
-func printUsage(commands []cli.Command, programName string) {
+func printUsage(commands []Command, programName string) {
 	fmt.Println("\nUsage:", programName, "<command> <args> [--help]")
 	fmt.Println("")
 

@@ -1,4 +1,4 @@
-package config
+package parsing
 
 type ConfigKeyNotFoundError struct {
 	message string

@@ -10,8 +10,8 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logging"
+	"github.com/mortenskoett/dotf-go/pkg/parsing"
 )
 
 // Command is a definition of a main operation taking a number of cli args to work on
@@ -22,21 +22,8 @@ type Command interface {
 	Arguments() []arg    // Needed arguments to use the command.
 	Usage() string       // How to use the command.
 	Description() string // Detailed description.
-	Run(args *CliArguments,
-		conf *config.DotfConfiguration) error // Attempt to run the Command using the given args and config
-}
-
-// Parsed CLI arguments
-type CliArguments struct {
-	CmdName string            // The first arg read after executable name
-	PosArgs []string          // Positional args read after command in order
-	Flags   map[string]string // Flags given after positional args in input
-}
-
-func NewCliArguments() *CliArguments {
-	return &CliArguments{
-		Flags: make(map[string]string),
-	}
+	Run(args *parsing.CliArguments,
+		conf *parsing.DotfConfiguration) error // Attempt to run the Command using the given args and config
 }
 
 // commandFunc defines a function that given the name of the executable will return a valid Command.
@@ -48,7 +35,7 @@ type commandFunc = func(execName string) Command
 var commands = map[string]commandFunc{
 	"add":     func(pname string) Command { return NewAddCommand(pname, "add") },
 	"install": func(pname string) Command { return NewInstallCommand(pname, "install") },
-	"migrate":    func(pname string) Command { return NewMigrateCommand(pname, "migrate") },
+	"migrate": func(pname string) Command { return NewMigrateCommand(pname, "migrate") },
 	"sync":    func(pname string) Command { return NewSyncCommand(pname, "sync") },
 	"revert":  func(pname string) Command { return NewRevertCommand(pname, "revert") },
 }
@@ -96,7 +83,7 @@ func parseToCommandFunc(cmdName string) (commandFunc, error) {
 }
 
 // Validates and handles the given Arguments generally against the Command and errors if not valid
-func validateCliArguments(args *CliArguments, c Command) error {
+func validateCliArguments(args *parsing.CliArguments, c Command) error {
 
 	if _, ok := args.Flags["help"]; ok {
 		fmt.Println(generateUsage(c))

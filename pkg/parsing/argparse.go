@@ -1,12 +1,10 @@
-package argparse
+package parsing
 
 import (
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/mortenskoett/dotf-go/pkg/cli"
-	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
@@ -15,6 +13,19 @@ var (
 	userConfigDir, _ = os.UserConfigDir()
 	defaultConfigDir = userConfigDir + "/dotf/config"
 )
+
+// Parsed CLI arguments
+type CliArguments struct {
+	CmdName string            // The first arg read after executable name
+	PosArgs []string          // Positional args read after command in order
+	Flags   map[string]string // Flags given after positional args in input
+}
+
+func NewCliArguments() *CliArguments {
+	return &CliArguments{
+		Flags: make(map[string]string),
+	}
+}
 
 // Type alias used to express flags by the parser
 type Flags = map[string]string
@@ -26,11 +37,11 @@ type ValueFlags []string
 var vflags ValueFlags = []string{"config"}
 
 // Parses the CLI input arguments and the Dotf configuration and returns potential errors
-func Parse(osargs []string) (*cli.CliArguments, *config.DotfConfiguration, error) {
+func Parse(osargs []string) (*CliArguments, *DotfConfiguration, error) {
 	cliargs, clierr := parseCliArguments(osargs, vflags)
 
 	var conferr error
-	var conf *config.DotfConfiguration
+	var conf *DotfConfiguration
 	if cliargs != nil {
 		conf, conferr = ParseDotfConfig(cliargs.Flags)
 	} else {
@@ -50,7 +61,7 @@ func Parse(osargs []string) (*cli.CliArguments, *config.DotfConfiguration, error
 }
 
 // Parses CLI arguments into positional args and flags
-func parseCliArguments(osargs []string, vflags ValueFlags) (*cli.CliArguments, error) {
+func parseCliArguments(osargs []string, vflags ValueFlags) (*CliArguments, error) {
 	// Ignore executable name
 	args := osargs[1:]
 
@@ -73,8 +84,8 @@ func parseCliArguments(osargs []string, vflags ValueFlags) (*cli.CliArguments, e
 }
 
 // Parses cli command and arguments without judgement about whether arguments are fit for Command.
-func parseArgsAndFlags(osargs []string, vflags ValueFlags) (*cli.CliArguments, error) {
-	cliarg := cli.NewCliArguments()
+func parseArgsAndFlags(osargs []string, vflags ValueFlags) (*CliArguments, error) {
+	cliarg := NewCliArguments()
 
 	cmdName := osargs[0]
 	args := osargs[1:]
@@ -153,7 +164,7 @@ func ParseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
 // 1. If flags not nil then --config <path> flag is tried and used in case it is valid
 // 2. Then ${HOME}/.config/dotf/config is tried
 // 3. If both fails a specifc parse config error is returned
-func ParseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error) {
+func ParseDotfConfig(flags map[string]string) (*DotfConfiguration, error) {
 	if flags != nil { // Only try config pointed to by flags if any flags
 		if path, ok := flags["config"]; ok {
 			config, err := readConfigFrom(path)
@@ -173,13 +184,13 @@ func ParseDotfConfig(flags map[string]string) (*config.DotfConfiguration, error)
 	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
 }
 
-func readConfigFrom(path string) (*config.DotfConfiguration, error) {
+func readConfigFrom(path string) (*DotfConfiguration, error) {
 	absPath, err := terminalio.GetAndValidateAbsolutePath(path)
 	if err != nil {
 		return nil, fmt.Errorf("path to config invalid: %w", err)
 	}
 
-	conf, err := config.ReadFromFile(absPath)
+	conf, err := ReadFromFile(absPath)
 	if err != nil {
 		return nil, fmt.Errorf("couldn't load config: %w", err)
 	}

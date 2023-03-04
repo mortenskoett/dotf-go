@@ -3,8 +3,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logging"
+	"github.com/mortenskoett/dotf-go/pkg/parsing"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -20,7 +20,7 @@ func NewMigrateCommand(programName, commandName string) *migrateCommand {
 			commandName: commandName}}
 }
 
-func (c *migrateCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
+func (c *migrateCommand) Run(args *parsing.CliArguments, conf *parsing.DotfConfiguration) error {
 	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}

@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/mortenskoett/dotf-go/pkg/config"
+	"github.com/mortenskoett/dotf-go/pkg/parsing"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -18,7 +18,7 @@ func NewRevertCommand(programName, commandName string) *revertCommand {
 			commandName: commandName}}
 }
 
-func (c *revertCommand) Run(args *CliArguments, conf *config.DotfConfiguration) error {
+func (c *revertCommand) Run(args *parsing.CliArguments, conf *parsing.DotfConfiguration) error {
 	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}

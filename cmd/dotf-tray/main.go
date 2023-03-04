@@ -9,10 +9,9 @@ import (
 
 	"github.com/getlantern/systray"
 
-	"github.com/mortenskoett/dotf-go/pkg/argparse"
 	"github.com/mortenskoett/dotf-go/pkg/concurrency"
-	"github.com/mortenskoett/dotf-go/pkg/config"
 	"github.com/mortenskoett/dotf-go/pkg/logging"
+	"github.com/mortenskoett/dotf-go/pkg/parsing"
 	"github.com/mortenskoett/dotf-go/pkg/resource"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
@@ -32,7 +31,7 @@ var (
 	programVersion   string                     = "" // Inserted by build process
 	shouldAutoUpdate bool                       = false
 	lastUpdated      string                     = "N/A"
-	configuration    *config.DotfConfiguration  = nil                              // Configuration currently loaded.
+	configuration    *parsing.DotfConfiguration  = nil                              // Configuration currently loaded.
 	updateWorker     concurrency.IntervalWorker = *concurrency.NewIntervalWorker() // Worker handles background updates.
 )
 
@@ -59,16 +58,16 @@ func main() {
 	logging.Info(programName, "service stopped")
 }
 
-func readConfiguration() *config.DotfConfiguration {
+func readConfiguration() *parsing.DotfConfiguration {
 	args := os.Args[1:] // Ignore executable name
-	vflags := argparse.ValueFlags([]string{"config"})
+	vflags := parsing.ValueFlags([]string{"config"})
 
-	flags, err := argparse.ParseFlags(args, vflags)
+	flags, err := parsing.ParseFlags(args, vflags)
 	if err != nil {
 		logging.Fatal(err)
 	}
 
-	conf, err := argparse.ParseDotfConfig(flags)
+	conf, err := parsing.ParseDotfConfig(flags)
 	if err != nil {
 		logging.Fatal(err)
 	}

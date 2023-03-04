@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/mortenskoett/dotf-go/pkg/argparse"
 	"github.com/mortenskoett/dotf-go/pkg/cli"
 	"github.com/mortenskoett/dotf-go/pkg/logging"
+	"github.com/mortenskoett/dotf-go/pkg/parsing"
 )
 
 const logo = `    _       _     __             _  _
@@ -22,20 +22,20 @@ var programVersion = "" // Inserted by build process using -ldflags
 
 func main() {
 	// Parse input to command
-	cliargs, config, err := argparse.Parse(os.Args)
+	cliargs, config, err := parsing.Parse(os.Args)
 	if err != nil {
 		switch err.(type) {
-		case *argparse.ParseHelpFlagError:
-			argparse.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
+		case *parsing.ParseHelpFlagError:
+			cli.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
 			logging.Ok(err)
-		case *argparse.ParseNoArgumentError:
-			argparse.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
+		case *parsing.ParseNoArgumentError:
+			cli.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
 			logging.Ok(err)
-		case *argparse.ParseInvalidArgumentError:
+		case *parsing.ParseInvalidArgumentError:
 			logging.Warn(err)
-		case *argparse.ParseConfigurationError:
+		case *parsing.ParseConfigurationError:
 			logging.Error(err)
-		case *argparse.ParseError:
+		case *parsing.ParseError:
 			logging.Error(err)
 		default:
 			logging.Error("unknown parser error:", err)

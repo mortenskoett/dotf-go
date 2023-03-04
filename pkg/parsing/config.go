@@ -3,7 +3,7 @@ Package config contains functionality relating to the configuration file of dotf
 The parser is inspired by the TOML layout. See https://toml.io/en/ for format details.
 Only a microscopic subset of the TOML v1.0.0 specification is implemented.
 */
-package config
+package parsing
 
 import (
 	"bufio"
