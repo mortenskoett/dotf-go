@@ -21,30 +21,24 @@ const (
 var programVersion = "" // Inserted by build process using -ldflags
 
 func main() {
-	// Parse input to command
-	cliargs, config, err := parsing.Parse(os.Args)
+	run(os.Args)
+}
+
+func run(osargs []string) {
+	// Parse cli args
+	cliargs, err := parsing.ParseCommandlineInput(os.Args)
 	if err != nil {
-		switch err.(type) {
-		case *parsing.ParseHelpFlagError:
-			cli.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
-			logging.Ok(err)
-		case *parsing.ParseNoArgumentError:
-			cli.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
-			logging.Ok(err)
-		case *parsing.ParseInvalidArgumentError:
-			logging.Warn(err)
-		case *parsing.ParseConfigurationError:
-			logging.Error(err)
-		case *parsing.ParseError:
-			logging.Error(err)
-		default:
-			logging.Error("unknown parser error:", err)
-		}
-		os.Exit(1)
+		handleParsingError(err)
+	}
+
+	// Parse dotf config
+	config, err := parsing.ParseDotfConfig(cliargs.Flags)
+	if err != nil {
+		handleParsingError(err)
 	}
 
 	// Create command
-	cmd, err := cli.CreateCommand(programName, cliargs.CmdName)
+	cmd, err := cli.CreateCommand(programName, cliargs.CommandName)
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdUnknownCommand:
@@ -72,4 +66,27 @@ func main() {
 	}
 
 	logging.Ok("All good. Bye!")
+}
+
+// Handles and terminates program according to error type
+func handleParsingError(err error) {
+	if err != nil {
+		switch err.(type) {
+		case *parsing.ParseHelpFlagError:
+			cli.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
+			logging.Ok(err)
+		case *parsing.ParseNoArgumentError:
+			cli.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
+			logging.Ok(err)
+		case *parsing.ParseInvalidArgumentError:
+			logging.Warn(err)
+		case *parsing.ParseConfigurationError:
+			logging.Error(err)
+		case *parsing.ParseError:
+			logging.Error(err)
+		default:
+			logging.Error("unknown parser error:", err)
+		}
+		os.Exit(1)
+	}
 }

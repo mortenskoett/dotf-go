@@ -22,8 +22,8 @@ type Command interface {
 	Arguments() []arg    // Needed arguments to use the command.
 	Usage() string       // How to use the command.
 	Description() string // Detailed description.
-	Run(args *parsing.CliArguments,
-		conf *parsing.DotfConfiguration) error // Attempt to run the Command using the given args and config
+	Run(args *parsing.CommandLineInput,
+		conf *parsing.DotfConfiguration) error // Run the Command using the given args and config
 }
 
 // commandFunc defines a function that given the name of the executable will return a valid Command.
@@ -83,19 +83,19 @@ func parseToCommandFunc(cmdName string) (commandFunc, error) {
 }
 
 // Validates and handles the given Arguments generally against the Command and errors if not valid
-func validateCliArguments(args *parsing.CliArguments, c Command) error {
-
-	if _, ok := args.Flags["help"]; ok {
+func validateCliArguments(args *parsing.CommandLineInput, c Command) error {
+	if _, ok := args.Flags.BoolFlags["help"]; ok {
 		fmt.Println(generateUsage(c))
 		fmt.Print("Description:")
 		fmt.Println(c.Description())
 		return &CmdHelpFlagError{"help flag given"}
 	}
 
-	if len(args.PosArgs) != len(c.Arguments()) {
+	// TODO: Change name to RequiredArguments
+	if len(args.PositionalArgs) != len(c.Arguments()) {
 		fmt.Println(generateUsage(c))
 		return &CmdArgumentError{fmt.Sprintf(
-			"%d arguments given, but %d required. Try adding --help.", len(args.PosArgs), len(c.Arguments()))}
+			"%d arguments given, but %d required. Try adding --help.", len(args.PositionalArgs), len(c.Arguments()))}
 	}
 
 	return nil

@@ -31,7 +31,7 @@ var (
 	programVersion   string                     = "" // Inserted by build process
 	shouldAutoUpdate bool                       = false
 	lastUpdated      string                     = "N/A"
-	configuration    *parsing.DotfConfiguration  = nil                              // Configuration currently loaded.
+	configuration    *parsing.DotfConfiguration = nil                              // Configuration currently loaded.
 	updateWorker     concurrency.IntervalWorker = *concurrency.NewIntervalWorker() // Worker handles background updates.
 )
 
@@ -48,7 +48,17 @@ func main() {
 	logging.WithColor(logging.Blue, logo)
 	logging.Info("Starting", programName, "service.", "Version:", programVersion)
 
-	configuration = readConfiguration()
+	flags, err := parsing.ParseFlags(os.Args[1:])
+	if err != nil {
+		handleError(err)
+	}
+
+	configuration, err = parsing.ParseDotfConfig(&flags)
+	if err != nil {
+		handleError(err)
+	}
+
+	logging.Info("Configuration successfully read")
 
 	if configuration.AutoSync {
 		handleToggleUpdateEvent()
@@ -58,21 +68,17 @@ func main() {
 	logging.Info(programName, "service stopped")
 }
 
-func readConfiguration() *parsing.DotfConfiguration {
-	args := os.Args[1:] // Ignore executable name
-	vflags := parsing.ValueFlags([]string{"config"})
-
-	flags, err := parsing.ParseFlags(args, vflags)
+func handleError(err error) {
 	if err != nil {
-		logging.Fatal(err)
+		switch err.(type) {
+		case *parsing.ParseNoArgumentError:
+			logging.Info(err)
+		case *parsing.ParseConfigurationError:
+			logging.Fatal("failed to parse dotf config:", err)
+		default:
+			logging.Fatal("failed to parse command line flags:", err)
+		}
 	}
-
-	conf, err := parsing.ParseDotfConfig(flags)
-	if err != nil {
-		logging.Fatal(err)
-	}
-	logging.Info("Configuration successfully read")
-	return conf
 }
 
 func onExit() {

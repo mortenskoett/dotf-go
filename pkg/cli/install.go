@@ -19,12 +19,12 @@ func NewInstallCommand(programName, commandName string) *installCommand {
 			commandName: commandName}}
 }
 
-func (c *installCommand) Run(args *parsing.CliArguments, conf *parsing.DotfConfiguration) error {
+func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
 	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
 
-	filepath := args.PosArgs[0]
+	filepath := args.PositionalArgs[0]
 
 	err := terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, false)
 	if err != nil {

@@ -2,207 +2,132 @@ package parsing
 
 import (
 	"fmt"
-	"os"
 	"strings"
-
-	"github.com/mortenskoett/dotf-go/pkg/logging"
-	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
-var (
-	userConfigDir, _ = os.UserConfigDir()
-	defaultConfigDir = userConfigDir + "/dotf/config"
-)
-
-// Parsed CLI arguments
-type CliArguments struct {
-	CmdName string            // The first arg read after executable name
-	PosArgs []string          // Positional args read after command in order
-	Flags   map[string]string // Flags given after positional args in input
+type CommandLineFlags struct {
+	ValueFlags map[string]string // --name john or --name=john
+	BoolFlags  map[string]bool   // --verbose
 }
 
-func NewCliArguments() *CliArguments {
-	return &CliArguments{
-		Flags: make(map[string]string),
+type CommandLineInput struct {
+	CommandName    string   // Name of the given command
+	PositionalArgs []string // command args in order
+	Flags          *CommandLineFlags
+}
+
+func NewCommandLineInput() *CommandLineInput {
+	return &CommandLineInput{
+		CommandName:    "",
+		PositionalArgs: []string{},
+		Flags: &CommandLineFlags{
+			ValueFlags: map[string]string{},
+			BoolFlags:  map[string]bool{},
+		},
 	}
 }
 
-// Type alias used to express flags by the parser
-type Flags = map[string]string
-
-// Specific flags required to contain a value like 'exec cmd --flag value'. This is maintained by
-// the parsing routine which will fail.
-type ValueFlags []string
-
-var vflags ValueFlags = []string{"config"}
-
-// Parses the CLI input arguments and the Dotf configuration and returns potential errors
-func Parse(osargs []string) (*CliArguments, *DotfConfiguration, error) {
-	cliargs, clierr := parseCliArguments(osargs, vflags)
-
-	var conferr error
-	var conf *DotfConfiguration
-	if cliargs != nil {
-		conf, conferr = ParseDotfConfig(cliargs.Flags)
-	} else {
-		conf, conferr = ParseDotfConfig(nil)
+func NewCommandLineFlags() CommandLineFlags {
+	return CommandLineFlags{
+		ValueFlags: map[string]string{},
+		BoolFlags:  map[string]bool{},
 	}
-
-	// Fail on configuration error first
-	if conferr != nil {
-		return nil, nil, conferr
-	}
-
-	if clierr != nil {
-		return nil, nil, clierr
-	}
-
-	return cliargs, conf, nil
 }
 
-// Parses CLI arguments into positional args and flags
-func parseCliArguments(osargs []string, vflags ValueFlags) (*CliArguments, error) {
-	// Ignore executable name
+// ParseCommandlineInput parses commands, positional arguments and flags into the CommandLineInput
+// type.
+func ParseCommandlineInput(osargs []string) (*CommandLineInput, error) {
+	cliargs := NewCommandLineInput()
+
+	// Remove exec name
 	args := osargs[1:]
 
+	// Parse command
 	if len(args) < 1 {
-		return nil, &ParseNoArgumentError{"no arguments given"}
+		return nil, &ParseNoArgumentError{"no command arg given"}
 	}
+	cliargs.CommandName = args[0]
 
-	cmdName := args[0]
-	count := len(args)
-	if cmdName == "" || cmdName == "-h" || cmdName == "--h" || cmdName == "help" || cmdName == "--help" || count == 0 {
+	// Handle dotf help flag
+	if cliargs.CommandName == "" ||
+		cliargs.CommandName == "-h" ||
+		cliargs.CommandName == "--h" ||
+		cliargs.CommandName == "help" ||
+		cliargs.CommandName == "--help" {
 		return nil, &ParseHelpFlagError{"showing full help."}
 	}
 
-	cliargs, err := parseArgsAndFlags(args, vflags)
-	if err != nil {
-		return nil, &ParseError{fmt.Sprintf("failed to parse input: %s", err)}
+	// Remove command
+	args = args[1:]
+
+	// Parse positional args
+	for _, p := range args {
+		if strings.HasPrefix(p, "--") {
+			// We have reached flags so no more positional args
+			break
+		}
+		cliargs.PositionalArgs = append(cliargs.PositionalArgs, p)
+	}
+	posArgsCount := len(cliargs.PositionalArgs)
+	args = args[posArgsCount:]
+
+	if len(args) < 1 {
+		// No flags to parse
+		return cliargs, nil
 	}
 
-	return cliargs, nil
-}
-
-// Parses cli command and arguments without judgement about whether arguments are fit for Command.
-func parseArgsAndFlags(osargs []string, vflags ValueFlags) (*CliArguments, error) {
-	cliarg := NewCliArguments()
-
-	cmdName := osargs[0]
-	args := osargs[1:]
-
-	cliarg.CmdName = cmdName
-	cliarg.PosArgs = parsePositionalArgs(args)
-
-	flags, err := ParseFlags(args, vflags)
+	// Parse flags
+	clflags, err := ParseFlags(args)
 	if err != nil {
 		return nil, err
 	}
 
-	cliarg.Flags = flags
+	cliargs.Flags = &clflags
 
-	return cliarg, nil
+	return cliargs, nil
 }
 
-// Parses only positional args and stops at the first flag e.g. '--flag'. The args are added to the
-// supplied cli.Arguments.
-func parsePositionalArgs(args []string) (posArgs []string) {
-	for _, arg := range args {
-		if strings.HasPrefix(arg, "--") {
-			break
-		} else {
-			posArgs = append(posArgs, arg)
-		}
+// Parseflags parses value carrying flags and non-value carrying flags into the CommandLineFlags
+// type. Regardless of the success of the function a fully functional if empty CommandlineFlags is
+// returned.
+func ParseFlags(args []string) (CommandLineFlags, error) {
+	clflags := NewCommandLineFlags()
+
+	if len(args) < 1 {
+		return clflags, &ParseNoArgumentError{"no flags given"}
 	}
-	return
-}
 
-// Parses only flags but both boolean and value holding flags The flags are added to the supplied
-// cli.Arguments. E.g. --config <path> and --help
-func ParseFlags(args []string, valueflags ValueFlags) (flags Flags, err error) {
-	flags = Flags{}
+	if !strings.HasPrefix(args[0], "--") {
+		return clflags, &ParseNoArgumentError{"flag must be on the form --flagname"}
+	}
 
-	var currentflag string
-	for i, arg := range args {
-		// previous arg was a value containing flag
-		if currentflag != "" {
-			if strings.HasPrefix(arg, "--") {
-				// next is also flag
-				return flags, &ParseError{fmt.Sprintf(
-					"given flag '--%s' must be followed by a value not a flag", currentflag)}
+	var value string
+	for i := len(args) - 1; i >= 0; i-- {
+		arg := args[i]
+
+		// Value for current arg (flag) is set
+		if value != "" {
+			// Error if current flag is not a value carrier
+			if !strings.HasPrefix(arg, "--") {
+				return clflags, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' must be followed by a value, but was empty", arg)}
 			}
 
-			flags[currentflag] = arg
-			currentflag = ""
+			flag := strings.TrimPrefix(arg, "--")
+			clflags.ValueFlags[flag] = value
+			value = ""
 			continue
 		}
 
-		// flags
+		// Arg is a boolFlag
 		if strings.HasPrefix(arg, "--") {
-			flag := strings.ReplaceAll(arg, "--", "")
-			isValueFlag := containsString(valueflags, flag)
-
-			if i == len(args)-1 && isValueFlag {
-				// if last element
-				return flags, &ParseError{fmt.Sprintf(
-					"given flag '%s' must be followed by a value, but was empty", arg)}
-
-			} else if isValueFlag {
-				// with value
-				currentflag = flag
-
-			} else {
-				// no value
-				flags[flag] = flag
-			}
-
+			flag := strings.TrimPrefix(arg, "--")
+			clflags.BoolFlags[flag] = true
+			continue
 		}
-	}
-	return
-}
 
-// Parses the required dotf configuration file.
-// 1. If flags not nil then --config <path> flag is tried and used in case it is valid
-// 2. Then ${HOME}/.config/dotf/config is tried
-// 3. If both fails a specifc parse config error is returned
-func ParseDotfConfig(flags map[string]string) (*DotfConfiguration, error) {
-	if flags != nil { // Only try config pointed to by flags if any flags
-		if path, ok := flags["config"]; ok {
-			config, err := readConfigFrom(path)
-			if err == nil {
-				return config, nil
-			}
-			logging.Warn(fmt.Errorf("failed to parse config path from flag: %w", err))
-		}
+		// Arg is the value of flag parsed in the next iteration
+		value = arg
 	}
 
-	config, err := readConfigFrom(defaultConfigDir)
-	if err == nil {
-		return config, nil
-	}
-	logging.Error(fmt.Errorf("failed to parse config at default location: %w", err))
-
-	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
-}
-
-func readConfigFrom(path string) (*DotfConfiguration, error) {
-	absPath, err := terminalio.GetAndValidateAbsolutePath(path)
-	if err != nil {
-		return nil, fmt.Errorf("path to config invalid: %w", err)
-	}
-
-	conf, err := ReadFromFile(absPath)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't load config: %w", err)
-	}
-	return conf, nil
-}
-
-// Returns true if sl contains str.
-func containsString(sl []string, str string) bool {
-	for _, e := range sl {
-		if str == e {
-			return true
-		}
-	}
-	return false
+	return clflags, nil
 }

@@ -13,9 +13,16 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/mortenskoett/dotf-go/pkg/logging"
+	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 var (
+	userConfigDir, _ = os.UserConfigDir()
+	defaultConfigDir = userConfigDir + "/dotf/config"
+
+	// Defines the configurations that are necessary for dotf to run
 	requiredConfigKeys = []string{
 		"syncdir",
 		"userspacedir",
@@ -34,7 +41,6 @@ type DotfConfiguration struct {
 
 /* Creates an empty Configuration with default values. */
 func NewConfiguration() *DotfConfiguration {
-
 	return &DotfConfiguration{
 		SyncDir:          "N/A",
 		UserspaceDir:     "~/",
@@ -51,8 +57,45 @@ func NewConfiguration() *DotfConfiguration {
 * # is a comment
  */
 
-// ReadFromFile parses and returns a representation of a config file found at 'path'.
-func ReadFromFile(path string) (*DotfConfiguration, error) {
+// Parses the required dotf configuration file.
+// 1. If flags not nil then --config <path> flag is tried and used in case it is valid
+// 2. Then ${HOME}/.config/dotf/config is tried
+// 3. If both fails a specifc parse config error is returned
+func ParseDotfConfig(flags *CommandLineFlags) (*DotfConfiguration, error) {
+	if flags != nil { // Only try config pointed to by flags if any flags
+		if path, ok := flags.ValueFlags["config"]; ok {
+			config, err := readConfigFrom(path)
+			if err == nil {
+				return config, nil
+			}
+			logging.Warn(fmt.Errorf("failed to parse config path from flag: %w", err))
+		}
+	}
+
+	config, err := readConfigFrom(defaultConfigDir)
+	if err == nil {
+		return config, nil
+	}
+	logging.Error(fmt.Errorf("failed to parse config at default location: %w", err))
+
+	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
+}
+
+func readConfigFrom(path string) (*DotfConfiguration, error) {
+	absPath, err := terminalio.GetAndValidateAbsolutePath(path)
+	if err != nil {
+		return nil, fmt.Errorf("path to config invalid: %w", err)
+	}
+
+	conf, err := readFromFile(absPath)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't load config: %w", err)
+	}
+	return conf, nil
+}
+
+// readFromFile parses and returns a representation of a config file found at 'path'.
+func readFromFile(path string) (*DotfConfiguration, error) {
 	config := NewConfiguration()
 
 	_, err := os.Stat(path)
@@ -82,6 +125,16 @@ func ReadFromFile(path string) (*DotfConfiguration, error) {
 	}
 
 	return config, nil
+}
+
+// Returns true if sl contains str.
+func containsString(sl []string, str string) bool {
+	for _, e := range sl {
+		if str == e {
+			return true
+		}
+	}
+	return false
 }
 
 // Validate key values for required missing keys

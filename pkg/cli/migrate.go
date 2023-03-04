@@ -20,7 +20,7 @@ func NewMigrateCommand(programName, commandName string) *migrateCommand {
 			commandName: commandName}}
 }
 
-func (c *migrateCommand) Run(args *parsing.CliArguments, conf *parsing.DotfConfiguration) error {
+func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
 	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
@@ -31,8 +31,8 @@ func (c *migrateCommand) Run(args *parsing.CliArguments, conf *parsing.DotfConfi
 		return nil
 	}
 
-	dotfilesDir := args.PosArgs[0]
-	symlinkRootDir := args.PosArgs[1]
+	dotfilesDir := args.PositionalArgs[0]
+	symlinkRootDir := args.PositionalArgs[1]
 
 	err := terminalio.UpdateSymlinks(symlinkRootDir, dotfilesDir)
 	if err != nil {

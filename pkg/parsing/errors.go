@@ -42,6 +42,10 @@ type ParseConfigurationError struct {
 	message string
 }
 
+type ParseInvalidFlagError struct {
+	message string
+}
+
 func (e *ParseConfigurationError) Error() string {
 	return fmt.Sprintf(e.message)
 }
@@ -59,6 +63,10 @@ func (e *ParseError) Error() string {
 }
 
 func (e *ParseInvalidArgumentError) Error() string {
+	return fmt.Sprintf(e.message)
+}
+
+func (e *ParseInvalidFlagError) Error() string {
 	return fmt.Sprintf(e.message)
 }
 

@@ -18,12 +18,12 @@ func NewAddCommand(programName, commandName string) *addCommand {
 			commandName: commandName}}
 }
 
-func (c *addCommand) Run(args *parsing.CliArguments, conf *parsing.DotfConfiguration) error {
+func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
 	if err := validateCliArguments(args, c); err != nil {
 		return err
 	}
 
-	filepath := args.PosArgs[0]
+	filepath := args.PositionalArgs[0]
 
 	err := terminalio.AddFileToDotfiles(filepath, conf.UserspaceDir, conf.DotfilesDir)
 	if err != nil {
