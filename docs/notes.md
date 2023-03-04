@@ -1,6 +1,23 @@
 # Development notes
 ===================
 
+# Sat Mar  4 12:46:40 PM CET 2023
+I want to rewrite cli parsing to be less cluttered and more generally usable for both cli and tray
+app by first splitting the parsing of command line arguments and dotf config.
+
+api:
+```
+type CommandLineInput struct {
+	CommandName string
+	PositionalArgs []string 			// e.g. command args in order
+	ValueFlags map[string]T 			// e.g. --name john or --name=john
+	BoolFlags map[string]bool			// e.g. --verbose
+}
+
+input, err := ParseCommandLineInput(os.Args)
+config, err := ParseConfigurationFile(input.configPath)
+```
+
 # Sat Sep 24 12:46:57 PM CEST 2022
 Rethinking shared dotfiles into multiple repos to fix git single repo issues as currently
 encountered.
