@@ -2,6 +2,8 @@
 package test
 
 import (
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -17,6 +19,7 @@ func AssertEqual(want, got interface{}, t *testing.T) {
 func FailHard(actual, expected interface{}, t *testing.T) {
 	t.Fatalf("\nactual = %+v\nexpected = %+v", actual, expected)
 }
+
 // Fail fails hard, prints message, actual and expected and panics. Good to stop flow in a test with
 // multiple assertions.
 func FailHardMsg(msg string, actual, expected interface{}, t *testing.T) {
@@ -31,4 +34,11 @@ func Fail(actual, expected interface{}, t *testing.T) {
 // FailMsg fails and prints actual and expected with a message
 func FailMsg(msg string, actual, expected interface{}, t *testing.T) {
 	t.Errorf("%s: \nactual = %+v\nexpected = %+v", msg, actual, expected)
+}
+
+// Prints a complex object in a human readable manner
+func PrintJSON(info string, obj interface{}) {
+	bytes, _ := json.MarshalIndent(obj, "\t", "\t")
+	fmt.Println(info)
+	fmt.Println(string(bytes))
 }
