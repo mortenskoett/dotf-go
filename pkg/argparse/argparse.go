@@ -183,7 +183,7 @@ func readConfigFrom(path string) (*config.DotfConfiguration, error) {
 	if err != nil {
 		return nil, fmt.Errorf("couldn't load config: %w", err)
 	}
-	return &conf, nil
+	return conf, nil
 }
 
 // Returns true if sl contains str.

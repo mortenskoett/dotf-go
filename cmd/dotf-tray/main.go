@@ -32,7 +32,7 @@ var (
 	programVersion   string                     = "" // Inserted by build process
 	shouldAutoUpdate bool                       = false
 	lastUpdated      string                     = "N/A"
-	latestReadConf   config.DotfConfiguration   = config.NewConfiguration()        // Configuration currently loaded.
+	configuration    *config.DotfConfiguration  = nil                              // Configuration currently loaded.
 	updateWorker     concurrency.IntervalWorker = *concurrency.NewIntervalWorker() // Worker handles background updates.
 )
 
@@ -49,7 +49,11 @@ func main() {
 	logging.WithColor(logging.Blue, logo)
 	logging.Info("Starting", programName, "service.", "Version:", programVersion)
 
-	latestReadConf = *readConfiguration()
+	configuration = readConfiguration()
+
+	if configuration.AutoSync {
+		handleToggleUpdateEvent()
+	}
 
 	systray.Run(onReady, onExit)
 	logging.Info(programName, "service stopped")
@@ -106,7 +110,7 @@ func handleToggleUpdateEvent() {
 		logging.Info("Toggle auto-update ON.")
 
 		updateWorker = *concurrency.NewIntervalWorkerParam(
-			time.Second*time.Duration(latestReadConf.UpdateIntervalSecs), handleUpdateNowEvent)
+			time.Second*time.Duration(configuration.SyncIntervalSecs), handleUpdateNowEvent)
 
 		mToggleUpdate.Check()
 		updateWorker.Start()
@@ -126,7 +130,7 @@ func handleUpdateNowEvent() {
 	logging.Info("Updating now")
 	systray.SetIcon(getLoadingIcon())
 
-	err := terminalio.SyncLocalRemote(latestReadConf.SyncDir)
+	err := terminalio.SyncLocalRemote(configuration.SyncDir)
 	if err != nil {
 		showError(err.Error())
 		return

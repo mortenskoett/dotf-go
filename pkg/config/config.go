@@ -20,25 +20,27 @@ var (
 		"syncdir",
 		"userspacedir",
 		"dotfilesdir",
-		"updateintervalsecs",
+		"syncinterval",
 	}
 )
 
 type DotfConfiguration struct {
-	SyncDir            string // Git initialized directory that dotf should sync with remote
-	UserspaceDir       string // Userspace dir is the root of the file hierachy dotf replicates
-	DotfilesDir        string // Directory inside SyncDir containing same structure as userspace dir
-	UpdateIntervalSecs int    // Interval between syncing with remote using dotf-tray application
+	SyncDir          string // Git initialized directory that dotf should sync with remote
+	UserspaceDir     string // Userspace dir is the root of the file hierachy dotf replicates
+	DotfilesDir      string // Directory inside SyncDir containing same structure as userspace dir
+	SyncIntervalSecs int    // Interval between syncing with remote using dotf-tray application
+	AutoSync         bool   // If dotf-tray should autosync at given interval
 }
 
 /* Creates an empty Configuration with default values. */
-func NewConfiguration() DotfConfiguration {
+func NewConfiguration() *DotfConfiguration {
 
-	return DotfConfiguration{
-		SyncDir:            "N/A",
-		UserspaceDir:       "~/",
-		DotfilesDir:        "N/A",
-		UpdateIntervalSecs: 120,
+	return &DotfConfiguration{
+		SyncDir:          "N/A",
+		UserspaceDir:     "~/",
+		DotfilesDir:      "N/A",
+		SyncIntervalSecs: 120,
+		AutoSync:         false,
 	}
 }
 
@@ -50,31 +52,31 @@ func NewConfiguration() DotfConfiguration {
  */
 
 // ReadFromFile parses and returns a representation of a config file found at 'path'.
-func ReadFromFile(path string) (DotfConfiguration, error) {
+func ReadFromFile(path string) (*DotfConfiguration, error) {
 	config := NewConfiguration()
 
 	_, err := os.Stat(path)
 	if err != nil {
 		fmt.Println("configuration missing at", path)
-		return config, err
+		return nil, err
 	}
 
 	file, err := os.Open(path)
 	if err != nil {
-		return config, err
+		return nil, err
 	}
 	defer file.Close()
 
 	keysToValues, err := parseTOMLFile(file)
 	if err != nil {
-		return config, err
+		return nil, err
 	}
 
 	if err = checkRequiredKeys(keysToValues, requiredConfigKeys); err != nil {
 		return config, err
 	}
 
-	err = buildConfiguration(&config, keysToValues)
+	err = buildConfiguration(config, keysToValues)
 	if err != nil {
 		return config, err
 	}
@@ -139,7 +141,7 @@ func sanitize(r rune) bool {
 }
 
 func buildConfiguration(config *DotfConfiguration, keyToValue map[string]string) error {
-	// TODO: Could be made into json parsing in smart go way
+	// TODO: Could be made into json parsing in a smart go way
 	for k, v := range keyToValue {
 		switch k {
 		case "dotfilesdir":
@@ -148,12 +150,14 @@ func buildConfiguration(config *DotfConfiguration, keyToValue map[string]string)
 			config.UserspaceDir = expandTilde(v)
 		case "syncdir":
 			config.SyncDir = expandTilde(v)
-		case "updateintervalsecs":
+		case "syncinterval":
 			if v_num, err := strconv.Atoi(v); err != nil {
 				return err
 			} else {
-				config.UpdateIntervalSecs = v_num
+				config.SyncIntervalSecs = v_num
 			}
+		case "autosync":
+			config.AutoSync = true
 		default:
 			return &MalformedConfigurationError{fmt.Sprint(
 				"malformed or unknown key encountered: ", k)}

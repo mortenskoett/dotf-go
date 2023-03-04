@@ -35,6 +35,6 @@ WIP
 userspacedir        = "~/"
 dotfilesdir         = "path/to/dotfiles/dir/replicating/userspace"
 syncdir             = "path/to/repo/root/used/to/sync"
-updateintervalsecs  = "1200"
+syncinterval        = "1200"
 ```
 
