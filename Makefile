@@ -27,7 +27,7 @@ install: build install-cli install-tray ## Install all applications.
 
 .PHONY: test
 test: ## Run tests.
-	go test -v ./pkg/...
+	go test ./pkg/...
 
 .PHONY: install-ubuntu-deps
 install-ubuntu-deps: ## Installs tray app deps for ubuntu
