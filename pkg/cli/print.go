@@ -14,6 +14,7 @@ func PrintBasicHelp(commands []Command, logo, version string) {
 	printUsage(commands, programName)
 }
 
+// Encapsulates basic help with a more full context
 func PrintFullHelp(commands []Command, logo, version string) {
 	printHeader(logo, version)
 	fmt.Println(`
@@ -24,6 +25,7 @@ Details:
 	printUsage(commands, programName)
 }
 
+// Prints program header
 func printHeader(logo, version string) {
 	fmt.Println(logging.Color(logo, logging.Blue))
 	fmt.Print("Dotfiles handler in Go.")
@@ -60,3 +62,4 @@ func printUsage(commands []Command, programName string) {
 	w.Flush()
 	fmt.Println()
 }
+

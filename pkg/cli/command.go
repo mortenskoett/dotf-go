@@ -18,7 +18,7 @@ const (
 	programName string = "dotf-cli"
 )
 
-// Defines a required argument for a specific Command
+// Defines an argument for a specific Command
 type arg struct {
 	Name        string
 	Description string
@@ -44,7 +44,16 @@ var commands = map[string]Command{
 	"revert":  NewRevertCommand("revert"),
 }
 
-// Get copy of all available Commands. Obs: Ineffective implementation.
+// Creates a Command or errors
+func CreateCommand(cmdName string) (Command, error) {
+	cmd, err := parseToCommandFunc(cmdName)
+	if err != nil {
+		return nil, &CmdUnknownCommand{fmt.Sprintf("try --help for available commands: %s", err)}
+	}
+	return cmd, nil
+}
+
+// Get copy of all available Commands.
 func GetAvailableCommands() []Command {
 	cmds := make([]Command, 0, len(commands))
 	for _, cmd := range commands {
@@ -54,15 +63,6 @@ func GetAvailableCommands() []Command {
 		return cmds[i].CmdName() < cmds[j].CmdName()
 	})
 	return cmds
-}
-
-// Creates a Command or errors
-func CreateCommand(cmdName string) (Command, error) {
-	cmd, err := parseToCommandFunc(cmdName)
-	if err != nil {
-		return nil, &CmdUnknownCommand{fmt.Sprintf("try --help for available commands: %s", err)}
-	}
-	return cmd, nil
 }
 
 // Parses a Command name to a CommandFunc or errors
