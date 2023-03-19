@@ -8,14 +8,13 @@ import (
 )
 
 type addCommand struct {
-	commandBase
+	name string
 }
 
-func NewAddCommand(programName, commandName string) *addCommand {
+func NewAddCommand(commandName string) *addCommand {
 	return &addCommand{
-		commandBase{
-			programName: programName,
-			commandName: commandName}}
+		name: commandName,
+	}
 }
 
 func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -34,7 +33,7 @@ func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfi
 }
 
 func (c *addCommand) CmdName() string {
-	return c.commandName
+	return c.name
 }
 
 func (c *addCommand) Overview() string {
@@ -48,7 +47,7 @@ func (c *addCommand) Arguments() []arg {
 }
 
 func (c *addCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", c.programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
 }
 
 func (c *addCommand) Description() string {
@@ -57,8 +56,4 @@ func (c *addCommand) Description() string {
 	The file or the directory and its contents is copied to the dotfiles directory and a symlink is
 	placed in the original location.
 	`
-}
-
-func (c *addCommand) ProgName() string {
-	return c.programName
 }

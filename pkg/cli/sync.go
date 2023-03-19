@@ -8,14 +8,13 @@ import (
 )
 
 type syncCommand struct {
-	commandBase
+	commandName string
 }
 
-func NewSyncCommand(programName, commandName string) *syncCommand {
+func NewSyncCommand(commandName string) *syncCommand {
 	return &syncCommand{
-		commandBase{
-			programName: programName,
-			commandName: commandName}}
+		commandName: commandName,
+	}
 }
 
 func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -48,7 +47,7 @@ func (c *syncCommand) Arguments() []arg {
 }
 
 func (c *syncCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", c.programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.commandName)
 }
 
 func (c *syncCommand) Description() string {
@@ -56,8 +55,4 @@ func (c *syncCommand) Description() string {
 	Uses local git instance to merge newest changes from git remote and then adds, commits and
 	pushes latest changes to remote.
 	`
-}
-
-func (c *syncCommand) ProgName() string {
-	return c.programName
 }

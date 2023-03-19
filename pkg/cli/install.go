@@ -9,14 +9,13 @@ import (
 )
 
 type installCommand struct {
-	commandBase
+	commandName string
 }
 
-func NewInstallCommand(programName, commandName string) *installCommand {
+func NewInstallCommand(commandName string) *installCommand {
 	return &installCommand{
-		commandBase{
-			programName: programName,
-			commandName: commandName}}
+		commandName: commandName,
+	}
 }
 
 func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -31,7 +30,7 @@ func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfC
 		switch e := err.(type) {
 		case *terminalio.AbortOnOverwriteError:
 			logging.Warn(fmt.Sprintf("A file already exists in userspace: %s", logging.Color(e.Path, logging.Green)))
-			logging.Warn(fmt.Sprintf("%s needs to backup and delete this file to install the dotfile.", c.programName))
+			logging.Warn(fmt.Sprintf("%s needs to backup and delete this file to install the dotfile.", programName))
 
 			ok := confirmByUser("Do you want to continue?")
 			if ok {
@@ -63,7 +62,7 @@ func (c *installCommand) Arguments() []arg {
 }
 
 func (c *installCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", c.programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.commandName)
 }
 
 func (c *installCommand) Description() string {
@@ -82,8 +81,4 @@ func (c *installCommand) Description() string {
 	- If a file from userspace is given this file will be used as target.
 	- The command performs the same operation in both cases.
 	`
-}
-
-func (c *installCommand) ProgName() string {
-	return c.programName
 }

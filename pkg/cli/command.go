@@ -18,49 +18,37 @@ const (
 	programName string = "dotf-cli"
 )
 
-// Command is a definition of a main operation taking a number of cli args to work on
-type Command interface {
-	ProgName() string    // Name of program used for pretty-printing.
-	CmdName() string     // Name of command.
-	Overview() string    // Oneliner description of the command.
-	Arguments() []arg    // Needed arguments to use the command.
-	Usage() string       // How to use the command.
-	Description() string // Detailed description.
-	Run(args *parsing.CommandLineInput,
-		conf *parsing.DotfConfiguration) error // Run the Command using the given args and config
-}
-
-// commandFunc defines a function that given the name of the executable will return a valid Command.
-type commandFunc = func(execName string) Command
-
-// Contains the CLI Commands that are currently implemented in dotf. The commands are returned as
-// functions so the name of the application can be given as param. The program name is used for
-// pretty-printing.
-var commands = map[string]commandFunc{
-	"add":     func(pname string) Command { return NewAddCommand(pname, "add") },
-	"install": func(pname string) Command { return NewInstallCommand(pname, "install") },
-	"migrate": func(pname string) Command { return NewMigrateCommand(pname, "migrate") },
-	"sync":    func(pname string) Command { return NewSyncCommand(pname, "sync") },
-	"revert":  func(pname string) Command { return NewRevertCommand(pname, "revert") },
-}
-
-// Contains basic program info for each Command
-type commandBase struct {
-	programName string
-	commandName string
-}
-
 // Defines a required argument for a specific Command
 type arg struct {
 	Name        string
 	Description string
 }
 
+// Command is a definition of a main operation taking a number of cli args to work on
+type Command interface {
+	CmdName() string     // Name of command.
+	Overview() string    // Oneliner description of the command.
+	Arguments() []arg    // Required arguments in order to use the command.
+	Usage() string       // How to use the command.
+	Description() string // Detailed description.
+	Run(args *parsing.CommandLineInput,
+		conf *parsing.DotfConfiguration) error // Run the Command using the given args and config
+}
+
+// Set of CLI Commands that are currently implemented in dotf.
+var commands = map[string]Command{
+	"add":     NewAddCommand("add"),
+	"install": NewInstallCommand("install"),
+	"migrate": NewMigrateCommand("migrate"),
+	"sync":    NewSyncCommand("sync"),
+	"revert":  NewRevertCommand("revert"),
+}
+
 // Get copy of all available Commands. Obs: Ineffective implementation.
 func GetAvailableCommands() []Command {
 	cmds := make([]Command, 0, len(commands))
-	for _, cmdf := range commands {
-		cmds = append(cmds, cmdf(programName))
+	for _, cmd := range commands {
+		cmds = append(cmds, cmd)
 	}
 	sort.SliceStable(cmds, func(i, j int) bool {
 		return cmds[i].CmdName() < cmds[j].CmdName()
@@ -70,18 +58,18 @@ func GetAvailableCommands() []Command {
 
 // Creates a Command or errors
 func CreateCommand(cmdName string) (Command, error) {
-	cmdfunc, err := parseToCommandFunc(cmdName)
+	cmd, err := parseToCommandFunc(cmdName)
 	if err != nil {
 		return nil, &CmdUnknownCommand{fmt.Sprintf("try --help for available commands: %s", err)}
 	}
-	return cmdfunc(programName), nil
+	return cmd, nil
 }
 
 // Parses a Command name to a CommandFunc or errors
-func parseToCommandFunc(cmdName string) (commandFunc, error) {
-	cmdfunc, ok := commands[cmdName]
+func parseToCommandFunc(cmdName string) (Command, error) {
+	cmd, ok := commands[cmdName]
 	if ok {
-		return cmdfunc, nil
+		return cmd, nil
 	}
 	return nil, &CmdArgumentError{fmt.Sprintf("%s command does not exist.", cmdName)}
 }
@@ -95,13 +83,11 @@ func validateCliArguments(args *parsing.CommandLineInput, c Command) error {
 		return &CmdHelpFlagError{"help flag given"}
 	}
 
-	// TODO: Change name to RequiredArguments
 	if len(args.PositionalArgs) != len(c.Arguments()) {
 		fmt.Println(generateUsage(c))
 		return &CmdArgumentError{fmt.Sprintf(
 			"%d arguments given, but %d required. Try adding --help.", len(args.PositionalArgs), len(c.Arguments()))}
 	}
-
 	return nil
 }
 
@@ -110,7 +96,7 @@ func generateUsage(c Command) string {
 	var sb strings.Builder
 
 	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf("%s %s - %s", c.ProgName(), c.CmdName(), c.Overview())
+	name := fmt.Sprintf("%s %s - %s", programName, c.CmdName(), c.Overview())
 	sb.WriteString(name)
 
 	sb.WriteString("\n\nUsage:\n\t")

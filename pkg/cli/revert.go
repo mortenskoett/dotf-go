@@ -8,14 +8,13 @@ import (
 )
 
 type revertCommand struct {
-	commandBase
+	commandName string
 }
 
-func NewRevertCommand(programName, commandName string) *revertCommand {
+func NewRevertCommand(commandName string) *revertCommand {
 	return &revertCommand{
-		commandBase{
-			programName: programName,
-			commandName: commandName}}
+		commandName: commandName,
+	}
 }
 
 func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -48,7 +47,7 @@ func (c *revertCommand) Arguments() []arg {
 }
 
 func (c *revertCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", c.programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.commandName)
 }
 
 func (c *revertCommand) Description() string {
@@ -57,8 +56,4 @@ func (c *revertCommand) Description() string {
 	userspace. The file is moved from the dotfiles directory back to userspace where the symlink is
 	removed. The command can be used both on files inside the dotfiles directory as well as symlinks
 	in userspace and will do the same thing. `
-}
-
-func (c *revertCommand) ProgName() string {
-	return c.programName
 }

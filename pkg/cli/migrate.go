@@ -10,14 +10,11 @@ import (
 
 // Implements Command interface
 type migrateCommand struct {
-	commandBase
+	commandName string
 }
 
-func NewMigrateCommand(programName, commandName string) *migrateCommand {
-	return &migrateCommand{
-		commandBase{
-			programName: programName,
-			commandName: commandName}}
+func NewMigrateCommand(commandName string) *migrateCommand {
+	return &migrateCommand{commandName: commandName}
 }
 
 func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -43,10 +40,6 @@ func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfC
 	return nil
 }
 
-func (c *migrateCommand) ProgName() string {
-	return c.programName
-}
-
 func (c *migrateCommand) CmdName() string {
 	return c.commandName
 }
@@ -63,7 +56,7 @@ func (c *migrateCommand) Arguments() []arg {
 }
 
 func (c *migrateCommand) Usage() string {
-	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", c.programName, c.commandName)
+	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", programName, c.commandName)
 }
 
 func (c *migrateCommand) Description() string {
