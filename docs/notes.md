@@ -1,6 +1,53 @@
 # Development notes
 ===================
 
+# Sat Mar 18 07:55:29 PM CET 2023
+Implementation of ability to choose where a given dotfile should be used.
+The underlying functionality is basically the same whether a flag is used or a command is directly
+invoked:
+
+	Command: 	mod
+	Flag:		--selet
+
+Example cli
+	dotf mod <file>				// will bring up ui to modify the dotfiles location etc.
+	dotf add <file> --select	// will add the userspace file to dotfiles and ask user to select where
+
+## Edge cases:
+- Q: a file is requested to be added to shared but it is already present in more than one distro.
+	- A: Maybe a solution is to only be able to choose shared if the file does not exist in any
+		of the distros, otherwise perhaps the elevate command will have to be called.
+
+
+## IMPLEMENTATION OF `dotf add <file> --select`
+
+### Flow
+**happy path**
+1. dotf add is called on a file w. --select to add it to multiple distros or shared directly
+2. we get the path to the file, so we investigate all distros+shared for the file and return info
+   from those locations where it exist.
+   - a) if the file already exists in any one distro then that options must be greyed out.
+   - b) if the file exists in shared already
+3. The user is presented with a view showing:
+
+	[ ] <shared>
+	[ ] mega
+	[ ] tiny
+
+4. the user clicks of the wanted distros and ctrl+enters to add the dotfile to these repos
+5.
+	- a) if the file does not exist in any distro, the flow of the `dotf add` command can now simply
+		be executed for each of the distros.
+	- b) if the file already exists in any of the distros dotf will have to alert the user to either
+		abort the operation or overwrite the file already found.
+
+
+
+### Functional requirements
+	getSharedDir() string 							// we need to set shared dir in configuration
+	exists(userspacefilepath, dotfiles dir) -> bool // does file exist in given distro (incl shared)
+
+
 # Sat Mar  4 12:46:40 PM CET 2023
 I want to rewrite cli parsing to be less cluttered and more generally usable for both cli and tray
 app by first splitting the parsing of command line arguments and dotf config.
