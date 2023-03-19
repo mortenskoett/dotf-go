@@ -12,7 +12,7 @@ type CommandLineFlags struct {
 
 type CommandLineInput struct {
 	CommandName    string   // Name of the given command
-	PositionalArgs []string // command args in order
+	PositionalArgs []string // Command args in order
 	Flags          *CommandLineFlags
 }
 

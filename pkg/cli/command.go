@@ -14,6 +14,10 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
 )
 
+const (
+	programName string = "dotf-cli"
+)
+
 // Command is a definition of a main operation taking a number of cli args to work on
 type Command interface {
 	ProgName() string    // Name of program used for pretty-printing.
@@ -53,7 +57,7 @@ type arg struct {
 }
 
 // Get copy of all available Commands. Obs: Ineffective implementation.
-func GetAvailableCommands(programName string) []Command {
+func GetAvailableCommands() []Command {
 	cmds := make([]Command, 0, len(commands))
 	for _, cmdf := range commands {
 		cmds = append(cmds, cmdf(programName))
@@ -65,7 +69,7 @@ func GetAvailableCommands(programName string) []Command {
 }
 
 // Creates a Command or errors
-func CreateCommand(programName, cmdName string) (Command, error) {
+func CreateCommand(cmdName string) (Command, error) {
 	cmdfunc, err := parseToCommandFunc(cmdName)
 	if err != nil {
 		return nil, &CmdUnknownCommand{fmt.Sprintf("try --help for available commands: %s", err)}

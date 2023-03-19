@@ -14,10 +14,6 @@ const logo = `    _       _     __             _  _
 \__/_|\___/ \__||_|         \__||_||_|
 `
 
-const (
-	programName string = "dotf-cli"
-)
-
 var programVersion = "" // Inserted by build process using -ldflags
 
 func main() {
@@ -38,7 +34,7 @@ func run(osargs []string) {
 	}
 
 	// Create command
-	cmd, err := cli.CreateCommand(programName, cliargs.CommandName)
+	cmd, err := cli.CreateCommand(cliargs.CommandName)
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdUnknownCommand:
@@ -73,10 +69,10 @@ func handleParsingError(err error) {
 	if err != nil {
 		switch err.(type) {
 		case *parsing.ParseHelpFlagError:
-			cli.PrintFullHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
+			cli.PrintFullHelp(cli.GetAvailableCommands(), logo, programVersion)
 			logging.Ok(err)
 		case *parsing.ParseNoArgumentError:
-			cli.PrintBasicHelp(cli.GetAvailableCommands(programName), programName, logo, programVersion)
+			cli.PrintBasicHelp(cli.GetAvailableCommands(), logo, programVersion)
 			logging.Ok(err)
 		case *parsing.ParseInvalidArgumentError:
 			logging.Warn(err)

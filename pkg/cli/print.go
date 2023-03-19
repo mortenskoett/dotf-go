@@ -9,12 +9,12 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-func PrintBasicHelp(commands []Command, programName, logo, version string) {
+func PrintBasicHelp(commands []Command, logo, version string) {
 	printHeader(logo, version)
 	printUsage(commands, programName)
 }
 
-func PrintFullHelp(commands []Command, programName, logo, version string) {
+func PrintFullHelp(commands []Command, logo, version string) {
 	printHeader(logo, version)
 	fmt.Println(`
 Details:
