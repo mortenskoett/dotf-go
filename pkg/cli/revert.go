@@ -8,20 +8,16 @@ import (
 )
 
 type revertCommand struct {
-	commandName string
+	name string
 }
 
-func NewRevertCommand(commandName string) *revertCommand {
+func NewRevertCommand() *revertCommand {
 	return &revertCommand{
-		commandName: commandName,
+		name: "revert",
 	}
 }
 
 func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if err := validateCliArguments(args, c); err != nil {
-		return err
-	}
-
 	filepath := args.PositionalArgs[0]
 
 	err := terminalio.RevertDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir)
@@ -33,21 +29,21 @@ func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfCo
 }
 
 func (c *revertCommand) CmdName() string {
-	return c.commandName
+	return c.name
 }
 
 func (c *revertCommand) Overview() string {
 	return "Revert file to its original location in userspace."
 }
 
-func (c *revertCommand) Arguments() []arg {
-	return []arg{
+func (c *revertCommand) Arguments() []Arg {
+	return []Arg{
 		{Name: "file/dir", Description: "Path to file or dir to revert back to original location."},
 	}
 }
 
 func (c *revertCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
 }
 
 func (c *revertCommand) Description() string {

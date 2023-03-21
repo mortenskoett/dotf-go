@@ -11,17 +11,11 @@ type addCommand struct {
 	name string
 }
 
-func NewAddCommand(commandName string) *addCommand {
-	return &addCommand{
-		name: commandName,
-	}
+func NewAddCommand() *addCommand {
+	return &addCommand{name: "add"}
 }
 
 func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if err := validateCliArguments(args, c); err != nil {
-		return err
-	}
-
 	filepath := args.PositionalArgs[0]
 
 	err := terminalio.AddFileToDotfiles(filepath, conf.UserspaceDir, conf.DotfilesDir)
@@ -40,8 +34,8 @@ func (c *addCommand) Overview() string {
 	return "Move file/dir from userspace to dotfiles."
 }
 
-func (c *addCommand) Arguments() []arg {
-	return []arg{
+func (c *addCommand) Arguments() []Arg {
+	return []Arg{
 		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
 	}
 }

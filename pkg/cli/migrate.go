@@ -10,18 +10,14 @@ import (
 
 // Implements Command interface
 type migrateCommand struct {
-	commandName string
+	name string
 }
 
-func NewMigrateCommand(commandName string) *migrateCommand {
-	return &migrateCommand{commandName: commandName}
+func NewMigrateCommand() *migrateCommand {
+	return &migrateCommand{name: "migrate"}
 }
 
 func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if err := validateCliArguments(args, c); err != nil {
-		return err
-	}
-
 	ok := confirmByUser("This operation can be desctructive. Do you want to continue?")
 	if !ok {
 		logging.Warn("Aborted by user")
@@ -41,22 +37,22 @@ func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfC
 }
 
 func (c *migrateCommand) CmdName() string {
-	return c.commandName
+	return c.name
 }
 
 func (c *migrateCommand) Overview() string {
 	return "Migrate userspace symlinks on dotfiles dir location change."
 }
 
-func (c *migrateCommand) Arguments() []arg {
-	return []arg{
+func (c *migrateCommand) Arguments() []Arg {
+	return []Arg{
 		{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
 		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 	}
 }
 
 func (c *migrateCommand) Usage() string {
-	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", programName, c.commandName)
+	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", programName, c.name)
 }
 
 func (c *migrateCommand) Description() string {

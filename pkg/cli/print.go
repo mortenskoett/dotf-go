@@ -4,25 +4,32 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-func PrintBasicHelp(commands []Command, logo, version string) {
+func PrintBasicHelp(commands []CommandPrintable, logo, version string) {
 	printHeader(logo, version)
 	printUsage(commands, programName)
 }
 
 // Encapsulates basic help with a more full context
-func PrintFullHelp(commands []Command, logo, version string) {
+func PrintFullHelp(commands []CommandPrintable, logo, version string) {
 	printHeader(logo, version)
 	fmt.Println(`
 Details:
-	- Userspace describes where the symlinks are placed pointing into the dotfiles directory.
-	- The dotfiles directory is where the actual configuration files are stored.
-	- The folder structure in the dotfiles directory will match that of the userspace.`)
+  - Userspace describes where the symlinks are placed pointing into the dotfiles directory.
+  - The dotfiles directory is where the actual configuration files are stored.
+  - The folder structure in the dotfiles directory will match that of the userspace.`)
 	printUsage(commands, programName)
+}
+
+func PrintCommandHelp(c CommandPrintable) {
+	fmt.Println(generateUsage(c))
+	fmt.Print("Description:")
+	fmt.Println(c.Description())
 }
 
 // Prints program header
@@ -32,7 +39,7 @@ func printHeader(logo, version string) {
 	fmt.Println(" Version:", version)
 }
 
-func printUsage(commands []Command, programName string) {
+func printUsage(commands []CommandPrintable, programName string) {
 	fmt.Println("\nUsage:", programName, "<command> <args> [--help]")
 	fmt.Println("")
 
@@ -44,8 +51,8 @@ func printUsage(commands []Command, programName string) {
 	// Print commands
 	for _, cmd := range commands {
 		buf := &bytes.Buffer{}
-		if len(cmd.Arguments()) > 0 {
-			for _, arg := range cmd.Arguments() {
+		if len(cmd.RequiredArgs()) > 0 {
+			for _, arg := range cmd.RequiredArgs() {
 				buf.WriteString("<")
 				buf.WriteString(arg.Name)
 				buf.WriteString(">")
@@ -55,7 +62,7 @@ func printUsage(commands []Command, programName string) {
 			buf.WriteString("-")
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", cmd.CmdName(), buf.String(), cmd.Overview())
+		str := fmt.Sprintf("\t%s\t%s\t%s", cmd.Name(), buf.String(), cmd.Overview())
 		fmt.Fprintln(w, str)
 	}
 
@@ -63,3 +70,35 @@ func printUsage(commands []Command, programName string) {
 	fmt.Println()
 }
 
+// Generates a pretty-printed usage description of a Command
+func generateUsage(c CommandPrintable) string {
+	var sb strings.Builder
+
+	sb.WriteString("Name:\n\t")
+	name := fmt.Sprintf("%s %s - %s", programName, c.Name(), c.Overview())
+	sb.WriteString(name)
+
+	sb.WriteString("\n\nUsage:\n\t")
+	sb.WriteString(c.Usage())
+
+	sb.WriteString("\n\nArguments:\n")
+
+	// Print arguments.
+	tabbuf := &bytes.Buffer{}
+	w := new(tabwriter.Writer)
+	w.Init(tabbuf, 0, 8, 8, ' ', 0)
+
+	for _, arg := range c.RequiredArgs() {
+		buf := &bytes.Buffer{}
+		buf.WriteString("<")
+		buf.WriteString(arg.Name)
+		buf.WriteString(">")
+		str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
+		fmt.Fprintln(w, str)
+	}
+
+	w.Flush()
+	sb.WriteString(tabbuf.String())
+
+	return sb.String()
+}

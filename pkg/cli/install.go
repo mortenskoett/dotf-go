@@ -9,20 +9,16 @@ import (
 )
 
 type installCommand struct {
-	commandName string
+	name string
 }
 
-func NewInstallCommand(commandName string) *installCommand {
+func NewInstallCommand() *installCommand {
 	return &installCommand{
-		commandName: commandName,
+		name: "install",
 	}
 }
 
 func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if err := validateCliArguments(args, c); err != nil {
-		return err
-	}
-
 	filepath := args.PositionalArgs[0]
 
 	err := terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, false)
@@ -48,21 +44,21 @@ func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfC
 }
 
 func (c *installCommand) CmdName() string {
-	return c.commandName
+	return c.name
 }
 
 func (c *installCommand) Overview() string {
 	return "Install file/dir from dotfiles into userspace."
 }
 
-func (c *installCommand) Arguments() []arg {
-	return []arg{
+func (c *installCommand) Arguments() []Arg {
+	return []Arg{
 		{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."},
 	}
 }
 
 func (c *installCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
 }
 
 func (c *installCommand) Description() string {

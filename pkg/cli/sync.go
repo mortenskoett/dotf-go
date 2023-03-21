@@ -8,20 +8,16 @@ import (
 )
 
 type syncCommand struct {
-	commandName string
+	name string
 }
 
-func NewSyncCommand(commandName string) *syncCommand {
+func NewSyncCommand() *syncCommand {
 	return &syncCommand{
-		commandName: commandName,
+		name: "sync",
 	}
 }
 
 func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if err := validateCliArguments(args, c); err != nil {
-		return err
-	}
-
 	absDotfilesDir, err := terminalio.GetAndValidateAbsolutePath(conf.SyncDir)
 	if err != nil {
 		return err
@@ -35,19 +31,19 @@ func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConf
 }
 
 func (c *syncCommand) CmdName() string {
-	return c.commandName
+	return c.name
 }
 
 func (c *syncCommand) Overview() string {
 	return "Sync with remote using merge strategy."
 }
 
-func (c *syncCommand) Arguments() []arg {
-	return []arg{}
+func (c *syncCommand) Arguments() []Arg {
+	return []Arg{}
 }
 
 func (c *syncCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
 }
 
 func (c *syncCommand) Description() string {
