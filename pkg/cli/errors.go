@@ -4,6 +4,7 @@ import "fmt"
 
 type CmdHelpFlagError struct {
 	message string
+	Cmd     CommandPrintable
 }
 
 type CmdArgumentError struct {

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/logging"
@@ -23,6 +24,12 @@ Details:
 	- The dotfiles directory is where the actual configuration files are stored.
 	- The folder structure in the dotfiles directory will match that of the userspace.`)
 	printUsage(commands, programName)
+}
+
+func PrintCommandHelp(c CommandPrintable) {
+	fmt.Println(generateUsage(c))
+	fmt.Print("Description:")
+	fmt.Println(c.Description())
 }
 
 // Prints program header
@@ -63,3 +70,35 @@ func printUsage(commands []CommandPrintable, programName string) {
 	fmt.Println()
 }
 
+// Generates a pretty-printed usage description of a Command
+func generateUsage(c CommandPrintable) string {
+	var sb strings.Builder
+
+	sb.WriteString("Name:\n\t")
+	name := fmt.Sprintf("%s %s - %s", programName, c.CmdName(), c.Overview())
+	sb.WriteString(name)
+
+	sb.WriteString("\n\nUsage:\n\t")
+	sb.WriteString(c.Usage())
+
+	sb.WriteString("\n\nArguments:\n")
+
+	// Print arguments.
+	tabbuf := &bytes.Buffer{}
+	w := new(tabwriter.Writer)
+	w.Init(tabbuf, 0, 8, 8, ' ', 0)
+
+	for _, arg := range c.Arguments() {
+		buf := &bytes.Buffer{}
+		buf.WriteString("<")
+		buf.WriteString(arg.name)
+		buf.WriteString(">")
+		str := fmt.Sprintf("\t%s\t%s", buf, arg.description)
+		fmt.Fprintln(w, str)
+	}
+
+	w.Flush()
+	sb.WriteString(tabbuf.String())
+
+	return sb.String()
+}

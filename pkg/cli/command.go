@@ -3,11 +3,9 @@ package cli
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"os"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
@@ -21,14 +19,6 @@ const (
 type arg struct {
 	name        string
 	description string
-}
-
-type cmd struct {
-	name        string // Name of command.
-	overview    string // Oneliner description of the command.
-	description string // Detailed description.
-	usage       string // How to use the command.
-	arguments   []arg  // Required arguments in order to use the command.
 }
 
 // CommandPrintable is an interface used where it is necessary to print the command details
@@ -51,14 +41,23 @@ type Command interface {
 	CommandRunner
 }
 
+// Converts a slice of the runnable type to the more restrictive type. O(N).
+func ConvertCommandToPrintable(cmds []Command) []CommandPrintable {
+	prints := make([]CommandPrintable, len(cmds))
+	for _, c := range cmds {
+		prints = append(prints, c)
+	}
+	return prints
+}
+
 // Validates and handles the given Arguments generally against the Command and errors if not valid
-// TODO: This should be rewritten
+// FIXME: This should be rewritten so individual commands do not depend on this
 func validateCliArguments(args *parsing.CommandLineInput, c CommandPrintable) error {
 	if _, ok := args.Flags.BoolFlags["help"]; ok {
 		fmt.Println(generateUsage(c))
 		fmt.Print("Description:")
 		fmt.Println(c.Description())
-		return &CmdHelpFlagError{"help flag given"}
+		return &CmdHelpFlagError{"help flag given", c}
 	}
 
 	if len(args.PositionalArgs) != len(c.Arguments()) {
@@ -67,39 +66,6 @@ func validateCliArguments(args *parsing.CommandLineInput, c CommandPrintable) er
 			"%d arguments given, but %d required. Try adding --help.", len(args.PositionalArgs), len(c.Arguments()))}
 	}
 	return nil
-}
-
-// Generates a pretty-printed usage description of a Command
-func generateUsage(c CommandPrintable) string {
-	var sb strings.Builder
-
-	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf("%s %s - %s", programName, c.CmdName(), c.Overview())
-	sb.WriteString(name)
-
-	sb.WriteString("\n\nUsage:\n\t")
-	sb.WriteString(c.Usage())
-
-	sb.WriteString("\n\nArguments:\n")
-
-	// Print arguments.
-	tabbuf := &bytes.Buffer{}
-	w := new(tabwriter.Writer)
-	w.Init(tabbuf, 0, 8, 8, ' ', 0)
-
-	for _, arg := range c.Arguments() {
-		buf := &bytes.Buffer{}
-		buf.WriteString("<")
-		buf.WriteString(arg.name)
-		buf.WriteString(">")
-		str := fmt.Sprintf("\t%s\t%s", buf, arg.description)
-		fmt.Fprintln(w, str)
-	}
-
-	w.Flush()
-	sb.WriteString(tabbuf.String())
-
-	return sb.String()
 }
 
 // Displays a yes/no prompt to the user and returns the boolean value of the answer

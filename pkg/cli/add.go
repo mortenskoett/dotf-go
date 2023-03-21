@@ -11,10 +11,8 @@ type addCommand struct {
 	name string
 }
 
-func NewAddCommand(commandName string) *addCommand {
-	return &addCommand{
-		name: commandName,
-	}
+func NewAddCommand() *addCommand {
+	return &addCommand{name: "add"}
 }
 
 func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {

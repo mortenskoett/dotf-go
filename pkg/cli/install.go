@@ -12,9 +12,9 @@ type installCommand struct {
 	name string
 }
 
-func NewInstallCommand(commandName string) *installCommand {
+func NewInstallCommand() *installCommand {
 	return &installCommand{
-		name: commandName,
+		name: "install",
 	}
 }
 

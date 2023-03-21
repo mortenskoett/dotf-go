@@ -13,8 +13,8 @@ type migrateCommand struct {
 	name string
 }
 
-func NewMigrateCommand(commandName string) *migrateCommand {
-	return &migrateCommand{name: commandName}
+func NewMigrateCommand() *migrateCommand {
+	return &migrateCommand{name: "migrate"}
 }
 
 func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {

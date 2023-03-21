@@ -11,9 +11,9 @@ type syncCommand struct {
 	name string
 }
 
-func NewSyncCommand(commandName string) *syncCommand {
+func NewSyncCommand() *syncCommand {
 	return &syncCommand{
-		name: commandName,
+		name: "sync",
 	}
 }
 

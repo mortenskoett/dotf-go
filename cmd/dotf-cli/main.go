@@ -14,39 +14,34 @@ const logo = `    _       _     __             _  _
 \__/_|\___/ \__||_|         \__||_||_|
 `
 
-// Inserted by build process using -ldflags
-var programVersion = ""
-
-// Available CLI commands
-var (
-	commands = []cli.Command{
-		cli.NewAddCommand("add"),
-		cli.NewInstallCommand("install"),
-		cli.NewMigrateCommand("migrate"),
-		cli.NewSyncCommand("sync"),
-		cli.NewRevertCommand("revert"),
-	}
-)
+var programVersion = "" // Inserted by build process using -ldflags
 
 func main() {
-	run(os.Args)
+	commands := []cli.Command{
+		cli.NewAddCommand(),
+		cli.NewInstallCommand(),
+		cli.NewMigrateCommand(),
+		cli.NewSyncCommand(),
+		cli.NewRevertCommand(),
+	}
+	run(os.Args, commands)
 }
 
-func run(osargs []string) {
-	// Create command env to manage commands
-	executor := cli.NewCmdExecutor(commands)
-
+func run(osargs []string, commands []cli.Command) {
 	// Parse cli args
 	cliargs, err := parsing.ParseCommandlineInput(os.Args)
 	if err != nil {
-		handleParsingError(err, executor.GetPrintableCmds())
+		handleParsingError(err, cli.ConvertCommandToPrintable(commands))
 	}
 
 	// Parse dotf config
 	config, err := parsing.ParseDotfConfig(cliargs.Flags)
 	if err != nil {
-		handleParsingError(err, executor.GetPrintableCmds())
+		handleParsingError(err, cli.ConvertCommandToPrintable(commands))
 	}
+
+	// Create command env to manage commands
+	executor := cli.NewCmdExecutor(commands)
 
 	// Create command
 	cmd, err := executor.Load(cliargs, config)
@@ -63,8 +58,9 @@ func run(osargs []string) {
 	// If no errors then run command
 	err = cmd()
 	if err != nil {
-		switch err.(type) {
+		switch e := err.(type) {
 		case *cli.CmdHelpFlagError:
+			cli.PrintCommandHelp(e.Cmd)
 			logging.Ok(err)
 		case *cli.CmdArgumentError:
 			logging.Warn(err)

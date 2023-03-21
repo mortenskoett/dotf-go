@@ -11,9 +11,9 @@ type revertCommand struct {
 	name string
 }
 
-func NewRevertCommand(commandName string) *revertCommand {
+func NewRevertCommand() *revertCommand {
 	return &revertCommand{
-		name: commandName,
+		name: "revert",
 	}
 }
 
