@@ -15,18 +15,18 @@ const (
 )
 
 // Defines an argument for a specific Command
-type arg struct {
-	name        string
-	description string
+type Arg struct {
+	Name        string
+	Description string
 }
 
 // CommandPrintable is an interface used where it is necessary to print the command details
 type CommandPrintable interface {
-	CmdName() string     // Name of command.
+	Name() string        // Name of command.
 	Overview() string    // Oneliner description of the command.
 	Description() string // Detailed description.
 	Usage() string       // How to use the command.
-	Arguments() []arg    // Required arguments in order to use the command.
+	RequiredArgs() []Arg // Required arguments in order to use the command.
 }
 
 // CommandRunner is a definition of a main operation taking a number of cli args to work on

@@ -44,10 +44,10 @@ func (c *migrateCommand) Overview() string {
 	return "Migrate userspace symlinks on dotfiles dir location change."
 }
 
-func (c *migrateCommand) Arguments() []arg {
-	return []arg{
-		{name: "dotfiles-dir", description: "Path specifies a re-located dotfiles directory."},
-		{name: "userspace-dir", description: "Specifies userspace root directory where symlinks will be updated."},
+func (c *migrateCommand) Arguments() []Arg {
+	return []Arg{
+		{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
+		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 	}
 }
 

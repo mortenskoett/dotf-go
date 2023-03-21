@@ -51,10 +51,10 @@ func printUsage(commands []CommandPrintable, programName string) {
 	// Print commands
 	for _, cmd := range commands {
 		buf := &bytes.Buffer{}
-		if len(cmd.Arguments()) > 0 {
-			for _, arg := range cmd.Arguments() {
+		if len(cmd.RequiredArgs()) > 0 {
+			for _, arg := range cmd.RequiredArgs() {
 				buf.WriteString("<")
-				buf.WriteString(arg.name)
+				buf.WriteString(arg.Name)
 				buf.WriteString(">")
 				buf.WriteString("  ")
 			}
@@ -62,7 +62,7 @@ func printUsage(commands []CommandPrintable, programName string) {
 			buf.WriteString("-")
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", cmd.CmdName(), buf.String(), cmd.Overview())
+		str := fmt.Sprintf("\t%s\t%s\t%s", cmd.Name(), buf.String(), cmd.Overview())
 		fmt.Fprintln(w, str)
 	}
 
@@ -75,7 +75,7 @@ func generateUsage(c CommandPrintable) string {
 	var sb strings.Builder
 
 	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf("%s %s - %s", programName, c.CmdName(), c.Overview())
+	name := fmt.Sprintf("%s %s - %s", programName, c.Name(), c.Overview())
 	sb.WriteString(name)
 
 	sb.WriteString("\n\nUsage:\n\t")
@@ -88,12 +88,12 @@ func generateUsage(c CommandPrintable) string {
 	w := new(tabwriter.Writer)
 	w.Init(tabbuf, 0, 8, 8, ' ', 0)
 
-	for _, arg := range c.Arguments() {
+	for _, arg := range c.RequiredArgs() {
 		buf := &bytes.Buffer{}
 		buf.WriteString("<")
-		buf.WriteString(arg.name)
+		buf.WriteString(arg.Name)
 		buf.WriteString(">")
-		str := fmt.Sprintf("\t%s\t%s", buf, arg.description)
+		str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
 		fmt.Fprintln(w, str)
 	}
 

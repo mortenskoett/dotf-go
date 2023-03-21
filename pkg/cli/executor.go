@@ -33,6 +33,7 @@ func (ce *CmdExecutor) Load(
 		return nil, err
 	}
 
+	// Wrapped command to be called at call site
 	return func() error {
 		err := validate(cmd, cliargs, config)
 		if err != nil {
@@ -40,19 +41,6 @@ func (ce *CmdExecutor) Load(
 		}
 		return cmd.Run(cliargs, config)
 	}, nil
-}
-
-// Validates the command preemptively against the given cliargs and config
-func validate(c Command, args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if _, ok := args.Flags.BoolFlags["help"]; ok {
-		return &CmdHelpFlagError{"help flag given", c}
-	}
-
-	if len(args.PositionalArgs) != len(c.Arguments()) {
-		return &CmdArgumentError{fmt.Sprintf(
-			"%d arguments given, but %d required.", len(args.PositionalArgs), len(c.Arguments()))}
-	}
-	return nil
 }
 
 // Parses a Command name to a CommandFunc or errors
@@ -64,12 +52,25 @@ func parse(cmdName string, commands map[string]Command) (Command, error) {
 	return nil, &CmdUnknownCommand{fmt.Sprintf("%s command does not exist.", cmdName)}
 }
 
+// Validates the command preemptively against the given cliargs and config
+func validate(c Command, args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
+	if _, ok := args.Flags.BoolFlags["help"]; ok {
+		return &CmdHelpFlagError{"help flag given", c}
+	}
+
+	if len(args.PositionalArgs) != len(c.RequiredArgs()) {
+		return &CmdArgumentError{fmt.Sprintf(
+			"%d arguments given, but %d required.", len(args.PositionalArgs), len(c.RequiredArgs()))}
+	}
+	return nil
+}
+
 // Register a command with the executor
 func (ce *CmdExecutor) register(cmd Command) error {
-	_, ok := ce.commands[cmd.CmdName()]
+	_, ok := ce.commands[cmd.Name()]
 	if ok {
-		return &CmdAlreadyRegisteredError{cmd.CmdName()}
+		return &CmdAlreadyRegisteredError{cmd.Name()}
 	}
-	ce.commands[cmd.CmdName()] = cmd
+	ce.commands[cmd.Name()] = cmd
 	return nil
 }

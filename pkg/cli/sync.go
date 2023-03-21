@@ -38,8 +38,8 @@ func (c *syncCommand) Overview() string {
 	return "Sync with remote using merge strategy."
 }
 
-func (c *syncCommand) Arguments() []arg {
-	return []arg{}
+func (c *syncCommand) Arguments() []Arg {
+	return []Arg{}
 }
 
 func (c *syncCommand) Usage() string {

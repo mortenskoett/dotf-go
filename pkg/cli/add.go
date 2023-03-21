@@ -34,9 +34,9 @@ func (c *addCommand) Overview() string {
 	return "Move file/dir from userspace to dotfiles."
 }
 
-func (c *addCommand) Arguments() []arg {
-	return []arg{
-		{name: "file/dir", description: "Path to file or dir that should be replaced by symlink."},
+func (c *addCommand) Arguments() []Arg {
+	return []Arg{
+		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
 	}
 }
 

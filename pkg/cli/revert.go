@@ -36,9 +36,9 @@ func (c *revertCommand) Overview() string {
 	return "Revert file to its original location in userspace."
 }
 
-func (c *revertCommand) Arguments() []arg {
-	return []arg{
-		{name: "file/dir", description: "Path to file or dir to revert back to original location."},
+func (c *revertCommand) Arguments() []Arg {
+	return []Arg{
+		{Name: "file/dir", Description: "Path to file or dir to revert back to original location."},
 	}
 }
 

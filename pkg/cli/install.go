@@ -51,9 +51,9 @@ func (c *installCommand) Overview() string {
 	return "Install file/dir from dotfiles into userspace."
 }
 
-func (c *installCommand) Arguments() []arg {
-	return []arg{
-		{name: "file/dir", description: "Path to file/dir inside dotfiles or path to file/dir in userspace."},
+func (c *installCommand) Arguments() []Arg {
+	return []Arg{
+		{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."},
 	}
 }
 
