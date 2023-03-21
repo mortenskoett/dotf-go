@@ -43,7 +43,7 @@ func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfC
 	return nil
 }
 
-func (c *installCommand) CmdName() string {
+func (c *installCommand) Name() string {
 	return c.name
 }
 
@@ -51,7 +51,7 @@ func (c *installCommand) Overview() string {
 	return "Install file/dir from dotfiles into userspace."
 }
 
-func (c *installCommand) Arguments() []Arg {
+func (c *installCommand) RequiredArgs() []Arg {
 	return []Arg{
 		{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."},
 	}

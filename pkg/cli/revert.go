@@ -28,7 +28,7 @@ func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfCo
 	return nil
 }
 
-func (c *revertCommand) CmdName() string {
+func (c *revertCommand) Name() string {
 	return c.name
 }
 
@@ -36,7 +36,7 @@ func (c *revertCommand) Overview() string {
 	return "Revert file to its original location in userspace."
 }
 
-func (c *revertCommand) Arguments() []Arg {
+func (c *revertCommand) RequiredArgs() []Arg {
 	return []Arg{
 		{Name: "file/dir", Description: "Path to file or dir to revert back to original location."},
 	}

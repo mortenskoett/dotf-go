@@ -30,7 +30,7 @@ func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConf
 	return nil
 }
 
-func (c *syncCommand) CmdName() string {
+func (c *syncCommand) Name() string {
 	return c.name
 }
 
@@ -38,7 +38,7 @@ func (c *syncCommand) Overview() string {
 	return "Sync with remote using merge strategy."
 }
 
-func (c *syncCommand) Arguments() []Arg {
+func (c *syncCommand) RequiredArgs() []Arg {
 	return []Arg{}
 }
 

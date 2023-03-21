@@ -26,7 +26,7 @@ func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfi
 	return nil
 }
 
-func (c *addCommand) CmdName() string {
+func (c *addCommand) Name() string {
 	return c.name
 }
 
@@ -34,7 +34,7 @@ func (c *addCommand) Overview() string {
 	return "Move file/dir from userspace to dotfiles."
 }
 
-func (c *addCommand) Arguments() []Arg {
+func (c *addCommand) RequiredArgs() []Arg {
 	return []Arg{
 		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
 	}
