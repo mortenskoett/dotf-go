@@ -18,10 +18,6 @@ func NewMigrateCommand() *migrateCommand {
 }
 
 func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if err := validateCliArguments(args, c); err != nil {
-		return err
-	}
-
 	ok := confirmByUser("This operation can be desctructive. Do you want to continue?")
 	if !ok {
 		logging.Warn("Aborted by user")

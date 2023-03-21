@@ -3,7 +3,6 @@ package cli
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strings"
 
@@ -41,31 +40,13 @@ type Command interface {
 	CommandRunner
 }
 
-// Converts a slice of the runnable type to the more restrictive type. O(N).
+// Converts a slice of the runnable command type to the more restrictive type. O(N).
 func ConvertCommandToPrintable(cmds []Command) []CommandPrintable {
-	prints := make([]CommandPrintable, len(cmds))
+	prints := make([]CommandPrintable, 0, len(cmds))
 	for _, c := range cmds {
 		prints = append(prints, c)
 	}
 	return prints
-}
-
-// Validates and handles the given Arguments generally against the Command and errors if not valid
-// FIXME: This should be rewritten so individual commands do not depend on this
-func validateCliArguments(args *parsing.CommandLineInput, c CommandPrintable) error {
-	if _, ok := args.Flags.BoolFlags["help"]; ok {
-		fmt.Println(generateUsage(c))
-		fmt.Print("Description:")
-		fmt.Println(c.Description())
-		return &CmdHelpFlagError{"help flag given", c}
-	}
-
-	if len(args.PositionalArgs) != len(c.Arguments()) {
-		fmt.Println(generateUsage(c))
-		return &CmdArgumentError{fmt.Sprintf(
-			"%d arguments given, but %d required. Try adding --help.", len(args.PositionalArgs), len(c.Arguments()))}
-	}
-	return nil
 }
 
 // Displays a yes/no prompt to the user and returns the boolean value of the answer

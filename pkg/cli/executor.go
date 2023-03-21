@@ -30,7 +30,7 @@ func (ce *CmdExecutor) Load(
 	cliargs *parsing.CommandLineInput, config *parsing.DotfConfiguration) (CommandRunnable, error) {
 	cmd, err := parse(cliargs.CommandName, ce.commands)
 	if err != nil {
-		return nil, &CmdUnknownCommand{fmt.Sprintf("try --help for available commands: %s", err)}
+		return nil, err
 	}
 
 	return func() error {
@@ -44,16 +44,13 @@ func (ce *CmdExecutor) Load(
 
 // Validates the command preemptively against the given cliargs and config
 func validate(c Command, args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	// validate config specifically against this command
-	// validate flags specifically against this command
-	// on error return typed error so main can print help etc
 	if _, ok := args.Flags.BoolFlags["help"]; ok {
 		return &CmdHelpFlagError{"help flag given", c}
 	}
 
 	if len(args.PositionalArgs) != len(c.Arguments()) {
 		return &CmdArgumentError{fmt.Sprintf(
-			"%d arguments given, but %d required. Try adding --help.", len(args.PositionalArgs), len(c.Arguments()))}
+			"%d arguments given, but %d required.", len(args.PositionalArgs), len(c.Arguments()))}
 	}
 	return nil
 }
@@ -64,7 +61,7 @@ func parse(cmdName string, commands map[string]Command) (Command, error) {
 	if ok {
 		return cmd, nil
 	}
-	return nil, &CmdArgumentError{fmt.Sprintf("%s command does not exist.", cmdName)}
+	return nil, &CmdUnknownCommand{fmt.Sprintf("%s command does not exist.", cmdName)}
 }
 
 // Register a command with the executor

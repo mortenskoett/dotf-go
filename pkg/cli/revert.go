@@ -18,10 +18,6 @@ func NewRevertCommand() *revertCommand {
 }
 
 func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if err := validateCliArguments(args, c); err != nil {
-		return err
-	}
-
 	filepath := args.PositionalArgs[0]
 
 	err := terminalio.RevertDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir)

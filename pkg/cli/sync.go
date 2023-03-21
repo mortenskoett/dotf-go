@@ -18,10 +18,6 @@ func NewSyncCommand() *syncCommand {
 }
 
 func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if err := validateCliArguments(args, c); err != nil {
-		return err
-	}
-
 	absDotfilesDir, err := terminalio.GetAndValidateAbsolutePath(conf.SyncDir)
 	if err != nil {
 		return err
