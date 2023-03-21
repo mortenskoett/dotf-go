@@ -8,12 +8,12 @@ import (
 )
 
 type syncCommand struct {
-	commandName string
+	name string
 }
 
 func NewSyncCommand(commandName string) *syncCommand {
 	return &syncCommand{
-		commandName: commandName,
+		name: commandName,
 	}
 }
 
@@ -35,7 +35,7 @@ func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConf
 }
 
 func (c *syncCommand) CmdName() string {
-	return c.commandName
+	return c.name
 }
 
 func (c *syncCommand) Overview() string {
@@ -47,7 +47,7 @@ func (c *syncCommand) Arguments() []arg {
 }
 
 func (c *syncCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
 }
 
 func (c *syncCommand) Description() string {

@@ -14,39 +14,54 @@ const logo = `    _       _     __             _  _
 \__/_|\___/ \__||_|         \__||_||_|
 `
 
-var programVersion = "" // Inserted by build process using -ldflags
+// Inserted by build process using -ldflags
+var programVersion = ""
+
+// Available CLI commands
+var (
+	commands = []cli.Command{
+		cli.NewAddCommand("add"),
+		cli.NewInstallCommand("install"),
+		cli.NewMigrateCommand("migrate"),
+		cli.NewSyncCommand("sync"),
+		cli.NewRevertCommand("revert"),
+	}
+)
 
 func main() {
 	run(os.Args)
 }
 
 func run(osargs []string) {
+	// Create command env to manage commands
+	executor := cli.NewCmdExecutor(commands)
+
 	// Parse cli args
 	cliargs, err := parsing.ParseCommandlineInput(os.Args)
 	if err != nil {
-		handleParsingError(err)
+		handleParsingError(err, executor.GetPrintableCmds())
 	}
 
 	// Parse dotf config
 	config, err := parsing.ParseDotfConfig(cliargs.Flags)
 	if err != nil {
-		handleParsingError(err)
+		handleParsingError(err, executor.GetPrintableCmds())
 	}
 
 	// Create command
-	cmd, err := cli.CreateCommand(cliargs.CommandName)
+	cmd, err := executor.Load(cliargs, config)
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdUnknownCommand:
 			logging.Error(err)
 		default:
-			logging.Error("unknown command init error:", err)
+			logging.Error("unknown executor load error:", err)
 		}
 		os.Exit(1)
 	}
 
 	// If no errors then run command
-	err = cmd.Run(cliargs, config)
+	err = cmd()
 	if err != nil {
 		switch err.(type) {
 		case *cli.CmdHelpFlagError:
@@ -56,23 +71,22 @@ func run(osargs []string) {
 		case *cli.GitError:
 			logging.Error(err)
 		default:
-			logging.Error("unknown run error:", err)
+			logging.Error("unknown command run error:", err)
 		}
 		os.Exit(1)
 	}
-
 	logging.Ok("All good. Bye!")
 }
 
 // Handles and terminates program according to error type
-func handleParsingError(err error) {
+func handleParsingError(err error, cmds []cli.CommandPrintable) {
 	if err != nil {
 		switch err.(type) {
 		case *parsing.ParseHelpFlagError:
-			cli.PrintFullHelp(cli.GetAvailableCommands(), logo, programVersion)
+			cli.PrintFullHelp(cmds, logo, programVersion)
 			logging.Ok(err)
 		case *parsing.ParseNoArgumentError:
-			cli.PrintBasicHelp(cli.GetAvailableCommands(), logo, programVersion)
+			cli.PrintBasicHelp(cmds, logo, programVersion)
 			logging.Ok(err)
 		case *parsing.ParseInvalidArgumentError:
 			logging.Warn(err)

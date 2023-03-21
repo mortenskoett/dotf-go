@@ -14,6 +14,10 @@ type CmdUnknownCommand struct {
 	message string
 }
 
+type CmdAlreadyRegisteredError struct {
+	message string
+}
+
 type GitError struct {
 	Path string
 	Err  error
@@ -29,6 +33,10 @@ func (e *CmdHelpFlagError) Error() string {
 
 func (e *CmdArgumentError) Error() string {
 	return fmt.Sprintf(e.message)
+}
+
+func (e *CmdAlreadyRegisteredError) Error() string {
+	return fmt.Sprintf("%s command already registered", e.message)
 }
 
 func (e *GitError) Error() string {

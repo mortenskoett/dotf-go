@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"sort"
 	"strings"
 	"text/tabwriter"
 
@@ -20,62 +19,41 @@ const (
 
 // Defines an argument for a specific Command
 type arg struct {
-	Name        string
-	Description string
+	name        string
+	description string
 }
 
-// Command is a definition of a main operation taking a number of cli args to work on
-type Command interface {
+type cmd struct {
+	name        string // Name of command.
+	overview    string // Oneliner description of the command.
+	description string // Detailed description.
+	usage       string // How to use the command.
+	arguments   []arg  // Required arguments in order to use the command.
+}
+
+// CommandPrintable is an interface used where it is necessary to print the command details
+type CommandPrintable interface {
 	CmdName() string     // Name of command.
 	Overview() string    // Oneliner description of the command.
-	Arguments() []arg    // Required arguments in order to use the command.
-	Usage() string       // How to use the command.
 	Description() string // Detailed description.
+	Usage() string       // How to use the command.
+	Arguments() []arg    // Required arguments in order to use the command.
+}
+
+// CommandRunner is a definition of a main operation taking a number of cli args to work on
+type CommandRunner interface {
 	Run(args *parsing.CommandLineInput,
 		conf *parsing.DotfConfiguration) error // Run the Command using the given args and config
 }
 
-// Set of CLI Commands that are currently implemented in dotf.
-var commands = map[string]Command{
-	"add":     NewAddCommand("add"),
-	"install": NewInstallCommand("install"),
-	"migrate": NewMigrateCommand("migrate"),
-	"sync":    NewSyncCommand("sync"),
-	"revert":  NewRevertCommand("revert"),
-}
-
-// Creates a Command or errors
-func CreateCommand(cmdName string) (Command, error) {
-	cmd, err := parseToCommandFunc(cmdName)
-	if err != nil {
-		return nil, &CmdUnknownCommand{fmt.Sprintf("try --help for available commands: %s", err)}
-	}
-	return cmd, nil
-}
-
-// Get copy of all available Commands.
-func GetAvailableCommands() []Command {
-	cmds := make([]Command, 0, len(commands))
-	for _, cmd := range commands {
-		cmds = append(cmds, cmd)
-	}
-	sort.SliceStable(cmds, func(i, j int) bool {
-		return cmds[i].CmdName() < cmds[j].CmdName()
-	})
-	return cmds
-}
-
-// Parses a Command name to a CommandFunc or errors
-func parseToCommandFunc(cmdName string) (Command, error) {
-	cmd, ok := commands[cmdName]
-	if ok {
-		return cmd, nil
-	}
-	return nil, &CmdArgumentError{fmt.Sprintf("%s command does not exist.", cmdName)}
+type Command interface {
+	CommandPrintable
+	CommandRunner
 }
 
 // Validates and handles the given Arguments generally against the Command and errors if not valid
-func validateCliArguments(args *parsing.CommandLineInput, c Command) error {
+// TODO: This should be rewritten
+func validateCliArguments(args *parsing.CommandLineInput, c CommandPrintable) error {
 	if _, ok := args.Flags.BoolFlags["help"]; ok {
 		fmt.Println(generateUsage(c))
 		fmt.Print("Description:")
@@ -92,7 +70,7 @@ func validateCliArguments(args *parsing.CommandLineInput, c Command) error {
 }
 
 // Generates a pretty-printed usage description of a Command
-func generateUsage(c Command) string {
+func generateUsage(c CommandPrintable) string {
 	var sb strings.Builder
 
 	sb.WriteString("Name:\n\t")
@@ -112,9 +90,9 @@ func generateUsage(c Command) string {
 	for _, arg := range c.Arguments() {
 		buf := &bytes.Buffer{}
 		buf.WriteString("<")
-		buf.WriteString(arg.Name)
+		buf.WriteString(arg.name)
 		buf.WriteString(">")
-		str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
+		str := fmt.Sprintf("\t%s\t%s", buf, arg.description)
 		fmt.Fprintln(w, str)
 	}
 

@@ -42,7 +42,7 @@ func (c *addCommand) Overview() string {
 
 func (c *addCommand) Arguments() []arg {
 	return []arg{
-		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
+		{name: "file/dir", description: "Path to file or dir that should be replaced by symlink."},
 	}
 }
 

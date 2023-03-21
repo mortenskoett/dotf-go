@@ -9,13 +9,13 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-func PrintBasicHelp(commands []Command, logo, version string) {
+func PrintBasicHelp(commands []CommandPrintable, logo, version string) {
 	printHeader(logo, version)
 	printUsage(commands, programName)
 }
 
 // Encapsulates basic help with a more full context
-func PrintFullHelp(commands []Command, logo, version string) {
+func PrintFullHelp(commands []CommandPrintable, logo, version string) {
 	printHeader(logo, version)
 	fmt.Println(`
 Details:
@@ -32,7 +32,7 @@ func printHeader(logo, version string) {
 	fmt.Println(" Version:", version)
 }
 
-func printUsage(commands []Command, programName string) {
+func printUsage(commands []CommandPrintable, programName string) {
 	fmt.Println("\nUsage:", programName, "<command> <args> [--help]")
 	fmt.Println("")
 
@@ -47,7 +47,7 @@ func printUsage(commands []Command, programName string) {
 		if len(cmd.Arguments()) > 0 {
 			for _, arg := range cmd.Arguments() {
 				buf.WriteString("<")
-				buf.WriteString(arg.Name)
+				buf.WriteString(arg.name)
 				buf.WriteString(">")
 				buf.WriteString("  ")
 			}

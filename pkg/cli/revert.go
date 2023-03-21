@@ -8,12 +8,12 @@ import (
 )
 
 type revertCommand struct {
-	commandName string
+	name string
 }
 
 func NewRevertCommand(commandName string) *revertCommand {
 	return &revertCommand{
-		commandName: commandName,
+		name: commandName,
 	}
 }
 
@@ -33,7 +33,7 @@ func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfCo
 }
 
 func (c *revertCommand) CmdName() string {
-	return c.commandName
+	return c.name
 }
 
 func (c *revertCommand) Overview() string {
@@ -42,12 +42,12 @@ func (c *revertCommand) Overview() string {
 
 func (c *revertCommand) Arguments() []arg {
 	return []arg{
-		{Name: "file/dir", Description: "Path to file or dir to revert back to original location."},
+		{name: "file/dir", description: "Path to file or dir to revert back to original location."},
 	}
 }
 
 func (c *revertCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.commandName)
+	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
 }
 
 func (c *revertCommand) Description() string {

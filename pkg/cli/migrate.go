@@ -10,11 +10,11 @@ import (
 
 // Implements Command interface
 type migrateCommand struct {
-	commandName string
+	name string
 }
 
 func NewMigrateCommand(commandName string) *migrateCommand {
-	return &migrateCommand{commandName: commandName}
+	return &migrateCommand{name: commandName}
 }
 
 func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -41,7 +41,7 @@ func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfC
 }
 
 func (c *migrateCommand) CmdName() string {
-	return c.commandName
+	return c.name
 }
 
 func (c *migrateCommand) Overview() string {
@@ -50,13 +50,13 @@ func (c *migrateCommand) Overview() string {
 
 func (c *migrateCommand) Arguments() []arg {
 	return []arg{
-		{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
-		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
+		{name: "dotfiles-dir", description: "Path specifies a re-located dotfiles directory."},
+		{name: "userspace-dir", description: "Specifies userspace root directory where symlinks will be updated."},
 	}
 }
 
 func (c *migrateCommand) Usage() string {
-	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", programName, c.commandName)
+	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", programName, c.name)
 }
 
 func (c *migrateCommand) Description() string {
