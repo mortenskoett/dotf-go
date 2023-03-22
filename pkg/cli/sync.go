@@ -1,20 +1,34 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 type syncCommand struct {
-	name string
+	base *CommandBase
 }
 
 func NewSyncCommand() *syncCommand {
+	name := "sync"
+	desc := `
+	Uses local git instance to merge newest changes from git remote and then adds, commits and
+	pushes latest changes to remote.`
+
 	return &syncCommand{
-		name: "sync",
+		base: &CommandBase{
+			Name:        name,
+			Overview:    "Sync with remote using merge strategy.",
+			Usage:       name + " <filepath> [--help]",
+			Args:        []Arg{},
+			Flags:       map[string]Arg{},
+			Description: desc,
+		},
 	}
+}
+
+func (c *syncCommand) Base() *CommandBase {
+	return c.base
 }
 
 func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -28,27 +42,4 @@ func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConf
 	}
 
 	return nil
-}
-
-func (c *syncCommand) Name() string {
-	return c.name
-}
-
-func (c *syncCommand) Overview() string {
-	return "Sync with remote using merge strategy."
-}
-
-func (c *syncCommand) RequiredArgs() []Arg {
-	return []Arg{}
-}
-
-func (c *syncCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
-}
-
-func (c *syncCommand) Description() string {
-	return `
-	Uses local git instance to merge newest changes from git remote and then adds, commits and
-	pushes latest changes to remote.
-	`
 }

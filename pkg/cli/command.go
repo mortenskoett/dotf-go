@@ -26,14 +26,14 @@ type Flag struct {
 	Description string
 }
 
-// Contains everything required to construct a command. All commands must embed this struct.
+// Contains everything needed by a command. All commands must embed this struct.
 type CommandBase struct {
 	Name        string         // Name of command.
 	Overview    string         // One-liner description of the command.
-	Description string         // Detailed description.
 	Usage       string         // How to use the command.
 	Args        []Arg          // Required arguments in order to use the command.
 	Flags       map[string]Arg // Optional command flags
+	Description string         // Detailed description.
 }
 
 // CommandPrintable is used where the command base info is only needed
@@ -41,7 +41,7 @@ type CommandPrintable interface {
 	Base() *CommandBase // Get command base Info
 }
 
-// CommandRunner is a definition of a main operation taking a number of cli args to work on
+// CommandRunner is a definition of a main operation taking a number of cli args
 type CommandRunner interface {
 	// Run the Command using the given args and config
 	Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error
@@ -50,15 +50,6 @@ type CommandRunner interface {
 type Command interface {
 	CommandPrintable
 	CommandRunner
-}
-
-// Converts a slice of the runnable command type to the more restrictive type. O(N).
-func ConvertCommandToPrintable(cmds []Command) []CommandPrintable {
-	prints := make([]CommandPrintable, 0, len(cmds))
-	for _, c := range cmds {
-		prints = append(prints, c)
-	}
-	return prints
 }
 
 // Displays a yes/no prompt to the user and returns the boolean value of the answer
