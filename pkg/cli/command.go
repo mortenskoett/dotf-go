@@ -14,25 +14,37 @@ const (
 	programName string = "dotf-cli"
 )
 
-// Defines an argument for a specific Command
+// Defines an argument for a Command
 type Arg struct {
 	Name        string
 	Description string
 }
 
-// CommandPrintable is an interface used where it is necessary to print the command details
+// Defines an optional flag for a command
+type Flag struct {
+	Name        string
+	Description string
+}
+
+// Contains everything required to construct a command. All commands must embed this struct.
+type CommandBase struct {
+	Name        string         // Name of command.
+	Overview    string         // One-liner description of the command.
+	Description string         // Detailed description.
+	Usage       string         // How to use the command.
+	Args        []Arg          // Required arguments in order to use the command.
+	Flags       map[string]Arg // Optional command flags
+}
+
+// CommandPrintable is used where the command base info is only needed
 type CommandPrintable interface {
-	Name() string        // Name of command.
-	Overview() string    // Oneliner description of the command.
-	Description() string // Detailed description.
-	Usage() string       // How to use the command.
-	RequiredArgs() []Arg // Required arguments in order to use the command.
+	Base() *CommandBase // Get command base Info
 }
 
 // CommandRunner is a definition of a main operation taking a number of cli args to work on
 type CommandRunner interface {
-	Run(args *parsing.CommandLineInput,
-		conf *parsing.DotfConfiguration) error // Run the Command using the given args and config
+	// Run the Command using the given args and config
+	Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error
 }
 
 type Command interface {

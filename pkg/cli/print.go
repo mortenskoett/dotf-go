@@ -10,13 +10,13 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
-func PrintBasicHelp(commands []CommandPrintable, logo, version string) {
+func PrintBasicHelp[T CommandPrintable](commands []T, logo, version string) {
 	printHeader(logo, version)
 	printUsage(commands, programName)
 }
 
 // Encapsulates basic help with a more full context
-func PrintFullHelp(commands []CommandPrintable, logo, version string) {
+func PrintFullHelp[T CommandPrintable](commands []T, logo, version string) {
 	printHeader(logo, version)
 	fmt.Println(`
 Details:
@@ -29,7 +29,7 @@ Details:
 func PrintCommandHelp(c CommandPrintable) {
 	fmt.Println(generateUsage(c))
 	fmt.Print("Description:")
-	fmt.Println(c.Description())
+	fmt.Println(c.Base().Description)
 }
 
 // Prints program header
@@ -39,7 +39,7 @@ func printHeader(logo, version string) {
 	fmt.Println(" Version:", version)
 }
 
-func printUsage(commands []CommandPrintable, programName string) {
+func printUsage[T CommandPrintable](commands []T, programName string) {
 	fmt.Println("\nUsage:", programName, "<command> <args> [--help]")
 	fmt.Println("")
 
@@ -50,9 +50,10 @@ func printUsage(commands []CommandPrintable, programName string) {
 
 	// Print commands
 	for _, cmd := range commands {
+		cmdbase := cmd.Base()
 		buf := &bytes.Buffer{}
-		if len(cmd.RequiredArgs()) > 0 {
-			for _, arg := range cmd.RequiredArgs() {
+		if len(cmdbase.Args) > 0 {
+			for _, arg := range cmdbase.Args {
 				buf.WriteString("<")
 				buf.WriteString(arg.Name)
 				buf.WriteString(">")
@@ -62,7 +63,7 @@ func printUsage(commands []CommandPrintable, programName string) {
 			buf.WriteString("-")
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", cmd.Name(), buf.String(), cmd.Overview())
+		str := fmt.Sprintf("\t%s\t%s\t%s", cmdbase.Name, buf.String(), cmdbase.Overview)
 		fmt.Fprintln(w, str)
 	}
 
@@ -71,15 +72,16 @@ func printUsage(commands []CommandPrintable, programName string) {
 }
 
 // Generates a pretty-printed usage description of a Command
-func generateUsage(c CommandPrintable) string {
+func generateUsage(cmd CommandPrintable) string {
 	var sb strings.Builder
+	c := cmd.Base()
 
 	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf("%s %s - %s", programName, c.Name(), c.Overview())
+	name := fmt.Sprintf("%s %s - %s", programName, c.Name, c.Overview)
 	sb.WriteString(name)
 
 	sb.WriteString("\n\nUsage:\n\t")
-	sb.WriteString(c.Usage())
+	sb.WriteString(c.Usage)
 
 	sb.WriteString("\n\nArguments:\n")
 
@@ -88,7 +90,7 @@ func generateUsage(c CommandPrintable) string {
 	w := new(tabwriter.Writer)
 	w.Init(tabbuf, 0, 8, 8, ' ', 0)
 
-	for _, arg := range c.RequiredArgs() {
+	for _, arg := range c.Args {
 		buf := &bytes.Buffer{}
 		buf.WriteString("<")
 		buf.WriteString(arg.Name)
