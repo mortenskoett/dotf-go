@@ -31,16 +31,16 @@ func run(osargs []string, commands []cli.Command) {
 	// Parse cli args
 	cliargs, err := parsing.ParseCommandlineInput(os.Args)
 	if err != nil {
-		handleParsingError(err, cli.ConvertCommandToPrintable(commands))
+		handleParsingError(err, commands)
 	}
 
 	// Parse dotf config
 	config, err := parsing.ParseDotfConfig(cliargs.Flags)
 	if err != nil {
-		handleParsingError(err, cli.ConvertCommandToPrintable(commands))
+		handleParsingError(err, commands)
 	}
 
-	// Create command env to manage commands
+	// Create command env to manage command execution
 	executor := cli.NewCmdExecutor(commands)
 
 	// Create command
@@ -75,7 +75,7 @@ func run(osargs []string, commands []cli.Command) {
 }
 
 // Handles and terminates program according to error type
-func handleParsingError(err error, cmds []cli.CommandPrintable) {
+func handleParsingError[T cli.CommandPrintable](err error, cmds []T) {
 	if err != nil {
 		switch err.(type) {
 		case *parsing.ParseHelpFlagError:

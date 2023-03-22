@@ -9,13 +9,40 @@ import (
 )
 
 type installCommand struct {
-	name string
+	base *CommandBase
 }
 
 func NewInstallCommand() *installCommand {
+	name := "install"
+	desc := `
+	Will install a file or directory from dotfiles into the same location in userspace. If an
+	identically named file is found in userspace a prompt will ask whether to delete the file or
+	abort the operation. The only sane thing is to remove the file in userspace as the idea is for
+	the previously created dotfile to take its place.
+
+	The command can be used both on files inside the dotfiles directory as well as files in
+	userspace and will do the same thing. A file inside dotfiles can be considered the source and
+	a file in userspace will be considered the target. The source must exist and the target will be
+	overwritten (after a backup is made).
+
+	- If a file from inside dotfiles is given this file will be used as installation source.
+	- If a file from userspace is given this file will be used as target.
+	- The command performs the same operation in both cases. `
+
 	return &installCommand{
-		name: "install",
+		base: &CommandBase{
+			Name:        name,
+			Overview:    "Install file/dir from dotfiles into userspace.",
+			Usage:       name + " <filepath> [--help]",
+			Args:        []Arg{{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
+			Flags:       map[string]Arg{},
+			Description: desc,
+		},
 	}
+}
+
+func (c *installCommand) Base() *CommandBase {
+	return c.base
 }
 
 func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -41,40 +68,4 @@ func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfC
 	}
 
 	return nil
-}
-
-func (c *installCommand) Name() string {
-	return c.name
-}
-
-func (c *installCommand) Overview() string {
-	return "Install file/dir from dotfiles into userspace."
-}
-
-func (c *installCommand) RequiredArgs() []Arg {
-	return []Arg{
-		{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."},
-	}
-}
-
-func (c *installCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
-}
-
-func (c *installCommand) Description() string {
-	return `
-	Will install a file or directory from dotfiles into the same location in userspace. If an
-	identically named file is found in userspace a prompt will ask whether to delete the file or
-	abort the operation. The only sane thing is to remove the file in userspace as the idea is for
-	the previously created dotfile to take its place.
-
-	The command can be used both on files inside the dotfiles directory as well as files in
-	userspace and will do the same thing. A file inside dotfiles can be considered the source and
-	a file in userspace will be considered the target. The source must exist and the target will be
-	overwritten (after a backup is made).
-
-	- If a file from inside dotfiles is given this file will be used as installation source.
-	- If a file from userspace is given this file will be used as target.
-	- The command performs the same operation in both cases.
-	`
 }

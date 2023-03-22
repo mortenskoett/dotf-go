@@ -1,20 +1,36 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 type revertCommand struct {
-	name string
+	base *CommandBase
 }
 
 func NewRevertCommand() *revertCommand {
+	name := "revert"
+	desc := `
+	Will revert a file or directory previously added to dotfiles back to its original location in
+	userspace. The file is moved from the dotfiles directory back to userspace where the symlink is
+	removed. The command can be used both on files inside the dotfiles directory as well as symlinks
+	in userspace and will do the same thing. `
+
 	return &revertCommand{
-		name: "revert",
+		base: &CommandBase{
+			Name:        name,
+			Overview:    "Revert file to its original location in userspace.",
+			Usage:       name + " <filepath> [--help]",
+			Args:        []Arg{{Name: "file/dir", Description: "Path to file or dir to revert back to original location."}},
+			Flags:       map[string]Arg{},
+			Description: desc,
+		},
 	}
+}
+
+func (c *revertCommand) Base() *CommandBase {
+	return c.base
 }
 
 func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
@@ -26,30 +42,4 @@ func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfCo
 	}
 
 	return nil
-}
-
-func (c *revertCommand) Name() string {
-	return c.name
-}
-
-func (c *revertCommand) Overview() string {
-	return "Revert file to its original location in userspace."
-}
-
-func (c *revertCommand) RequiredArgs() []Arg {
-	return []Arg{
-		{Name: "file/dir", Description: "Path to file or dir to revert back to original location."},
-	}
-}
-
-func (c *revertCommand) Usage() string {
-	return fmt.Sprintf("%s %s <filepath> [--help]", programName, c.name)
-}
-
-func (c *revertCommand) Description() string {
-	return `
-	Will revert a file or directory previously added to dotfiles back to its original location in
-	userspace. The file is moved from the dotfiles directory back to userspace where the symlink is
-	removed. The command can be used both on files inside the dotfiles directory as well as symlinks
-	in userspace and will do the same thing. `
 }
