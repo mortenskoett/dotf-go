@@ -13,13 +13,13 @@ func NewAddCommand() *addCommand {
 	name := "add"
 	overview := "Move file/dir from userspace to dotfiles."
 	usage := name + " <filepath> [--help]"
-	args := []Arg{
-		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
+	args := []arg{
+		{name: "file/dir", description: "Path to file or dir that should be replaced by symlink."},
 	}
-	flags := map[string]Arg{
+	flags := map[string]flag{
 		"select": {
-			Name:        "--select",
-			Description: "Interactively select into which distros the file should be added",
+			name:        "--select",
+			description: "Interactively select into which distros the file should be added",
 		},
 	}
 	description := `
@@ -29,12 +29,12 @@ func NewAddCommand() *addCommand {
 
 	return &addCommand{
 		base: &CommandBase{
-			Name:        name,
-			Overview:    overview,
-			Description: description,
-			Usage:       usage,
-			Args:        args,
-			Flags:       flags,
+			name:        name,
+			overview:    overview,
+			description: description,
+			usage:       usage,
+			args:        args,
+			flags:       flags,
 		},
 	}
 }

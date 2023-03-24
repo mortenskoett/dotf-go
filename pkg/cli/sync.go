@@ -17,12 +17,12 @@ func NewSyncCommand() *syncCommand {
 
 	return &syncCommand{
 		base: &CommandBase{
-			Name:        name,
-			Overview:    "Sync with remote using merge strategy.",
-			Usage:       name + " <filepath> [--help]",
-			Args:        []Arg{},
-			Flags:       map[string]Arg{},
-			Description: desc,
+			name:        name,
+			overview:    "Sync with remote using merge strategy.",
+			usage:       name + " <filepath> [--help]",
+			args:        []arg{},
+			flags:       map[string]flag{},
+			description: desc,
 		},
 	}
 }

@@ -29,15 +29,15 @@ func NewMigrateCommand() *migrateCommand {
 
 	return &migrateCommand{
 		base: &CommandBase{
-			Name:     name,
-			Overview: "Migrate userspace symlinks on dotfiles dir location change.",
-			Usage:    name + " <dotfiles-dir> <userspace-dir> [--help]",
-			Args: []Arg{
-				{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
-				{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
+			name:     name,
+			overview: "Migrate userspace symlinks on dotfiles dir location change.",
+			usage:    name + " <dotfiles-dir> <userspace-dir> [--help]",
+			args: []arg{
+				{name: "dotfiles-dir", description: "Path specifies a re-located dotfiles directory."},
+				{name: "userspace-dir", description: "Specifies userspace root directory where symlinks will be updated."},
 			},
-			Flags:       map[string]Arg{},
-			Description: desc,
+			flags:       map[string]flag{},
+			description: desc,
 		},
 	}
 }

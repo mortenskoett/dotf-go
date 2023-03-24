@@ -19,12 +19,12 @@ func NewRevertCommand() *revertCommand {
 
 	return &revertCommand{
 		base: &CommandBase{
-			Name:        name,
-			Overview:    "Revert file to its original location in userspace.",
-			Usage:       name + " <filepath> [--help]",
-			Args:        []Arg{{Name: "file/dir", Description: "Path to file or dir to revert back to original location."}},
-			Flags:       map[string]Arg{},
-			Description: desc,
+			name:        name,
+			overview:    "Revert file to its original location in userspace.",
+			usage:       name + " <filepath> [--help]",
+			args:        []arg{{name: "file/dir", description: "Path to file or dir to revert back to original location."}},
+			flags:       map[string]flag{},
+			description: desc,
 		},
 	}
 }

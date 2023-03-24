@@ -31,12 +31,12 @@ func NewInstallCommand() *installCommand {
 
 	return &installCommand{
 		base: &CommandBase{
-			Name:        name,
-			Overview:    "Install file/dir from dotfiles into userspace.",
-			Usage:       name + " <filepath> [--help]",
-			Args:        []Arg{{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
-			Flags:       map[string]Arg{},
-			Description: desc,
+			name:        name,
+			overview:    "Install file/dir from dotfiles into userspace.",
+			usage:       name + " <filepath> [--help]",
+			args:        []arg{{name: "file/dir", description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
+			flags:       map[string]flag{},
+			description: desc,
 		},
 	}
 }

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"os"
@@ -29,7 +30,7 @@ Details:
 func PrintCommandHelp(c CommandPrintable) {
 	fmt.Println(generateUsage(c))
 	fmt.Print("Description:")
-	fmt.Println(c.Base().Description)
+	fmt.Println(c.Base().description)
 }
 
 // Prints program header
@@ -52,10 +53,10 @@ func printUsage[T CommandPrintable](commands []T, programName string) {
 	for _, cmd := range commands {
 		cmdbase := cmd.Base()
 		buf := &bytes.Buffer{}
-		if len(cmdbase.Args) > 0 {
-			for _, arg := range cmdbase.Args {
+		if len(cmdbase.args) > 0 {
+			for _, arg := range cmdbase.args {
 				buf.WriteString("<")
-				buf.WriteString(arg.Name)
+				buf.WriteString(arg.name)
 				buf.WriteString(">")
 				buf.WriteString("  ")
 			}
@@ -63,7 +64,7 @@ func printUsage[T CommandPrintable](commands []T, programName string) {
 			buf.WriteString("-")
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", cmdbase.Name, buf.String(), cmdbase.Overview)
+		str := fmt.Sprintf("\t%s\t%s\t%s", cmdbase.name, buf.String(), cmdbase.overview)
 		fmt.Fprintln(w, str)
 	}
 
@@ -77,11 +78,11 @@ func generateUsage(cmd CommandPrintable) string {
 	c := cmd.Base()
 
 	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf("%s %s - %s", programName, c.Name, c.Overview)
+	name := fmt.Sprintf("%s %s - %s", programName, c.name, c.overview)
 	sb.WriteString(name)
 
 	sb.WriteString("\n\nUsage:\n\t")
-	sb.WriteString(c.Usage)
+	sb.WriteString(c.usage)
 
 	sb.WriteString("\n\nArguments:\n")
 
@@ -90,12 +91,12 @@ func generateUsage(cmd CommandPrintable) string {
 	w := new(tabwriter.Writer)
 	w.Init(tabbuf, 0, 8, 8, ' ', 0)
 
-	for _, arg := range c.Args {
+	for _, arg := range c.args {
 		buf := &bytes.Buffer{}
 		buf.WriteString("<")
-		buf.WriteString(arg.Name)
+		buf.WriteString(arg.name)
 		buf.WriteString(">")
-		str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
+		str := fmt.Sprintf("\t%s\t%s", buf, arg.description)
 		fmt.Fprintln(w, str)
 	}
 
@@ -103,4 +104,27 @@ func generateUsage(cmd CommandPrintable) string {
 	sb.WriteString(tabbuf.String())
 
 	return sb.String()
+}
+
+// Displays a yes/no prompt to the user and returns the boolean value of the answer
+func confirmByUser(question string) bool {
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		logging.Warn(question)
+		logging.Input("[Y(yes)/n(no)]")
+
+		resp, err := reader.ReadString('\n')
+		if err != nil {
+			logging.Fatal(err)
+		}
+
+		resp = strings.TrimSpace(resp)
+
+		if resp == "Y" || resp == "yes" {
+			return true
+		} else if resp == "n" || resp == "no" {
+			return false
+		}
+	}
 }

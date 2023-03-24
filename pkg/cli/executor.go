@@ -58,16 +58,16 @@ func validate(c Command, args *parsing.CommandLineInput, conf *parsing.DotfConfi
 		return &CmdHelpFlagError{"help flag given", c}
 	}
 
-	if len(args.PositionalArgs) != len(c.Base().Args) {
+	if len(args.PositionalArgs) != len(c.Base().args) {
 		return &CmdArgumentError{fmt.Sprintf(
-			"%d arguments given, but %d required.", len(args.PositionalArgs), len(c.Base().Args))}
+			"%d arguments given, but %d required.", len(args.PositionalArgs), len(c.Base().args))}
 	}
 	return nil
 }
 
 // Register a command with the executor
 func (ce *CmdExecutor) register(cmd Command) error {
-	name := cmd.Base().Name
+	name := cmd.Base().name
 	_, ok := ce.commands[name]
 	if ok {
 		return &CmdAlreadyRegisteredError{name}

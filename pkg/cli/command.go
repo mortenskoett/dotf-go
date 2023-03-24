@@ -2,11 +2,6 @@
 package cli
 
 import (
-	"bufio"
-	"os"
-	"strings"
-
-	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
 )
 
@@ -14,26 +9,10 @@ const (
 	programName string = "dotf-cli"
 )
 
-// Defines an argument for a Command
-type Arg struct {
-	Name        string
-	Description string
-}
-
-// Defines an optional flag for a command
-type Flag struct {
-	Name        string
-	Description string
-}
-
-// Contains everything needed by a command. All commands must embed this struct.
-type CommandBase struct {
-	Name        string         // Name of command.
-	Overview    string         // One-liner description of the command.
-	Usage       string         // How to use the command.
-	Args        []Arg          // Required arguments in order to use the command.
-	Flags       map[string]Arg // Optional command flags
-	Description string         // Detailed description.
+// Command is the dotf type denoting a runnable and printable command
+type Command interface {
+	CommandPrintable
+	CommandRunner
 }
 
 // CommandPrintable is used where the command base info is only needed
@@ -47,30 +26,24 @@ type CommandRunner interface {
 	Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error
 }
 
-type Command interface {
-	CommandPrintable
-	CommandRunner
+// Defines an argument for a Command
+type arg struct {
+	name        string // e.g. <filepath>
+	description string
 }
 
-// Displays a yes/no prompt to the user and returns the boolean value of the answer
-func confirmByUser(question string) bool {
-	reader := bufio.NewReader(os.Stdin)
+// Defines a flag for a Command
+type flag struct {
+	name        string // e.g. --verbose
+	description string
+}
 
-	for {
-		logging.Warn(question)
-		logging.Input("[Y(yes)/n(no)]")
-
-		resp, err := reader.ReadString('\n')
-		if err != nil {
-			logging.Fatal(err)
-		}
-
-		resp = strings.TrimSpace(resp)
-
-		if resp == "Y" || resp == "yes" {
-			return true
-		} else if resp == "n" || resp == "no" {
-			return false
-		}
-	}
+// Contains everything needed by a command. All commands must embed this struct.
+type CommandBase struct {
+	name        string          // Name of command.
+	overview    string          // One-liner description of the command.
+	usage       string          // How to use the command.
+	args        []arg           // Required arguments in order to use the command.
+	flags       map[string]flag // Optional command flags
+	description string          // Detailed description.
 }
