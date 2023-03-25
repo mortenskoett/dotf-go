@@ -30,7 +30,7 @@ Details:
 func PrintCommandHelp(c CommandPrintable) {
 	fmt.Println(generateUsage(c))
 	fmt.Print("Description:")
-	fmt.Println(c.Base().description)
+	fmt.Println(c.getDescription())
 }
 
 // Prints program header
@@ -50,11 +50,10 @@ func printUsage[T CommandPrintable](commands []T, programName string) {
 	fmt.Println("Commands:")
 
 	// Print commands
-	for _, cmd := range commands {
-		cmdbase := cmd.Base()
+	for _, c := range commands {
 		buf := &bytes.Buffer{}
-		if len(cmdbase.args) > 0 {
-			for _, arg := range cmdbase.args {
+		if len(c.getArgs()) > 0 {
+			for _, arg := range c.getArgs() {
 				buf.WriteString("<")
 				buf.WriteString(arg.name)
 				buf.WriteString(">")
@@ -64,7 +63,7 @@ func printUsage[T CommandPrintable](commands []T, programName string) {
 			buf.WriteString("-")
 		}
 
-		str := fmt.Sprintf("\t%s\t%s\t%s", cmdbase.name, buf.String(), cmdbase.overview)
+		str := fmt.Sprintf("\t%s\t%s\t%s", c.getName(), buf.String(), c.getOverview())
 		fmt.Fprintln(w, str)
 	}
 
@@ -73,16 +72,15 @@ func printUsage[T CommandPrintable](commands []T, programName string) {
 }
 
 // Generates a pretty-printed usage description of a Command
-func generateUsage(cmd CommandPrintable) string {
+func generateUsage(c CommandPrintable) string {
 	var sb strings.Builder
-	c := cmd.Base()
 
 	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf("%s %s - %s", programName, c.name, c.overview)
+	name := fmt.Sprintf("%s %s - %s", programName, c.getName(), c.getOverview())
 	sb.WriteString(name)
 
 	sb.WriteString("\n\nUsage:\n\t")
-	sb.WriteString(c.usage)
+	sb.WriteString(c.getUsage())
 
 	sb.WriteString("\n\nArguments:\n")
 
@@ -91,7 +89,7 @@ func generateUsage(cmd CommandPrintable) string {
 	w := new(tabwriter.Writer)
 	w.Init(tabbuf, 0, 8, 8, ' ', 0)
 
-	for _, arg := range c.args {
+	for _, arg := range c.getArgs() {
 		buf := &bytes.Buffer{}
 		buf.WriteString("<")
 		buf.WriteString(arg.name)

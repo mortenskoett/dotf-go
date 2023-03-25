@@ -9,7 +9,7 @@ import (
 )
 
 type installCommand struct {
-	base *CommandBase
+	*CommandBase
 }
 
 func NewInstallCommand() *installCommand {
@@ -30,7 +30,7 @@ func NewInstallCommand() *installCommand {
 	- The command performs the same operation in both cases. `
 
 	return &installCommand{
-		base: &CommandBase{
+		&CommandBase{
 			name:        name,
 			overview:    "Install file/dir from dotfiles into userspace.",
 			usage:       name + " <filepath> [--help]",
@@ -39,10 +39,6 @@ func NewInstallCommand() *installCommand {
 			description: desc,
 		},
 	}
-}
-
-func (c *installCommand) Base() *CommandBase {
-	return c.base
 }
 
 func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {

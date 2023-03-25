@@ -6,7 +6,7 @@ import (
 )
 
 type revertCommand struct {
-	base *CommandBase
+	*CommandBase
 }
 
 func NewRevertCommand() *revertCommand {
@@ -18,7 +18,7 @@ func NewRevertCommand() *revertCommand {
 	in userspace and will do the same thing. `
 
 	return &revertCommand{
-		base: &CommandBase{
+		&CommandBase{
 			name:        name,
 			overview:    "Revert file to its original location in userspace.",
 			usage:       name + " <filepath> [--help]",
@@ -27,10 +27,6 @@ func NewRevertCommand() *revertCommand {
 			description: desc,
 		},
 	}
-}
-
-func (c *revertCommand) Base() *CommandBase {
-	return c.base
 }
 
 func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {

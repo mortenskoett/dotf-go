@@ -6,7 +6,7 @@ import (
 )
 
 type addCommand struct {
-	base *CommandBase
+	*CommandBase
 }
 
 func NewAddCommand() *addCommand {
@@ -28,7 +28,7 @@ func NewAddCommand() *addCommand {
 	placed in the original location.`
 
 	return &addCommand{
-		base: &CommandBase{
+		&CommandBase{
 			name:        name,
 			overview:    overview,
 			description: description,
@@ -37,10 +37,6 @@ func NewAddCommand() *addCommand {
 			flags:       flags,
 		},
 	}
-}
-
-func (c *addCommand) Base() *CommandBase {
-	return c.base
 }
 
 func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {

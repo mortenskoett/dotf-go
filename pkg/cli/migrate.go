@@ -8,7 +8,7 @@ import (
 
 // Implements Command interface
 type migrateCommand struct {
-	base *CommandBase
+	*CommandBase
 }
 
 func NewMigrateCommand() *migrateCommand {
@@ -28,7 +28,7 @@ func NewMigrateCommand() *migrateCommand {
 	new location directory.`
 
 	return &migrateCommand{
-		base: &CommandBase{
+		&CommandBase{
 			name:     name,
 			overview: "Migrate userspace symlinks on dotfiles dir location change.",
 			usage:    name + " <dotfiles-dir> <userspace-dir> [--help]",
@@ -40,10 +40,6 @@ func NewMigrateCommand() *migrateCommand {
 			description: desc,
 		},
 	}
-}
-
-func (c *migrateCommand) Base() *CommandBase {
-	return c.base
 }
 
 func (c *migrateCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
