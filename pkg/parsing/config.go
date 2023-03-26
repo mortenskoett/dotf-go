@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/mortenskoett/dotf-go/pkg/logging"
+	"github.com/mortenskoett/dotf-go/pkg/parsing/flags"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
@@ -61,9 +62,13 @@ func NewConfiguration() *DotfConfiguration {
 // 1. If flags not nil then --config <path> flag is tried and used in case it is valid
 // 2. Then ${HOME}/.config/dotf/config is tried
 // 3. If both fails a specifc parse config error is returned
-func ParseDotfConfig(flags *CommandLineFlags) (*DotfConfiguration, error) {
-	if flags != nil { // Only try config pointed to by flags if any flags
-		if path, ok := flags.ValueFlags["config"]; ok {
+func ParseDotfConfig(clif *flags.FlagHolder) (*DotfConfiguration, error) {
+	if clif != nil { // Only try config pointed to by flags if any flags
+		if clif.Exists(flags.Config) {
+			path, err := clif.GetValue(flags.Config)
+			if err != nil {
+				return nil, err
+			}
 			config, err := readConfigFrom(path)
 			if err == nil {
 				return config, nil

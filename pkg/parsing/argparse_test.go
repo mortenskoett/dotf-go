@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
+	"github.com/mortenskoett/dotf-go/pkg/parsing/flags"
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
@@ -13,7 +14,7 @@ func TestCommandlineInputParsing(t *testing.T) {
 		what       string
 		args       []string
 		shouldfail bool
-		want       *parsing.CommandLineInput
+		want       *parsing.CommandlineInput
 	}
 
 	testcases := []testinput{
@@ -21,26 +22,20 @@ func TestCommandlineInputParsing(t *testing.T) {
 			what:       "command name is parsed ok",
 			args:       []string{"executable", "command"},
 			shouldfail: true, // ParseNoArgumentError
-			want: &parsing.CommandLineInput{
+			want: &parsing.CommandlineInput{
 				CommandName:    "command",
 				PositionalArgs: []string{},
-				Flags: &parsing.CommandLineFlags{
-					ValueFlags: map[string]string{},
-					BoolFlags:  map[string]bool{},
-				},
+				Flags:          flags.NewEmptyFlagHolder(),
 			},
 		},
 		{
 			what:       "full happy example ok",
 			args:       []string{"executable", "command", "arg1", "arg2", "--valueflag1", "value1", "--boolflag1"},
 			shouldfail: false,
-			want: &parsing.CommandLineInput{
+			want: &parsing.CommandlineInput{
 				CommandName:    "command",
 				PositionalArgs: []string{"arg1", "arg2"},
-				Flags: &parsing.CommandLineFlags{
-					ValueFlags: map[string]string{"valueflag1": "value1"},
-					BoolFlags:  map[string]bool{"boolflag1": true},
-				},
+				Flags:          flags.NewFlagHolder(map[string]bool{"boolflag1": true}, map[string]string{"valueflag1": "value1"}),
 			},
 		},
 		{
@@ -75,12 +70,13 @@ func TestCommandlineInputParsing(t *testing.T) {
 			}
 		}
 
-		diff := cmp.Diff(tc.want, actual)
+		diff := cmp.Diff(tc.want, actual, cmp.AllowUnexported(flags.FlagHolder{}))
 		if diff != "" {
 			t.Errorf("failed to parse command line args for test: %s\n%s", tc.what, diff)
 			test.PrintJSON("Actual", actual)
 			test.PrintJSON("Want", tc.want)
+		} else {
+			t.Logf("PASS %s", tc.what)
 		}
-		t.Logf("PASS %s", tc.what)
 	}
 }
