@@ -9,7 +9,7 @@ import (
 )
 
 type installCommand struct {
-	*CommandBase
+	*commandBase
 }
 
 func NewInstallCommand() *installCommand {
@@ -30,18 +30,18 @@ func NewInstallCommand() *installCommand {
 	- The command performs the same operation in both cases. `
 
 	return &installCommand{
-		&CommandBase{
+		&commandBase{
 			name:        name,
 			overview:    "Install file/dir from dotfiles into userspace.",
 			usage:       name + " <filepath> [--help]",
 			args:        []arg{{name: "file/dir", description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
-			flags:       map[string]flag{},
+			flags:       []flag{},
 			description: desc,
 		},
 	}
 }
 
-func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
+func (c *installCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	filepath := args.PositionalArgs[0]
 
 	err := terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, false)

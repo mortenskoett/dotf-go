@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
+	"github.com/mortenskoett/dotf-go/pkg/parsing/flags"
 )
 
 // Environment used to execute commands inside
@@ -27,13 +28,13 @@ type CommandRunnable func() error
 
 // Validate and load a command into the executor and return a runnable command or an error
 func (ce *CmdExecutor) Load(
-	cliargs *parsing.CommandLineInput, config *parsing.DotfConfiguration) (CommandRunnable, error) {
+	cliargs *parsing.CommandlineInput, config *parsing.DotfConfiguration) (CommandRunnable, error) {
 	cmd, err := parse(cliargs.CommandName, ce.commands)
 	if err != nil {
 		return nil, err
 	}
 
-	// Wrapped command to be called at call site
+	// Wrapped command.Run
 	return func() error {
 		err := validate(cmd, cliargs, config)
 		if err != nil {
@@ -53,8 +54,8 @@ func parse(cmdName string, commands map[string]Command) (Command, error) {
 }
 
 // Validates the command preemptively against the given cliargs and config
-func validate(c Command, args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if _, ok := args.Flags.BoolFlags["help"]; ok {
+func validate(c Command, args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
+	if args.Flags.Exists(flags.Help) {
 		return &CmdHelpFlagError{"help flag given", c}
 	}
 

@@ -2,11 +2,12 @@ package cli
 
 import (
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
+	"github.com/mortenskoett/dotf-go/pkg/parsing/flags"
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
 type addCommand struct {
-	*CommandBase
+	*commandBase
 }
 
 func NewAddCommand() *addCommand {
@@ -16,11 +17,9 @@ func NewAddCommand() *addCommand {
 	args := []arg{
 		{name: "file/dir", description: "Path to file or dir that should be replaced by symlink."},
 	}
-	flags := map[string]flag{
-		"select": {
-			name:        "--select",
-			description: "Interactively select into which distros the file should be added",
-		},
+	flags := []flag{
+		{name: flags.Select, description: "Interactively select into which distros the file should be added"},
+		{name: flags.Config, description: "bla bla bla"},
 	}
 	description := `
 	Will replace a file or directory in userspace with a symlink pointing to the dotfiles directory.
@@ -28,7 +27,7 @@ func NewAddCommand() *addCommand {
 	placed in the original location.`
 
 	return &addCommand{
-		&CommandBase{
+		&commandBase{
 			name:        name,
 			overview:    overview,
 			description: description,
@@ -39,8 +38,14 @@ func NewAddCommand() *addCommand {
 	}
 }
 
-func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
+func (c *addCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	filepath := args.PositionalArgs[0]
+
+	if args.Flags.Exists(flags.Select) {
+		// TODO: Implement tui selector
+	}
+
+	v, _ := args.Flags.GetValue(flags.Help)
 
 	err := terminalio.AddFileToDotfiles(filepath, conf.UserspaceDir, conf.DotfilesDir)
 	if err != nil {
