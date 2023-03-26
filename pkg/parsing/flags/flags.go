@@ -9,31 +9,33 @@ const (
 	Config valueFlag = "config"
 )
 
-// Bool flags are true/false flags
-type boolFlag string
-
-// Value flags contains a value
-type valueFlag string
-
+// The overall flag type
 type Flag interface {
 	str() string
 }
 
+// More specific flag type
 type ValueFlag interface {
-	str() string
-	get() string
+	Flag
+	get() // empty
 }
+
+// Bool flags are true/false flags
+type boolFlag string
 
 func (f boolFlag) str() string {
 	return string(f)
 }
 
+// Value flags contains a value
+type valueFlag string
+
 func (f valueFlag) str() string {
 	return string(f)
 }
 
-func (f valueFlag) get() string {
-	return "value"
+func (f valueFlag) get() {
+	// noop to restrict acces to GetValue method
 }
 
 // Contains flags with/without affixed value as parsed from commandline

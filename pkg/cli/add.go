@@ -19,7 +19,6 @@ func NewAddCommand() *addCommand {
 	}
 	flags := []flag{
 		{name: flags.Select, description: "Interactively select into which distros the file should be added"},
-		{name: flags.Config, description: "bla bla bla"},
 	}
 	description := `
 	Will replace a file or directory in userspace with a symlink pointing to the dotfiles directory.
@@ -44,8 +43,6 @@ func (c *addCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfi
 	if args.Flags.Exists(flags.Select) {
 		// TODO: Implement tui selector
 	}
-
-	v, _ := args.Flags.GetValue(flags.Help)
 
 	err := terminalio.AddFileToDotfiles(filepath, conf.UserspaceDir, conf.DotfilesDir)
 	if err != nil {
