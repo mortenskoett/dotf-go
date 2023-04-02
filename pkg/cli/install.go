@@ -31,17 +31,17 @@ func NewInstallCommand() *installCommand {
 
 	return &installCommand{
 		&CommandBase{
-			name:        name,
-			overview:    "Install file/dir from dotfiles into userspace.",
-			usage:       name + " <filepath> [--help]",
-			args:        []arg{{name: "file/dir", description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
-			flags:       map[string]flag{},
-			description: desc,
+			Name:        name,
+			Overview:    "Install file/dir from dotfiles into userspace.",
+			Usage:       name + " <filepath> [--help]",
+			Args:        []Arg{{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
+			Flags:       []*parsing.Flag{},
+			Description: desc,
 		},
 	}
 }
 
-func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
+func (c *installCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	filepath := args.PositionalArgs[0]
 
 	err := terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, false)
@@ -49,7 +49,7 @@ func (c *installCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfC
 		switch e := err.(type) {
 		case *terminalio.AbortOnOverwriteError:
 			logging.Warn(fmt.Sprintf("A file already exists in userspace: %s", logging.Color(e.Path, logging.Green)))
-			logging.Warn(fmt.Sprintf("%s needs to backup and delete this file to install the dotfile.", programName))
+			logging.Warn(fmt.Sprintf("It is required to backup and delete this file to install the dotfile."))
 
 			ok := confirmByUser("Do you want to continue?")
 			if ok {

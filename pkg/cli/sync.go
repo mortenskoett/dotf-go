@@ -17,21 +17,26 @@ func NewSyncCommand() *syncCommand {
 
 	return &syncCommand{
 		&CommandBase{
-			name:        name,
-			overview:    "Sync with remote using merge strategy.",
-			usage:       name + " <filepath> [--help]",
-			args:        []arg{},
-			flags:       map[string]flag{},
-			description: desc,
+			Name:        name,
+			Overview:    "Sync with remote using merge strategy.",
+			Usage:       name + " <filepath> [--help]",
+			Args:        []Arg{},
+			Flags:       []*parsing.Flag{},
+			Description: desc,
 		},
 	}
 }
 
-func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
+func (c *syncCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	absDotfilesDir, err := terminalio.GetAndValidateAbsolutePath(conf.SyncDir)
 	if err != nil {
 		return err
 	}
+
+	// if args.Flags.Exists(selectFlag) {
+	// 	// TODO: Implement tui selector
+		// // v, _ := args.Flags.GetValue(flags.ValueFlag())
+	// }
 
 	if err := terminalio.SyncLocalRemote(absDotfilesDir); err != nil {
 		return &GitError{Path: absDotfilesDir, Err: err}

@@ -6,6 +6,10 @@ const (
 	msgTryHelp string = "Try appending --help to see available commands."
 )
 
+type DotfHelpWantedError struct {
+	message string
+}
+
 type CmdHelpFlagError struct {
 	message string
 	Cmd     CommandPrintable
@@ -26,6 +30,10 @@ type CmdAlreadyRegisteredError struct {
 type GitError struct {
 	Path string
 	Err  error
+}
+
+func (e *DotfHelpWantedError) Error() string {
+	return fmt.Sprintf(e.message)
 }
 
 func (e *CmdUnknownCommand) Error() string {

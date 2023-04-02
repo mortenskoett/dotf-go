@@ -61,9 +61,16 @@ func NewConfiguration() *DotfConfiguration {
 // 1. If flags not nil then --config <path> flag is tried and used in case it is valid
 // 2. Then ${HOME}/.config/dotf/config is tried
 // 3. If both fails a specifc parse config error is returned
-func ParseDotfConfig(flags *CommandLineFlags) (*DotfConfiguration, error) {
-	if flags != nil { // Only try config pointed to by flags if any flags
-		if path, ok := flags.ValueFlags["config"]; ok {
+func ParseDotfConfig(clif *FlagHolder) (*DotfConfiguration, error) {
+	// TODO: Move to main to be able to print it
+	configFlag := NewFlag("config", "path to dotf configuration file")
+
+	if clif != nil { // Only try config pointed to by flags if any flags
+		if clif.Exists(configFlag) {
+			path, err := clif.GetValue(configFlag)
+			if err != nil {
+				return nil, err
+			}
 			config, err := readConfigFrom(path)
 			if err == nil {
 				return config, nil

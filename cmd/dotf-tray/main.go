@@ -48,12 +48,12 @@ func main() {
 	logging.WithColor(logging.Blue, logo)
 	logging.Info("Starting", programName, "service.", "Version:", programVersion)
 
-	flags, err := parsing.ParseFlags(os.Args[1:])
+	flags, err := parsing.ParseCommandlineFlags(os.Args[1:])
 	if err != nil {
 		handleError(err)
 	}
 
-	configuration, err = parsing.ParseDotfConfig(&flags)
+	configuration, err = parsing.ParseDotfConfig(flags)
 	if err != nil {
 		handleError(err)
 	}
@@ -178,7 +178,8 @@ func getLoadingIcon() []byte {
 
 func getErrorIcon() []byte {
 	// TODO: Change icon to white exclamation mark
-	bytes, err := resource.GetIcon(resource.PinkLowerCaseDragon)
+	bytes,
+	err := resource.GetIcon(resource.PinkLowerCaseDragon)
 	if err != nil {
 		logging.Fatal(err)
 	}

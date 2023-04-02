@@ -19,17 +19,17 @@ func NewRevertCommand() *revertCommand {
 
 	return &revertCommand{
 		&CommandBase{
-			name:        name,
-			overview:    "Revert file to its original location in userspace.",
-			usage:       name + " <filepath> [--help]",
-			args:        []arg{{name: "file/dir", description: "Path to file or dir to revert back to original location."}},
-			flags:       map[string]flag{},
-			description: desc,
+			Name:        name,
+			Overview:    "Revert file to its original location in userspace.",
+			Usage:       name + " <filepath> [--help]",
+			Args:        []Arg{{Name: "file/dir", Description: "Path to file or dir to revert back to original location."}},
+			Flags:       []*parsing.Flag{},
+			Description: desc,
 		},
 	}
 }
 
-func (c *revertCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
+func (c *revertCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	filepath := args.PositionalArgs[0]
 
 	err := terminalio.RevertDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir)

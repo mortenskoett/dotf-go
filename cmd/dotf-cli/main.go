@@ -29,24 +29,27 @@ func main() {
 
 func run(osargs []string, commands []cli.Command) {
 	// Parse cli args
-	cliargs, err := parsing.ParseCommandlineInput(os.Args)
+	cmdlinput, err := parsing.ParseCommandlineArgs(os.Args)
 	if err != nil {
-		handleParsingError(err, commands)
+		checkParsingError(err, commands)
 	}
 
 	// Parse dotf config
-	config, err := parsing.ParseDotfConfig(cliargs.Flags)
+	config, err := parsing.ParseDotfConfig(cmdlinput.Flags)
 	if err != nil {
-		handleParsingError(err, commands)
+		checkParsingError(err, commands)
 	}
 
 	// Create command env to manage command execution
 	executor := cli.NewCmdExecutor(commands)
 
 	// Create command
-	cmd, err := executor.Load(cliargs, config)
+	cmd, err := executor.Load(cmdlinput, config)
 	if err != nil {
 		switch err.(type) {
+		case *cli.DotfHelpWantedError:
+			cli.PrintFullHelp(commands, logo, programVersion)
+			logging.Ok(err)
 		case *cli.CmdUnknownCommand:
 			logging.Error(err)
 		default:
@@ -75,20 +78,13 @@ func run(osargs []string, commands []cli.Command) {
 }
 
 // Handles and terminates program according to error type
-func handleParsingError[T cli.CommandPrintable](err error, cmds []T) {
+func checkParsingError[T cli.CommandPrintable](err error, cmds []T) {
 	if err != nil {
 		switch err.(type) {
-		case *parsing.ParseHelpFlagError:
-			cli.PrintFullHelp(cmds, logo, programVersion)
-			logging.Ok(err)
 		case *parsing.ParseNoArgumentError:
 			cli.PrintBasicHelp(cmds, logo, programVersion)
 			logging.Ok(err)
-		case *parsing.ParseInvalidArgumentError:
-			logging.Warn(err)
 		case *parsing.ParseConfigurationError:
-			logging.Error(err)
-		case *parsing.ParseError:
 			logging.Error(err)
 		default:
 			logging.Error("unknown parser error:", err)
