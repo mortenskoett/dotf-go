@@ -5,7 +5,7 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
 )
 
-// Cli command flag
+// Cli command specific flags
 const (
 	flagSelect string = "select"
 )

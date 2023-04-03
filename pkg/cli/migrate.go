@@ -61,37 +61,3 @@ func (c *migrateCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfC
 	return nil
 }
 
-// func (c *migrateCommand) Name() string {
-// 	return c.name
-// }
-
-// func (c *migrateCommand) Overview() string {
-// 	return "Migrate userspace symlinks on dotfiles dir location change."
-// }
-
-// func (c *migrateCommand) RequiredArgs() []Arg {
-// 	return []Arg{
-// 		{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
-// 		{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
-// 	}
-// }
-
-// func (c *migrateCommand) Usage() string {
-// 	return fmt.Sprintf("%s %s <dotfiles-dir> <userspace-dir> [--help]", programName, c.name)
-// }
-
-// func (c *migrateCommand) Description() string {
-// 	return `
-// 	In case the dotfiles directory has been moved, here denoted by given 'dotfiles-dir', it is
-// 	necessary to migrate all symlinks pointing back to the previous location, to point to the new
-// 	location.
-// 	This command will iterate through all directories and files in given 'dotfiles-dir', and attempt
-// 	to locate a matching symlink in the same location relative to the given argument but in given
-// 	'userspace-dir'. The path 'userspace-dir' must be the root of the configured userspace, e.g.
-// 	'~/' aka the home folder. Note that currently if a symlink is not found in userspace, then it
-// 	will not be touched, however a warning will be shown.
-
-// 	It is expected that the dotfiles directory has already been moved and that 'dotfiles-dir' is the
-// 	new location directory.
-// 	`
-// }

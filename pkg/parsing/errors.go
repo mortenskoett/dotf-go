@@ -26,7 +26,6 @@ type ParseNoArgumentError struct {
 	message string
 }
 
-
 type ParseConfigurationError struct {
 	message string
 }
@@ -44,7 +43,7 @@ func (e *ParseNoArgumentError) Error() string {
 }
 
 func (e *ParseInvalidFlagError) Error() string {
-	return fmt.Sprintf(e.message)
+	return fmt.Sprintf("failed to parse command line flags: %s", e.message)
 }
 
 /* Other errors */

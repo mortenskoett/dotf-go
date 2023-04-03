@@ -18,11 +18,14 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
+// Defaults
 var (
 	userConfigDir, _ = os.UserConfigDir()
 	defaultConfigDir = userConfigDir + "/dotf/config"
+)
 
-	// Defines the configurations that are necessary for dotf to run
+// Configurations that are necessary for dotf to run
+var (
 	requiredConfigKeys = []string{
 		"syncdir",
 		"userspacedir",
@@ -40,7 +43,7 @@ type DotfConfiguration struct {
 }
 
 /* Creates an empty Configuration with default values. */
-func NewConfiguration() *DotfConfiguration {
+func newConfiguration() *DotfConfiguration {
 	return &DotfConfiguration{
 		SyncDir:          "N/A",
 		UserspaceDir:     "~/",
@@ -57,34 +60,34 @@ func NewConfiguration() *DotfConfiguration {
 * # is a comment
  */
 
-// Parses the required dotf configuration file.
-// 1. If flags not nil then --config <path> flag is tried and used in case it is valid
-// 2. Then ${HOME}/.config/dotf/config is tried
-// 3. If both fails a specifc parse config error is returned
-func ParseDotfConfig(clif *FlagHolder) (*DotfConfiguration, error) {
-	// TODO: Move to main to be able to print it
-	configFlag := NewFlag("config", "path to dotf configuration file")
-
-	if clif != nil { // Only try config pointed to by flags if any flags
-		if clif.Exists(configFlag) {
-			path, err := clif.GetValue(configFlag)
-			if err != nil {
-				return nil, err
-			}
-			config, err := readConfigFrom(path)
-			if err == nil {
-				return config, nil
-			}
-			logging.Warn(fmt.Errorf("failed to parse config path from flag: %w", err))
+// Parses the required dotf configuration file. Tries the given paths in order and otherwise
+// fallbacks to default config location.
+func ParseConfig(paths ...string) (*DotfConfiguration, error) {
+	for _, p := range paths {
+		if p == "" {
+			continue
 		}
-	}
 
+		config, err := readConfigFrom(p)
+		if err != nil {
+			logging.Warn(fmt.Errorf("failed to parse config on path: %w", err))
+			continue
+		}
+		return config, nil
+	}
+	defaultconfig, err := parseDefaultConfig()
+	if err != nil {
+		return nil, err
+	}
+	return defaultconfig, nil
+}
+
+func parseDefaultConfig() (*DotfConfiguration, error) {
 	config, err := readConfigFrom(defaultConfigDir)
 	if err == nil {
 		return config, nil
 	}
 	logging.Error(fmt.Errorf("failed to parse config at default location: %w", err))
-
 	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
 }
 
@@ -103,7 +106,7 @@ func readConfigFrom(path string) (*DotfConfiguration, error) {
 
 // readFromFile parses and returns a representation of a config file found at 'path'.
 func readFromFile(path string) (*DotfConfiguration, error) {
-	config := NewConfiguration()
+	config := newConfiguration()
 
 	_, err := os.Stat(path)
 	if err != nil {

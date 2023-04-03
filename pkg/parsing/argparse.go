@@ -54,20 +54,13 @@ func ParseCommandlineArgs(osargs []string) (*CommandlineInput, error) {
 	}
 
 	fmap, err := parseFlags(args)
-	if err != nil {
-		return nil, err
-	}
-
 	cliargs.Flags = NewFlagHolder(fmap)
-	return cliargs, nil
+	return cliargs, err
 }
 
 func ParseCommandlineFlags(args []string) (*FlagHolder, error) {
 	fmap, err := parseFlags(args)
-	if err != nil {
-		return nil, err
-	}
-	return NewFlagHolder(fmap), nil
+	return NewFlagHolder(fmap), err
 }
 
 // Parseflags parses value carrying flags and non-value carrying flags into a single map with value
@@ -78,11 +71,11 @@ func parseFlags(args []string) (map[string]string, error) {
 	pflags := make(map[string]string, len(args))
 
 	if len(args) < 1 {
-		return nil, &ParseNoArgumentError{"no flags given"}
+		return pflags, &ParseNoArgumentError{"no flags given"}
 	}
 
 	if !strings.HasPrefix(args[0], "--") {
-		return nil, &ParseNoArgumentError{"flag must be on the form --flagname"}
+		return pflags, &ParseNoArgumentError{"flag must be on the form --flagname"}
 	}
 
 	var value string
@@ -93,11 +86,12 @@ func parseFlags(args []string) (map[string]string, error) {
 		if value != "" {
 			// Error if current flag is not a value carrier
 			if !strings.HasPrefix(arg, "--") {
-				return nil, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' must be followed by a value, but was empty", arg)}
+				return pflags, &ParseInvalidFlagError{fmt.Sprintf("two values (%s, %s) in a row without flag is invalid", arg, value)}
+				// return pflags, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' must be followed by a value, but was empty", arg)}
 			}
 			flag := strings.TrimPrefix(arg, "--")
 			if exists(flag, pflags) {
-				return nil, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' was encountered twice", flag)}
+				return pflags, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' was encountered twice", flag)}
 			}
 
 			pflags[flag] = value
@@ -126,4 +120,3 @@ func exists[T comparable, K any](v T, m map[T]K) bool {
 	}
 	return false
 }
-

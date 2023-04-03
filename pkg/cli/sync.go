@@ -33,11 +33,6 @@ func (c *syncCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConf
 		return err
 	}
 
-	// if args.Flags.Exists(selectFlag) {
-	// 	// TODO: Implement tui selector
-		// // v, _ := args.Flags.GetValue(flags.ValueFlag())
-	// }
-
 	if err := terminalio.SyncLocalRemote(absDotfilesDir); err != nil {
 		return &GitError{Path: absDotfilesDir, Err: err}
 	}

@@ -44,18 +44,24 @@ var (
 	mLastUpdated  = systray.AddMenuItem("Last Updated: "+lastUpdated, "Time the dotfiles were last updated.")
 )
 
+// Global dotf-tray flags
+var (
+	flagConfig = parsing.NewFlag("config", "path to dotf configuration file")
+)
+
 func main() {
 	logging.WithColor(logging.Blue, logo)
 	logging.Info("Starting", programName, "service.", "Version:", programVersion)
 
 	flags, err := parsing.ParseCommandlineFlags(os.Args[1:])
 	if err != nil {
-		handleError(err)
+		handleParsingError(err)
 	}
 
-	configuration, err = parsing.ParseDotfConfig(flags)
+	configpath := flags.GetOrEmpty(flagConfig)
+	configuration, err = parsing.ParseConfig(configpath)
 	if err != nil {
-		handleError(err)
+		handleParsingError(err)
 	}
 
 	logging.Info("Configuration successfully read")
@@ -68,15 +74,15 @@ func main() {
 	logging.Info(programName, "service stopped")
 }
 
-func handleError(err error) {
+func handleParsingError(err error) {
 	if err != nil {
 		switch err.(type) {
 		case *parsing.ParseNoArgumentError:
-			logging.Info(err)
+			logging.Warn(err)
 		case *parsing.ParseConfigurationError:
 			logging.Fatal("failed to parse dotf config:", err)
 		default:
-			logging.Fatal("failed to parse command line flags:", err)
+			logging.Fatal("unknown parser error:", err)
 		}
 	}
 }
@@ -179,7 +185,7 @@ func getLoadingIcon() []byte {
 func getErrorIcon() []byte {
 	// TODO: Change icon to white exclamation mark
 	bytes,
-	err := resource.GetIcon(resource.PinkLowerCaseDragon)
+		err := resource.GetIcon(resource.PinkLowerCaseDragon)
 	if err != nil {
 		logging.Fatal(err)
 	}

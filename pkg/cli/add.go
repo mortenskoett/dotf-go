@@ -17,10 +17,7 @@ func NewAddCommand() *AddCommand {
 		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
 	}
 	flags := []*parsing.Flag{
-		{
-			Name:        flagSelect,
-			Description: "Interactively select individual distros into which the file should be added",
-		},
+		parsing.NewFlag(flagSelect, "Interactively select individual distros into which the file should be added"),
 	}
 	description := `
 	Will replace a file or directory in userspace with a symlink pointing to the dotfiles directory.

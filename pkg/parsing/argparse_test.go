@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
-	"github.com/mortenskoett/dotf-go/pkg/parsing/flags"
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
@@ -25,7 +24,7 @@ func TestCommandlineInputParsing(t *testing.T) {
 			want: &parsing.CommandlineInput{
 				CommandName:    "command",
 				PositionalArgs: []string{},
-				Flags:          flags.NewEmptyFlagHolder(),
+				Flags:          parsing.NewEmptyFlagHolder(),
 			},
 		},
 		{
@@ -35,11 +34,11 @@ func TestCommandlineInputParsing(t *testing.T) {
 			want: &parsing.CommandlineInput{
 				CommandName:    "command",
 				PositionalArgs: []string{"arg1", "arg2"},
-				Flags:          flags.NewFlagHolder(map[string]bool{"boolflag1": true}, map[string]string{"valueflag1": "value1"}),
+				Flags:          parsing.NewFlagHolder(map[string]string{"boolflag1": "", "valueflag1": "value1"}),
 			},
 		},
 		{
-			what: "double value no flag name fails",
+			what: "double value no flag name will fail",
 			args: []string{
 				"executable",
 				"command",
@@ -48,7 +47,11 @@ func TestCommandlineInputParsing(t *testing.T) {
 				"value1",
 			},
 			shouldfail: true,
-			want:       nil,
+			want: &parsing.CommandlineInput{
+				CommandName:    "command",
+				PositionalArgs: []string{},
+				Flags:          parsing.NewEmptyFlagHolder(),
+			},
 		},
 	}
 
@@ -70,7 +73,7 @@ func TestCommandlineInputParsing(t *testing.T) {
 			}
 		}
 
-		diff := cmp.Diff(tc.want, actual, cmp.AllowUnexported(flags.FlagHolder{}))
+		diff := cmp.Diff(tc.want, actual, cmp.AllowUnexported(parsing.FlagHolder{}))
 		if diff != "" {
 			t.Errorf("failed to parse command line args for test: %s\n%s", tc.what, diff)
 			test.PrintJSON("Actual", actual)
