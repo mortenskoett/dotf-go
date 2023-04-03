@@ -7,7 +7,7 @@
 
 # mskk various
 bin/
-.vscode/
+# .vscode/
 __debug*
 
 # Test binary, built with `go test -c`
