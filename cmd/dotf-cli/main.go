@@ -18,7 +18,7 @@ var programVersion = "" // Inserted by build process using -ldflags
 
 // Global dotf-cli flags
 var (
-	flagConfig = parsing.NewFlag("config", "path to dotf configuration file")
+	flagConfig = parsing.NewFlag("config", "Path to dotf configuration file")
 	flagHelp   = []*parsing.Flag{
 		parsing.NewFlag("help", "Display help"),
 		parsing.NewFlag("h", "Display help"),

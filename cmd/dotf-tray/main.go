@@ -46,7 +46,7 @@ var (
 
 // Global dotf-tray flags
 var (
-	flagConfig = parsing.NewFlag("config", "path to dotf configuration file")
+	flagConfig = parsing.NewFlag("config", "Path to dotf configuration file")
 )
 
 func main() {

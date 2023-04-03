@@ -26,42 +26,42 @@ type CommandPrintable interface {
 	getName() string           // Name of command
 	getOverview() string       // One-liner description of the command
 	getUsage() string          // How to use the command
-	getArgs() []Arg            // Required arguments
+	getArgs() []arg            // Required arguments
 	getFlags() []*parsing.Flag // Optional flags
 	getDescription() string    // Detailed description
 }
 
 // Defines an argument for a Command
-type Arg struct {
+type arg struct {
 	Name        string
 	Description string
 }
 
 // Implements the CommandPrintable interface. Contains everything needed by a command.
-type CommandBase struct {
+type commandBase struct {
 	Name        string
 	Overview    string
 	Usage       string
-	Args        []Arg
+	Args        []arg
 	Flags       []*parsing.Flag
 	Description string
 }
 
-func (c *CommandBase) getName() string {
+func (c *commandBase) getName() string {
 	return c.Name
 }
-func (c *CommandBase) getOverview() string {
+func (c *commandBase) getOverview() string {
 	return c.Overview
 }
-func (c *CommandBase) getUsage() string {
+func (c *commandBase) getUsage() string {
 	return c.Usage
 }
-func (c *CommandBase) getArgs() []Arg {
+func (c *commandBase) getArgs() []arg {
 	return c.Args
 }
-func (c *CommandBase) getFlags() []*parsing.Flag {
+func (c *commandBase) getFlags() []*parsing.Flag {
 	return c.Flags
 }
-func (c *CommandBase) getDescription() string {
+func (c *commandBase) getDescription() string {
 	return c.Description
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type syncCommand struct {
-	*CommandBase
+	*commandBase
 }
 
 func NewSyncCommand() *syncCommand {
@@ -16,11 +16,11 @@ func NewSyncCommand() *syncCommand {
 	pushes latest changes to remote.`
 
 	return &syncCommand{
-		&CommandBase{
+		&commandBase{
 			Name:        name,
 			Overview:    "Sync with remote using merge strategy.",
 			Usage:       name + " <filepath> [--help]",
-			Args:        []Arg{},
+			Args:        []arg{},
 			Flags:       []*parsing.Flag{},
 			Description: desc,
 		},

@@ -8,7 +8,7 @@ import (
 
 // Implements Command interface
 type migrateCommand struct {
-	*CommandBase
+	*commandBase
 }
 
 func NewMigrateCommand() *migrateCommand {
@@ -28,11 +28,11 @@ func NewMigrateCommand() *migrateCommand {
 	new location directory.`
 
 	return &migrateCommand{
-		&CommandBase{
+		&commandBase{
 			Name:     name,
 			Overview: "Migrate userspace symlinks on dotfiles dir location change.",
 			Usage:    name + " <dotfiles-dir> <userspace-dir> [--help]",
-			Args: []Arg{
+			Args: []arg{
 				{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
 				{Name: "userspace-dir", Description: "Specifies userspace root directory where symlinks will be updated."},
 			},

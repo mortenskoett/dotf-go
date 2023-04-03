@@ -6,7 +6,7 @@ import (
 )
 
 type revertCommand struct {
-	*CommandBase
+	*commandBase
 }
 
 func NewRevertCommand() *revertCommand {
@@ -18,11 +18,11 @@ func NewRevertCommand() *revertCommand {
 	in userspace and will do the same thing. `
 
 	return &revertCommand{
-		&CommandBase{
+		&commandBase{
 			Name:        name,
 			Overview:    "Revert file to its original location in userspace.",
 			Usage:       name + " <filepath> [--help]",
-			Args:        []Arg{{Name: "file/dir", Description: "Path to file or dir to revert back to original location."}},
+			Args:        []arg{{Name: "file/dir", Description: "Path to file or dir to revert back to original location."}},
 			Flags:       []*parsing.Flag{},
 			Description: desc,
 		},

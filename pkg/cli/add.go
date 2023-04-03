@@ -5,15 +5,15 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/terminalio"
 )
 
-type AddCommand struct {
-	*CommandBase
+type addCommand struct {
+	*commandBase
 }
 
-func NewAddCommand() *AddCommand {
+func NewAddCommand() *addCommand {
 	name := "add"
 	overview := "Move file/dir from userspace to dotfiles."
 	usage := name + " <filepath> [--help]"
-	args := []Arg{
+	args := []arg{
 		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
 	}
 	flags := []*parsing.Flag{
@@ -24,8 +24,8 @@ func NewAddCommand() *AddCommand {
 	The file or the directory and its contents is copied to the dotfiles directory and a symlink is
 	placed in the original location.`
 
-	return &AddCommand{
-		CommandBase: &CommandBase{
+	return &addCommand{
+		commandBase: &commandBase{
 			Name:        name,
 			Overview:    overview,
 			Usage:       usage,
@@ -36,7 +36,7 @@ func NewAddCommand() *AddCommand {
 	}
 }
 
-func (c *AddCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
+func (c *addCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	filepath := args.PositionalArgs[0]
 
 	for _, f := range c.Flags {
