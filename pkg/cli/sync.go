@@ -6,7 +6,7 @@ import (
 )
 
 type syncCommand struct {
-	*CommandBase
+	*commandBase
 }
 
 func NewSyncCommand() *syncCommand {
@@ -16,18 +16,18 @@ func NewSyncCommand() *syncCommand {
 	pushes latest changes to remote.`
 
 	return &syncCommand{
-		&CommandBase{
-			name:        name,
-			overview:    "Sync with remote using merge strategy.",
-			usage:       name + " <filepath> [--help]",
-			args:        []arg{},
-			flags:       map[string]flag{},
-			description: desc,
+		&commandBase{
+			Name:        name,
+			Overview:    "Sync with remote using merge strategy.",
+			Usage:       name + " <filepath> [--help]",
+			Args:        []arg{},
+			Flags:       []*parsing.Flag{},
+			Description: desc,
 		},
 	}
 }
 
-func (c *syncCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
+func (c *syncCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	absDotfilesDir, err := terminalio.GetAndValidateAbsolutePath(conf.SyncDir)
 	if err != nil {
 		return err

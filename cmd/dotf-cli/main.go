@@ -16,6 +16,15 @@ const logo = `    _       _     __             _  _
 
 var programVersion = "" // Inserted by build process using -ldflags
 
+// Global dotf-cli flags
+var (
+	flagConfig = parsing.NewFlag("config", "Path to dotf configuration file")
+	flagHelp   = []*parsing.Flag{
+		parsing.NewFlag("help", "Display help"),
+		parsing.NewFlag("h", "Display help"),
+	}
+)
+
 func main() {
 	commands := []cli.Command{
 		cli.NewAddCommand(),
@@ -29,13 +38,14 @@ func main() {
 
 func run(osargs []string, commands []cli.Command) {
 	// Parse cli args
-	cliargs, err := parsing.ParseCommandlineInput(os.Args)
+	cmdinput, err := parsing.ParseCommandlineArgs(os.Args)
 	if err != nil {
 		handleParsingError(err, commands)
 	}
 
 	// Parse dotf config
-	config, err := parsing.ParseDotfConfig(cliargs.Flags)
+	configpath := cmdinput.Flags.GetOrEmpty(flagConfig)
+	config, err := parsing.ParseConfig(configpath)
 	if err != nil {
 		handleParsingError(err, commands)
 	}
@@ -44,9 +54,12 @@ func run(osargs []string, commands []cli.Command) {
 	executor := cli.NewCmdExecutor(commands)
 
 	// Create command
-	cmd, err := executor.Load(cliargs, config)
+	cmd, err := executor.Load(cmdinput, config, flagHelp)
 	if err != nil {
 		switch err.(type) {
+		case *cli.DotfHelpWantedError:
+			cli.PrintFullHelp(commands, logo, programVersion)
+			logging.Ok(err)
 		case *cli.CmdUnknownCommand:
 			logging.Error(err)
 		default:
@@ -78,17 +91,12 @@ func run(osargs []string, commands []cli.Command) {
 func handleParsingError[T cli.CommandPrintable](err error, cmds []T) {
 	if err != nil {
 		switch err.(type) {
-		case *parsing.ParseHelpFlagError:
-			cli.PrintFullHelp(cmds, logo, programVersion)
-			logging.Ok(err)
 		case *parsing.ParseNoArgumentError:
 			cli.PrintBasicHelp(cmds, logo, programVersion)
 			logging.Ok(err)
-		case *parsing.ParseInvalidArgumentError:
-			logging.Warn(err)
 		case *parsing.ParseConfigurationError:
 			logging.Error(err)
-		case *parsing.ParseError:
+		case *parsing.ParseInvalidFlagError:
 			logging.Error(err)
 		default:
 			logging.Error("unknown parser error:", err)

@@ -1,6 +1,0 @@
-# Example of a config file
-
-RemoteURL = https://www.github.com/mortenskoett/doesntexist
-DotfilesDir = /Bla/MyDir/Test
-Homedir = /Bla/yadda/yeah
-UpdateIntervalSec = 120

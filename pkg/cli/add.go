@@ -6,7 +6,7 @@ import (
 )
 
 type addCommand struct {
-	*CommandBase
+	*commandBase
 }
 
 func NewAddCommand() *addCommand {
@@ -14,13 +14,10 @@ func NewAddCommand() *addCommand {
 	overview := "Move file/dir from userspace to dotfiles."
 	usage := name + " <filepath> [--help]"
 	args := []arg{
-		{name: "file/dir", description: "Path to file or dir that should be replaced by symlink."},
+		{Name: "file/dir", Description: "Path to file or dir that should be replaced by symlink."},
 	}
-	flags := map[string]flag{
-		"select": {
-			name:        "--select",
-			description: "Interactively select into which distros the file should be added",
-		},
+	flags := []*parsing.Flag{
+		parsing.NewFlag(flagSelect, "Interactively select individual distros into which the file should be added"),
 	}
 	description := `
 	Will replace a file or directory in userspace with a symlink pointing to the dotfiles directory.
@@ -28,19 +25,28 @@ func NewAddCommand() *addCommand {
 	placed in the original location.`
 
 	return &addCommand{
-		&CommandBase{
-			name:        name,
-			overview:    overview,
-			description: description,
-			usage:       usage,
-			args:        args,
-			flags:       flags,
+		commandBase: &commandBase{
+			Name:        name,
+			Overview:    overview,
+			Usage:       usage,
+			Args:        args,
+			Flags:       flags,
+			Description: description,
 		},
 	}
 }
 
-func (c *addCommand) Run(args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
+func (c *addCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	filepath := args.PositionalArgs[0]
+
+	for _, f := range c.Flags {
+		switch f.Name {
+		case flagSelect:
+			if args.Flags.Exists(f) {
+				// TODO: Implement tui selector for selectflag
+			}
+		}
+	}
 
 	err := terminalio.AddFileToDotfiles(filepath, conf.UserspaceDir, conf.DotfilesDir)
 	if err != nil {

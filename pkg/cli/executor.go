@@ -22,25 +22,66 @@ func NewCmdExecutor(cmds []Command) *CmdExecutor {
 	return &exec
 }
 
+// Register a command with the executor
+func (ce *CmdExecutor) register(cmd Command) error {
+	_, ok := ce.commands[cmd.getName()]
+	if ok {
+		return &CmdAlreadyRegisteredError{cmd.getName()}
+	}
+	ce.commands[cmd.getName()] = cmd
+	return nil
+}
+
 // A runnable command that can error at runtime
 type CommandRunnable func() error
 
 // Validate and load a command into the executor and return a runnable command or an error
 func (ce *CmdExecutor) Load(
-	cliargs *parsing.CommandLineInput, config *parsing.DotfConfiguration) (CommandRunnable, error) {
-	cmd, err := parse(cliargs.CommandName, ce.commands)
+	cmdin *parsing.CommandlineInput,
+	conf *parsing.DotfConfiguration,
+	helpFlags []*parsing.Flag) (CommandRunnable, error) {
+
+	if ok := userhelp(cmdin.CommandName, helpFlags); ok {
+		return nil, &DotfHelpWantedError{"showing full help."}
+	}
+
+	cmd, err := parse(cmdin.CommandName, ce.commands)
 	if err != nil {
 		return nil, err
 	}
 
-	// Wrapped command to be called at call site
+	// Wrapped cmd.Run scoped specific to each command
 	return func() error {
-		err := validate(cmd, cliargs, config)
-		if err != nil {
-			return err
+		// Check for command help flag
+		if cmdin.Flags.OneOf(helpFlags) {
+			return &CmdHelpFlagError{"help flag given", cmd}
 		}
-		return cmd.Run(cliargs, config)
+
+		// Check for number of required positional args
+		if len(cmdin.PositionalArgs) != len(cmd.getArgs()) {
+			return &CmdArgumentError{fmt.Sprintf(
+				"%d arguments given, but %d required.", len(cmdin.PositionalArgs), len(cmd.getArgs()))}
+		}
+
+		return cmd.Run(cmdin, conf)
 	}, nil
+}
+
+// Checks whether user has inputted a request for help instead of a command name
+func userhelp(cmdName string, helpFlags []*parsing.Flag) bool {
+	isHelpFlagGiven := func() bool {
+		for _, h := range helpFlags {
+			if cmdName == "--"+h.Name { // checks w/o cmd e.g. dotf --help
+				return true
+			}
+		}
+		return false
+	}
+
+	if cmdName == "" || isHelpFlagGiven() {
+		return true
+	}
+	return false
 }
 
 // Parses a Command name to a CommandFunc or errors
@@ -50,27 +91,4 @@ func parse(cmdName string, commands map[string]Command) (Command, error) {
 		return cmd, nil
 	}
 	return nil, &CmdUnknownCommand{fmt.Sprintf("%s command does not exist.", cmdName)}
-}
-
-// Validates the command preemptively against the given cliargs and config
-func validate(c Command, args *parsing.CommandLineInput, conf *parsing.DotfConfiguration) error {
-	if _, ok := args.Flags.BoolFlags["help"]; ok {
-		return &CmdHelpFlagError{"help flag given", c}
-	}
-
-	if len(args.PositionalArgs) != len(c.getArgs()) {
-		return &CmdArgumentError{fmt.Sprintf(
-			"%d arguments given, but %d required.", len(args.PositionalArgs), len(c.getArgs()))}
-	}
-	return nil
-}
-
-// Register a command with the executor
-func (ce *CmdExecutor) register(cmd Command) error {
-	_, ok := ce.commands[cmd.getName()]
-	if ok {
-		return &CmdAlreadyRegisteredError{cmd.getName()}
-	}
-	ce.commands[cmd.getName()] = cmd
-	return nil
 }

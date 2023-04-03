@@ -11,6 +11,11 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 )
 
+const (
+	// Program name used for printing
+	programName string = "dotf-cli"
+)
+
 func PrintBasicHelp[T CommandPrintable](commands []T, logo, version string) {
 	printHeader(logo, version)
 	printUsage(commands, programName)
@@ -55,7 +60,7 @@ func printUsage[T CommandPrintable](commands []T, programName string) {
 		if len(c.getArgs()) > 0 {
 			for _, arg := range c.getArgs() {
 				buf.WriteString("<")
-				buf.WriteString(arg.name)
+				buf.WriteString(arg.Name)
 				buf.WriteString(">")
 				buf.WriteString("  ")
 			}
@@ -92,9 +97,9 @@ func generateUsage(c CommandPrintable) string {
 	for _, arg := range c.getArgs() {
 		buf := &bytes.Buffer{}
 		buf.WriteString("<")
-		buf.WriteString(arg.name)
+		buf.WriteString(arg.Name)
 		buf.WriteString(">")
-		str := fmt.Sprintf("\t%s\t%s", buf, arg.description)
+		str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
 		fmt.Fprintln(w, str)
 	}
 
