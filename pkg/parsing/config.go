@@ -67,7 +67,7 @@ type DotfConfiguration struct {
 }
 
 /* Creates a default sensible Configuration with default values. */
-func newSensibleConfiguration() *DotfConfiguration {
+func NewSensibleConfiguration() *DotfConfiguration {
 	return &DotfConfiguration{
 		ConfigMetadata: &ConfigMetadata{
 			ConfigLocation: defaultConfigDir,
@@ -80,7 +80,7 @@ func newSensibleConfiguration() *DotfConfiguration {
 	}
 }
 
-func newEmptyConfiguration() *DotfConfiguration {
+func NewEmptyConfiguration() *DotfConfiguration {
 	return &DotfConfiguration{
 		ConfigMetadata: &ConfigMetadata{
 			ConfigLocation: "",
@@ -93,40 +93,8 @@ func newEmptyConfiguration() *DotfConfiguration {
 	}
 }
 
-/*
-* Config format:
-* key0 = value0
-* key1 = value1
-* # is a comment
- */
-
-// Parses the required dotf configuration file. Tries the given paths in order or otherwise
-// fallbacks to default config location.
-func ParseConfig(paths ...string) (*DotfConfiguration, error) {
-	for _, p := range paths {
-		if p == "" {
-			continue
-		}
-
-		config, err := readConfig(p)
-		if err != nil {
-			logging.Warn(fmt.Errorf("failed to parse config on path: %w", err))
-			continue
-		}
-		return config, nil
-	}
-
-	config, err := readConfig(defaultConfigDir)
-	if err != nil {
-		return newEmptyConfiguration(), &ParseDefaultConfigurationError{fmt.Sprintf("%v", err)}
-	}
-	return config, nil
-}
-
-// Create a configuration as a map, used for easier serializaiton of configuration
-func NewConfigMap() (map[string]string, error) {
-	conf := newSensibleConfiguration()
-
+// Convert a configuration as a map, used for easier serialization of configuration
+func ConvertConfigToMap(conf *DotfConfiguration) (map[string]string, error) {
 	// from conf -> json
 	b, err := json.Marshal(conf)
 	if err != nil {
@@ -164,6 +132,48 @@ func NewConfigMap() (map[string]string, error) {
 	return strmap, nil
 }
 
+// Creates a slice of bytes that can be serialized to a file as a valid config
+func CreateSerializableConfig(keyvals map[string]string) []byte {
+	var builder strings.Builder
+	for k, v := range keyvals {
+		builder.WriteString(k)
+		builder.WriteString(" = ")
+		builder.WriteString(v)
+		builder.WriteString("\n")
+	}
+	return []byte(builder.String())
+}
+
+/*
+* Config format:
+* key0 = value0
+* key1 = value1
+* # is a comment
+ */
+
+// Parses the required dotf configuration file. Tries the given paths in order or otherwise
+// fallbacks to default config location.
+func ParseConfig(paths ...string) (*DotfConfiguration, error) {
+	for _, p := range paths {
+		if p == "" {
+			continue
+		}
+
+		config, err := readConfig(p)
+		if err != nil {
+			logging.Warn(fmt.Errorf("failed to parse config on path: %w", err))
+			continue
+		}
+		return config, nil
+	}
+
+	config, err := readConfig(defaultConfigDir)
+	if err != nil {
+		return NewEmptyConfiguration(), &ParseDefaultConfigurationError{fmt.Sprintf("%v", err)}
+	}
+	return config, nil
+}
+
 func readConfig(path string) (*DotfConfiguration, error) {
 	absPath, err := terminalio.GetAndValidateAbsolutePath(path)
 	if err != nil {
@@ -179,7 +189,7 @@ func readConfig(path string) (*DotfConfiguration, error) {
 
 // parseConfig parses and returns a representation of a config file found at 'path'.
 func parseConfig(path string) (*DotfConfiguration, error) {
-	config := newEmptyConfiguration()
+	config := NewEmptyConfiguration()
 
 	_, err := os.Stat(path)
 	if err != nil {
