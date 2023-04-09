@@ -30,8 +30,9 @@ func main() {
 		cli.NewAddCommand(),
 		cli.NewInstallCommand(),
 		cli.NewMigrateCommand(),
-		cli.NewSyncCommand(),
 		cli.NewRevertCommand(),
+		cli.NewSyncCommand(),
+		cli.NewSetupCommand(),
 	}
 	run(os.Args, commands)
 }
@@ -63,7 +64,7 @@ func run(osargs []string, commands []cli.Command) {
 		case *cli.CmdUnknownCommand:
 			logging.Error(err)
 		default:
-			logging.Error("unknown executor load error:", err)
+			logging.Error("undefined executor load error:", err)
 		}
 		os.Exit(1)
 	}
@@ -80,7 +81,7 @@ func run(osargs []string, commands []cli.Command) {
 		case *cli.GitError:
 			logging.Error(err)
 		default:
-			logging.Error("unknown command run error:", err)
+			logging.Error("undefined command run error:", err)
 		}
 		os.Exit(1)
 	}
@@ -89,7 +90,15 @@ func run(osargs []string, commands []cli.Command) {
 
 // Handles and terminates program according to error type
 func handleParsingError[T cli.CommandPrintable](err error, cmds []T) {
+	// Warn but continue with errors
 	if err != nil {
+		switch err.(type) {
+		case *parsing.ParseDefaultConfigurationError:
+			logging.Warn(err)
+			return
+		}
+
+		// Hard errors
 		switch err.(type) {
 		case *parsing.ParseNoArgumentError:
 			cli.PrintBasicHelp(cmds, logo, programVersion)
@@ -99,7 +108,7 @@ func handleParsingError[T cli.CommandPrintable](err error, cmds []T) {
 		case *parsing.ParseInvalidFlagError:
 			logging.Error(err)
 		default:
-			logging.Error("unknown parser error:", err)
+			logging.Error("undefined parser error:", err)
 		}
 		os.Exit(1)
 	}
