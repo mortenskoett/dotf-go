@@ -24,13 +24,14 @@ var (
 	defaultConfigDir = userConfigDir + "/dotf/config"
 )
 
-// Configurations that are necessary for dotf to run
+// Configurations that will be parsed from the config file
 var (
-	requiredConfigKeys = []string{
-		"syncdir",
-		"userspacedir",
-		"dotfilesdir",
-		"syncinterval",
+	requiredConfigKeys = map[string]bool{
+		"userspacedir": true,
+		"dotfilesdir":  true,
+		"syncdir":      true,
+		"autosync":     false,
+		"syncinterval": true,
 	}
 )
 
@@ -148,11 +149,13 @@ func containsString(sl []string, str string) bool {
 }
 
 // Validate key values for required missing keys
-func checkRequiredKeys(keysToValues map[string]string, requiredConfigKeys []string) error {
-	for _, key := range requiredConfigKeys {
-		_, exists := keysToValues[key]
-		if !exists {
-			return &ConfigKeyNotFoundError{fmt.Sprint("missing key in configuration: ", key)}
+func checkRequiredKeys(keysToValues map[string]string, requiredConfigKeys map[string]bool) error {
+	for key, isRequired := range requiredConfigKeys {
+		if isRequired {
+			_, exists := keysToValues[key]
+			if !exists {
+				return &ConfigKeyNotFoundError{fmt.Sprint("missing key in configuration: ", key)}
+			}
 		}
 	}
 	return nil
