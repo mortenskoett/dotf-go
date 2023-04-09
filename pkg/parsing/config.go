@@ -34,17 +34,31 @@ var (
 )
 
 // Configurations that will be parsed from the config file
+const (
+	userspacedir     = "userspacedir"
+	dotfilesdir      = "dotfilesdir"
+	syncdir          = "syncdir"
+	autosync         = "autosync"
+	syncintervalsecs = "syncintervalsecs"
+)
+
+// Configurations that are required for dotf to function properly
 var (
 	requiredConfigKeys = map[string]bool{
-		"userspacedir":     true,
-		"dotfilesdir":      true,
-		"syncdir":          true,
-		"autosync":         false,
-		"syncintervalsecs": true,
+		userspacedir:     true,
+		dotfilesdir:      true,
+		syncdir:          true,
+		autosync:         false,
+		syncintervalsecs: true,
 	}
 )
 
+type ConfigMetadata struct {
+	ConfigLocation string `json:"configlocation"` // Not configurable
+}
+
 type DotfConfiguration struct {
+	*ConfigMetadata
 	UserspaceDir     string `json:"userspacedir"`     // Userspace dir is the root of the file hierachy dotf replicates
 	DotfilesDir      string `json:"dotfilesdir"`      // Directory inside SyncDir containing same structure as userspace dir
 	SyncDir          string `json:"syncdir"`          // Git initialized directory that dotf should sync with remote
@@ -53,11 +67,27 @@ type DotfConfiguration struct {
 }
 
 /* Creates a default sensible Configuration with default values. */
-func newConfiguration() *DotfConfiguration {
+func newSensibleConfiguration() *DotfConfiguration {
 	return &DotfConfiguration{
+		ConfigMetadata: &ConfigMetadata{
+			ConfigLocation: defaultConfigDir,
+		},
 		UserspaceDir:     homedir,
 		DotfilesDir:      defaultDotfilesDir,
 		SyncDir:          defaultSyncDir,
+		AutoSync:         false,
+		SyncIntervalSecs: 3600,
+	}
+}
+
+func newEmptyConfiguration() *DotfConfiguration {
+	return &DotfConfiguration{
+		ConfigMetadata: &ConfigMetadata{
+			ConfigLocation: "",
+		},
+		UserspaceDir:     "",
+		DotfilesDir:      "",
+		SyncDir:          "",
 		AutoSync:         false,
 		SyncIntervalSecs: 3600,
 	}
@@ -70,7 +100,7 @@ func newConfiguration() *DotfConfiguration {
 * # is a comment
  */
 
-// Parses the required dotf configuration file. Tries the given paths in order and otherwise
+// Parses the required dotf configuration file. Tries the given paths in order or otherwise
 // fallbacks to default config location.
 func ParseConfig(paths ...string) (*DotfConfiguration, error) {
 	for _, p := range paths {
@@ -85,18 +115,17 @@ func ParseConfig(paths ...string) (*DotfConfiguration, error) {
 		}
 		return config, nil
 	}
-	defaultconfig, err := parseDefaultConfig()
+
+	config, err := readConfig(defaultConfigDir)
 	if err != nil {
-		return nil, err
+		return newEmptyConfiguration(), &ParseDefaultConfigurationError{fmt.Sprintf("%v", err)}
 	}
-	return defaultconfig, nil
+	return config, nil
 }
 
-// Create a configuration as a map
+// Create a configuration as a map, used for easier serializaiton of configuration
 func NewConfigMap() (map[string]string, error) {
-	conf := newConfiguration()
-
-	// Need to convert struct to map for easier serializaiton
+	conf := newSensibleConfiguration()
 
 	// from conf -> json
 	b, err := json.Marshal(conf)
@@ -135,14 +164,6 @@ func NewConfigMap() (map[string]string, error) {
 	return strmap, nil
 }
 
-func parseDefaultConfig() (*DotfConfiguration, error) {
-	config, err := readConfig(defaultConfigDir)
-	if err == nil {
-		return config, nil
-	}
-	return nil, &ParseConfigurationError{fmt.Sprintf("failed to parse config at default location: %s", defaultConfigDir)}
-}
-
 func readConfig(path string) (*DotfConfiguration, error) {
 	absPath, err := terminalio.GetAndValidateAbsolutePath(path)
 	if err != nil {
@@ -158,7 +179,7 @@ func readConfig(path string) (*DotfConfiguration, error) {
 
 // parseConfig parses and returns a representation of a config file found at 'path'.
 func parseConfig(path string) (*DotfConfiguration, error) {
-	config := newConfiguration()
+	config := newEmptyConfiguration()
 
 	_, err := os.Stat(path)
 	if err != nil {
@@ -177,7 +198,7 @@ func parseConfig(path string) (*DotfConfiguration, error) {
 		return nil, err
 	}
 
-	if err = checkRequiredKeys(keysToValues, requiredConfigKeys); err != nil {
+	if err = validateKeys(keysToValues, requiredConfigKeys); err != nil {
 		return config, err
 	}
 
@@ -186,6 +207,7 @@ func parseConfig(path string) (*DotfConfiguration, error) {
 		return config, err
 	}
 
+	config.ConfigLocation = path
 	return config, nil
 }
 
@@ -199,8 +221,8 @@ func containsString(sl []string, str string) bool {
 	return false
 }
 
-// Validate key values for required missing keys
-func checkRequiredKeys(keysToValues map[string]string, requiredConfigKeys map[string]bool) error {
+// Validate key values for required but potentially missing keys
+func validateKeys(keysToValues map[string]string, requiredConfigKeys map[string]bool) error {
 	for key, isRequired := range requiredConfigKeys {
 		if isRequired {
 			_, exists := keysToValues[key]
@@ -261,19 +283,19 @@ func buildConfiguration(config *DotfConfiguration, keyToValue map[string]string)
 	// TODO: Could be made into json parsing in a smart go way
 	for k, v := range keyToValue {
 		switch k {
-		case "dotfilesdir":
+		case dotfilesdir:
 			config.DotfilesDir = expandTilde(v)
-		case "userspacedir":
+		case userspacedir:
 			config.UserspaceDir = expandTilde(v)
-		case "syncdir":
+		case syncdir:
 			config.SyncDir = expandTilde(v)
-		case "syncinterval":
+		case syncintervalsecs:
 			if v_num, err := strconv.Atoi(v); err != nil {
 				return err
 			} else {
 				config.SyncIntervalSecs = v_num
 			}
-		case "autosync":
+		case autosync:
 			config.AutoSync = true
 		default:
 			return &MalformedConfigurationError{fmt.Sprint(
