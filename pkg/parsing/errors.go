@@ -35,7 +35,7 @@ type ParseInvalidFlagError struct {
 }
 
 func (e *ParseConfigurationError) Error() string {
-	return fmt.Sprintf(e.message)
+	return fmt.Sprintf("no valid dotf configuration found: %v", e.message)
 }
 
 func (e *ParseNoArgumentError) Error() string {

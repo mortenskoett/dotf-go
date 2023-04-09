@@ -88,8 +88,7 @@ func parseDefaultConfig() (*DotfConfiguration, error) {
 	if err == nil {
 		return config, nil
 	}
-	logging.Error(fmt.Errorf("failed to parse config at default location: %w", err))
-	return nil, &ParseConfigurationError{"no valid dotf configuration found."}
+	return nil, &ParseConfigurationError{fmt.Sprintf("failed to parse config at default location: %s", defaultConfigDir)}
 }
 
 func readConfigFrom(path string) (*DotfConfiguration, error) {
