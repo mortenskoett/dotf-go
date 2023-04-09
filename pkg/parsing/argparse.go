@@ -5,40 +5,23 @@ import (
 	"strings"
 )
 
-type CommandLineFlags struct {
-	ValueFlags map[string]string // --name john or --name=john
-	BoolFlags  map[string]bool   // --verbose
+type CommandlineInput struct {
+	CommandName    string      // Name of the given command
+	PositionalArgs []string    // Command args in order
+	Flags          *FlagHolder // Flags parsed from commandline
 }
 
-type CommandLineInput struct {
-	CommandName    string   // Name of the given command
-	PositionalArgs []string // command args in order
-	Flags          *CommandLineFlags
-}
-
-func NewCommandLineInput() *CommandLineInput {
-	return &CommandLineInput{
+func newCommandlineInput() *CommandlineInput {
+	return &CommandlineInput{
 		CommandName:    "",
 		PositionalArgs: []string{},
-		Flags: &CommandLineFlags{
-			ValueFlags: map[string]string{},
-			BoolFlags:  map[string]bool{},
-		},
+		Flags:          &FlagHolder{},
 	}
 }
 
-func NewCommandLineFlags() CommandLineFlags {
-	return CommandLineFlags{
-		ValueFlags: map[string]string{},
-		BoolFlags:  map[string]bool{},
-	}
-}
-
-// ParseCommandlineInput parses commands, positional arguments and flags into the CommandLineInput
+// ParseCommandlineArgs parses commands, positional arguments and flags into the CommandLineInput
 // type.
-func ParseCommandlineInput(osargs []string) (*CommandLineInput, error) {
-	cliargs := NewCommandLineInput()
-
+func ParseCommandlineArgs(osargs []string) (*CommandlineInput, error) {
 	// Remove exec name
 	args := osargs[1:]
 
@@ -46,16 +29,9 @@ func ParseCommandlineInput(osargs []string) (*CommandLineInput, error) {
 	if len(args) < 1 {
 		return nil, &ParseNoArgumentError{"no command arg given"}
 	}
-	cliargs.CommandName = args[0]
 
-	// Handle dotf help flag
-	if cliargs.CommandName == "" ||
-		cliargs.CommandName == "-h" ||
-		cliargs.CommandName == "--h" ||
-		cliargs.CommandName == "help" ||
-		cliargs.CommandName == "--help" {
-		return nil, &ParseHelpFlagError{"showing full help."}
-	}
+	cliargs := newCommandlineInput()
+	cliargs.CommandName = args[0]
 
 	// Remove command
 	args = args[1:]
@@ -73,47 +49,52 @@ func ParseCommandlineInput(osargs []string) (*CommandLineInput, error) {
 
 	if len(args) < 1 {
 		// No flags to parse
+		cliargs.Flags = NewEmptyFlagHolder()
 		return cliargs, nil
 	}
 
-	// Parse flags
-	clflags, err := ParseFlags(args)
-	if err != nil {
-		return nil, err
-	}
-
-	cliargs.Flags = &clflags
-
-	return cliargs, nil
+	fmap, err := parseFlags(args)
+	cliargs.Flags = NewFlagHolder(fmap)
+	return cliargs, err
 }
 
-// Parseflags parses value carrying flags and non-value carrying flags into the CommandLineFlags
-// type. Regardless of the success of the function a fully functional if empty CommandlineFlags is
-// returned.
-func ParseFlags(args []string) (CommandLineFlags, error) {
-	clflags := NewCommandLineFlags()
+func ParseCommandlineFlags(args []string) (*FlagHolder, error) {
+	fmap, err := parseFlags(args)
+	return NewFlagHolder(fmap), err
+}
+
+// Parseflags parses value carrying flags and non-value carrying flags into a single map with value
+// carrying flags pointing to a string and boolean based flags pointing to an empty string.
+// The given slice of args is iterated over in a decrementing fashion in order to handle values
+// before flagnames. This makes it possible to assume less about flags at this step.
+func parseFlags(args []string) (map[string]string, error) {
+	pflags := make(map[string]string, len(args))
 
 	if len(args) < 1 {
-		return clflags, &ParseNoArgumentError{"no flags given"}
+		return pflags, &ParseNoArgumentError{"no flags given"}
 	}
 
 	if !strings.HasPrefix(args[0], "--") {
-		return clflags, &ParseNoArgumentError{"flag must be on the form --flagname"}
+		return pflags, &ParseNoArgumentError{"flag must be on the form --flagname"}
 	}
 
 	var value string
-	for i := len(args) - 1; i >= 0; i-- {
+	for i := len(args) - 1; i >= 0; i-- { // The decr loop makes sure we handle values before flags
 		arg := args[i]
 
 		// Value for current arg (flag) is set
 		if value != "" {
 			// Error if current flag is not a value carrier
 			if !strings.HasPrefix(arg, "--") {
-				return clflags, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' must be followed by a value, but was empty", arg)}
+				return pflags, &ParseInvalidFlagError{fmt.Sprintf("two values (%s, %s) in a row without flag is invalid", arg, value)}
+				// return pflags, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' must be followed by a value, but was empty", arg)}
+			}
+			flag := strings.TrimPrefix(arg, "--")
+			if exists(flag, pflags) {
+				return pflags, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' was encountered twice", flag)}
 			}
 
-			flag := strings.TrimPrefix(arg, "--")
-			clflags.ValueFlags[flag] = value
+			pflags[flag] = value
 			value = ""
 			continue
 		}
@@ -121,13 +102,21 @@ func ParseFlags(args []string) (CommandLineFlags, error) {
 		// Arg is a boolFlag
 		if strings.HasPrefix(arg, "--") {
 			flag := strings.TrimPrefix(arg, "--")
-			clflags.BoolFlags[flag] = true
+			if exists(flag, pflags) {
+				return pflags, &ParseInvalidFlagError{fmt.Sprintf("given flag '%s' was encountered twice", flag)}
+			}
+			pflags[flag] = ""
 			continue
 		}
-
 		// Arg is the value of flag parsed in the next iteration
 		value = arg
 	}
+	return pflags, nil
+}
 
-	return clflags, nil
+func exists[T comparable, K any](v T, m map[T]K) bool {
+	if _, ok := m[v]; ok {
+		return ok
+	}
+	return false
 }

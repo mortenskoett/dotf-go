@@ -2,157 +2,66 @@
 package cli
 
 import (
-	"bufio"
-	"bytes"
-	"fmt"
-	"os"
-	"sort"
-	"strings"
-	"text/tabwriter"
-
-	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
 )
 
-// Command is a definition of a main operation taking a number of cli args to work on
+// Cli command specific flags
+const (
+	flagSelect string = "select"
+)
+
+// Command is the dotf type denoting a runnable and printable command
 type Command interface {
-	ProgName() string    // Name of program used for pretty-printing.
-	CmdName() string     // Name of command.
-	Overview() string    // Oneliner description of the command.
-	Arguments() []arg    // Needed arguments to use the command.
-	Usage() string       // How to use the command.
-	Description() string // Detailed description.
-	Run(args *parsing.CommandLineInput,
-		conf *parsing.DotfConfiguration) error // Run the Command using the given args and config
+	CommandPrintable
+	CommandRunner
 }
 
-// commandFunc defines a function that given the name of the executable will return a valid Command.
-type commandFunc = func(execName string) Command
-
-// Contains the CLI Commands that are currently implemented in dotf. The commands are returned as
-// functions so the name of the application can be given as param. The program name is used for
-// pretty-printing.
-var commands = map[string]commandFunc{
-	"add":     func(pname string) Command { return NewAddCommand(pname, "add") },
-	"install": func(pname string) Command { return NewInstallCommand(pname, "install") },
-	"migrate": func(pname string) Command { return NewMigrateCommand(pname, "migrate") },
-	"sync":    func(pname string) Command { return NewSyncCommand(pname, "sync") },
-	"revert":  func(pname string) Command { return NewRevertCommand(pname, "revert") },
+// CommandRunner is a interface to commands that can be run
+type CommandRunner interface {
+	Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error // Run the Command using the given args and config
 }
 
-// Contains basic program info for each Command
-type commandBase struct {
-	programName string
-	commandName string
+// CommandPrintable is used where the command base info is only needed
+type CommandPrintable interface {
+	getName() string           // Name of command
+	getOverview() string       // One-liner description of the command
+	getUsage() string          // How to use the command
+	getArgs() []arg            // Required arguments
+	getFlags() []*parsing.Flag // Optional flags
+	getDescription() string    // Detailed description
 }
 
-// Defines a required argument for a specific Command
+// Defines an argument for a Command
 type arg struct {
 	Name        string
 	Description string
 }
 
-// Get copy of all available Commands. Obs: Ineffective implementation.
-func GetAvailableCommands(programName string) []Command {
-	cmds := make([]Command, 0, len(commands))
-	for _, cmdf := range commands {
-		cmds = append(cmds, cmdf(programName))
-	}
-	sort.SliceStable(cmds, func(i, j int) bool {
-		return cmds[i].CmdName() < cmds[j].CmdName()
-	})
-	return cmds
+// Implements the CommandPrintable interface. Contains everything needed by a command.
+type commandBase struct {
+	Name        string
+	Overview    string
+	Usage       string
+	Args        []arg
+	Flags       []*parsing.Flag
+	Description string
 }
 
-// Creates a Command or errors
-func CreateCommand(programName, cmdName string) (Command, error) {
-	cmdfunc, err := parseToCommandFunc(cmdName)
-	if err != nil {
-		return nil, &CmdUnknownCommand{fmt.Sprintf("try --help for available commands: %s", err)}
-	}
-	return cmdfunc(programName), nil
+func (c *commandBase) getName() string {
+	return c.Name
 }
-
-// Parses a Command name to a CommandFunc or errors
-func parseToCommandFunc(cmdName string) (commandFunc, error) {
-	cmdfunc, ok := commands[cmdName]
-	if ok {
-		return cmdfunc, nil
-	}
-	return nil, &CmdArgumentError{fmt.Sprintf("%s command does not exist.", cmdName)}
+func (c *commandBase) getOverview() string {
+	return c.Overview
 }
-
-// Validates and handles the given Arguments generally against the Command and errors if not valid
-func validateCliArguments(args *parsing.CommandLineInput, c Command) error {
-	if _, ok := args.Flags.BoolFlags["help"]; ok {
-		fmt.Println(generateUsage(c))
-		fmt.Print("Description:")
-		fmt.Println(c.Description())
-		return &CmdHelpFlagError{"help flag given"}
-	}
-
-	// TODO: Change name to RequiredArguments
-	if len(args.PositionalArgs) != len(c.Arguments()) {
-		fmt.Println(generateUsage(c))
-		return &CmdArgumentError{fmt.Sprintf(
-			"%d arguments given, but %d required. Try adding --help.", len(args.PositionalArgs), len(c.Arguments()))}
-	}
-
-	return nil
+func (c *commandBase) getUsage() string {
+	return c.Usage
 }
-
-// Generates a pretty-printed usage description of a Command
-func generateUsage(c Command) string {
-	var sb strings.Builder
-
-	sb.WriteString("Name:\n\t")
-	name := fmt.Sprintf("%s %s - %s", c.ProgName(), c.CmdName(), c.Overview())
-	sb.WriteString(name)
-
-	sb.WriteString("\n\nUsage:\n\t")
-	sb.WriteString(c.Usage())
-
-	sb.WriteString("\n\nArguments:\n")
-
-	// Print arguments.
-	tabbuf := &bytes.Buffer{}
-	w := new(tabwriter.Writer)
-	w.Init(tabbuf, 0, 8, 8, ' ', 0)
-
-	for _, arg := range c.Arguments() {
-		buf := &bytes.Buffer{}
-		buf.WriteString("<")
-		buf.WriteString(arg.Name)
-		buf.WriteString(">")
-		str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
-		fmt.Fprintln(w, str)
-	}
-
-	w.Flush()
-	sb.WriteString(tabbuf.String())
-
-	return sb.String()
+func (c *commandBase) getArgs() []arg {
+	return c.Args
 }
-
-// Displays a yes/no prompt to the user and returns the boolean value of the answer
-func confirmByUser(question string) bool {
-	reader := bufio.NewReader(os.Stdin)
-
-	for {
-		logging.Warn(question)
-		logging.Input("[Y(yes)/n(no)]")
-
-		resp, err := reader.ReadString('\n')
-		if err != nil {
-			logging.Fatal(err)
-		}
-
-		resp = strings.TrimSpace(resp)
-
-		if resp == "Y" || resp == "yes" {
-			return true
-		} else if resp == "n" || resp == "no" {
-			return false
-		}
-	}
+func (c *commandBase) getFlags() []*parsing.Flag {
+	return c.Flags
+}
+func (c *commandBase) getDescription() string {
+	return c.Description
 }

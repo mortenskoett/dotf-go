@@ -13,7 +13,7 @@ func TestCommandlineInputParsing(t *testing.T) {
 		what       string
 		args       []string
 		shouldfail bool
-		want       *parsing.CommandLineInput
+		want       *parsing.CommandlineInput
 	}
 
 	testcases := []testinput{
@@ -21,30 +21,24 @@ func TestCommandlineInputParsing(t *testing.T) {
 			what:       "command name is parsed ok",
 			args:       []string{"executable", "command"},
 			shouldfail: true, // ParseNoArgumentError
-			want: &parsing.CommandLineInput{
+			want: &parsing.CommandlineInput{
 				CommandName:    "command",
 				PositionalArgs: []string{},
-				Flags: &parsing.CommandLineFlags{
-					ValueFlags: map[string]string{},
-					BoolFlags:  map[string]bool{},
-				},
+				Flags:          parsing.NewEmptyFlagHolder(),
 			},
 		},
 		{
 			what:       "full happy example ok",
 			args:       []string{"executable", "command", "arg1", "arg2", "--valueflag1", "value1", "--boolflag1"},
 			shouldfail: false,
-			want: &parsing.CommandLineInput{
+			want: &parsing.CommandlineInput{
 				CommandName:    "command",
 				PositionalArgs: []string{"arg1", "arg2"},
-				Flags: &parsing.CommandLineFlags{
-					ValueFlags: map[string]string{"valueflag1": "value1"},
-					BoolFlags:  map[string]bool{"boolflag1": true},
-				},
+				Flags:          parsing.NewFlagHolder(map[string]string{"boolflag1": "", "valueflag1": "value1"}),
 			},
 		},
 		{
-			what: "double value no flag name fails",
+			what: "double value no flag name will fail",
 			args: []string{
 				"executable",
 				"command",
@@ -53,12 +47,16 @@ func TestCommandlineInputParsing(t *testing.T) {
 				"value1",
 			},
 			shouldfail: true,
-			want:       nil,
+			want: &parsing.CommandlineInput{
+				CommandName:    "command",
+				PositionalArgs: []string{},
+				Flags:          parsing.NewEmptyFlagHolder(),
+			},
 		},
 	}
 
 	for _, tc := range testcases {
-		actual, err := parsing.ParseCommandlineInput(tc.args)
+		actual, err := parsing.ParseCommandlineArgs(tc.args)
 		if err != nil && !tc.shouldfail {
 			t.Fatal("FAIL", err)
 		}
@@ -75,12 +73,13 @@ func TestCommandlineInputParsing(t *testing.T) {
 			}
 		}
 
-		diff := cmp.Diff(tc.want, actual)
+		diff := cmp.Diff(tc.want, actual, cmp.AllowUnexported(parsing.FlagHolder{}))
 		if diff != "" {
 			t.Errorf("failed to parse command line args for test: %s\n%s", tc.what, diff)
 			test.PrintJSON("Actual", actual)
 			test.PrintJSON("Want", tc.want)
+		} else {
+			t.Logf("PASS %s", tc.what)
 		}
-		t.Logf("PASS %s", tc.what)
 	}
 }

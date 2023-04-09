@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch dotf-cli",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/dotf-cli",
+            "args": ["add", "doesntexistblabla", "--select"]
+        },
+        {
+            "name": "Launch dotf-tray",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/dotf-tray"
+            //"args": ["--bla", "doesntexist", "--someboolean"]
+        }
+    ]
+}
