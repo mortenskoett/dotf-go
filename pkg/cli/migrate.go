@@ -30,7 +30,7 @@ func NewMigrateCommand() *migrateCommand {
 	return &migrateCommand{
 		&commandBase{
 			Name:     name,
-			Overview: "Migrate userspace symlinks on dotfiles dir location change.",
+			Overview: "Migrate userspace symlinks on changed dotfiles location.",
 			Usage:    name + " <dotfiles-dir> <userspace-dir> [--help]",
 			Args: []arg{
 				{Name: "dotfiles-dir", Description: "Path specifies a re-located dotfiles directory."},
