@@ -26,6 +26,10 @@ type ParseNoArgumentError struct {
 	message string
 }
 
+type ParseDefaultConfigurationError struct {
+	message string
+}
+
 type ParseConfigurationError struct {
 	message string
 }
@@ -34,12 +38,16 @@ type ParseInvalidFlagError struct {
 	message string
 }
 
-func (e *ParseConfigurationError) Error() string {
+func (e *ParseNoArgumentError) Error() string {
 	return fmt.Sprintf(e.message)
 }
 
-func (e *ParseNoArgumentError) Error() string {
-	return fmt.Sprintf(e.message)
+func (e *ParseDefaultConfigurationError) Error() string {
+	return fmt.Sprintf("invalid configuration found at default location: %v", e.message)
+}
+
+func (e *ParseConfigurationError) Error() string {
+	return fmt.Sprintf("failed to parse configuration file: %v", e.message)
 }
 
 func (e *ParseInvalidFlagError) Error() string {

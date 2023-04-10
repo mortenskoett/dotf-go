@@ -19,7 +19,7 @@ func NewSyncCommand() *syncCommand {
 		&commandBase{
 			Name:        name,
 			Overview:    "Sync with remote using merge strategy.",
-			Usage:       name + " <filepath> [--help]",
+			Usage:       name + " [--help]",
 			Args:        []arg{},
 			Flags:       []*parsing.Flag{},
 			Description: desc,

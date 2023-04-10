@@ -21,6 +21,20 @@ type fileLocationInfo struct {
 	dotfilesFile   string // Absolute path to file in dotfiles
 }
 
+// Returns the absolute path from current directory or an error if the created path does not point
+// to a file.
+func GetAndValidateAbsolutePath(path string) (string, error) {
+	path, err := getAbsolutePath(path)
+	if err != nil {
+		return "", err
+	}
+	if exists, _ := checkIfFileExists(path); !exists {
+		return "", &FileNotFoundError{path}
+	}
+
+	return path, nil
+}
+
 // Returns a struct containing information about the given 'file' and its relations to dotfiles and
 // to userspace. This is useful because often there are commands that should produce equal results
 // both when called from dotfiles and userspace.
@@ -71,18 +85,22 @@ func getFileLocationInfo(file, userspaceDir, dotfilesDir string) (info *fileLoca
 	return
 }
 
-// Returns the absolute path from current directory or an error if the created path does not point
-// to a file.
-func GetAndValidateAbsolutePath(path string) (string, error) {
-	path, err := getAbsolutePath(path)
+// Writes bytes to disk overwriting file if on already exists.
+func writeFile(fpath string, contents []byte) error {
+	absPath, err := getAbsolutePath(fpath)
 	if err != nil {
-		return "", err
-	}
-	if exists, _ := checkIfFileExists(path); !exists {
-		return "", &FileNotFoundError{path}
+		return err
 	}
 
-	return path, nil
+	err = os.WriteFile(absPath, contents, 0644)
+	if err != nil {
+		return err
+	}
+
+	if exists, _ := checkIfFileExists(absPath); !exists {
+		return &FileNotFoundError{absPath}
+	}
+	return nil
 }
 
 // Backs up file and returns the path to the backed up version of the file. The given path should be

@@ -6,7 +6,7 @@ const (
 	msgTryHelp string = "Try appending --help to see available commands."
 )
 
-type DotfHelpWantedError struct {
+type CmdHelpWantedError struct {
 	message string
 }
 
@@ -32,7 +32,7 @@ type GitError struct {
 	Err  error
 }
 
-func (e *DotfHelpWantedError) Error() string {
+func (e *CmdHelpWantedError) Error() string {
 	return fmt.Sprintf(e.message)
 }
 
