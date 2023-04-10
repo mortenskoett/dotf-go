@@ -7,11 +7,45 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
-/* Functional tests implemented in terms of other terminalio function calls used for assertion. This
-* requires that all units are tested individually. */
+/*
+* Functional/integration tests implemented in terms of other terminalio function calls used for
+* assertion. This requires that all units are tested individually.
+ */
+
+func Test_WriteFile(t *testing.T) {
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+	file := env.UserspaceDir.AddTempFile()
+	expected := []byte("hello my friend\n")
+
+	t.Run("File is written and backed up successfully", func(t *testing.T) {
+		err := WriteFile(file.Path, expected, true)
+		if err != nil {
+			t.Errorf("failed running code under test: %v", err)
+		}
+
+		// Assert on file contents
+		actual, err := os.ReadFile(file.Path)
+		if err != nil {
+			t.Errorf("failed reading actual file: %v", err)
+		}
+
+		diff := cmp.Diff(actual, expected)
+		if diff != "" {
+			t.Errorf("have: %+v\nwant: %+v\ndiff: %+v", actual, expected, diff)
+		}
+
+		// Assert on backup
+		_, err = os.ReadFile("/tmp/dotf-go/backups/" + file.Path)
+		if err != nil {
+			t.Errorf("failed reading backup: %v", err)
+		}
+	})
+}
 
 func Test_InstallDotfile_creates_existing_symlink_in_userspace_with_overwrite(t *testing.T) {
 	env := test.NewTestEnvironment()

@@ -6,8 +6,34 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
+
+func Test_writeFile(t *testing.T) {
+	// Setup
+	env := test.NewTestEnvironment()
+	defer env.Cleanup()
+	file := env.UserspaceDir.AddTempFile()
+	expected := []byte("hello my friend\n")
+
+	t.Run("File is written successfully", func(t *testing.T) {
+		err := writeFile(file.Path, expected)
+		if err != nil {
+			t.Errorf("failed running code under test: %v", err)
+		}
+
+		actual, err := os.ReadFile(file.Path)
+		if err != nil {
+			t.Errorf("failed reading actual: %v", err)
+		}
+
+		diff := cmp.Diff(actual, expected)
+		if diff != "" {
+			t.Errorf("have: %+v\nwant: %+v\ndiff: %+v", actual, expected, diff)
+		}
+	})
+}
 
 func Test_backupFile_saves_file(t *testing.T) {
 	env := test.NewTestEnvironment()
@@ -325,7 +351,7 @@ func Test_getFileLocationInfo_returns_correct_fileinfo(t *testing.T) {
 
 	cases := []testcase{
 		{
-			file:   file1.Path,
+			file: file1.Path,
 			want: fileLocationInfo{
 				insideDotfiles: true,
 				fileOrgPath:    file1.Path,
@@ -334,7 +360,7 @@ func Test_getFileLocationInfo_returns_correct_fileinfo(t *testing.T) {
 			},
 		},
 		{
-			file:   file2.Path,
+			file: file2.Path,
 			want: fileLocationInfo{
 				insideDotfiles: false,
 				fileOrgPath:    file2.Path,

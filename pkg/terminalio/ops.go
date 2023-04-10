@@ -1,5 +1,36 @@
 package terminalio
 
+// Writes a file to disk
+func WriteFile(fpath string, contents []byte, overwrite bool) error {
+	exists, err := checkIfFileExists(fpath)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		if !overwrite {
+			return &AbortOnOverwriteError{fpath}
+		}
+
+		// Backup file before deleting it
+		if _, err = backupFile(fpath); err != nil {
+			return err
+		}
+
+		// Delete file
+		if err := deleteFile(fpath); err != nil {
+			return err
+		}
+	}
+
+	// Create new file
+	if err := writeFile(fpath, contents); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Installs a dotfile into its relative equal location in userspace by way of a symlink in userspace
 // pointing back to the file in dotfiles. The userspace file will be removed if 'overwrite' is true.
 // Both the filepath inside dotfile as well as in userspace can be given.
@@ -156,4 +187,3 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 
 	return nil
 }
-
