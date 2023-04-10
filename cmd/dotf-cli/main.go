@@ -58,7 +58,7 @@ func run(osargs []string, commands []cli.Command) {
 	cmd, err := executor.Load(cmdinput, config, flagHelp)
 	if err != nil {
 		switch err.(type) {
-		case *cli.DotfHelpWantedError:
+		case *cli.CmdHelpWantedError:
 			cli.PrintFullHelp(commands, logo, programVersion)
 			logging.Ok(err)
 		case *cli.CmdUnknownCommand:

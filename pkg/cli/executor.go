@@ -42,7 +42,7 @@ func (ce *CmdExecutor) Load(
 	helpFlags []*parsing.Flag) (CommandRunnable, error) {
 
 	if ok := userhelp(cmdin.CommandName, helpFlags); ok {
-		return nil, &DotfHelpWantedError{"showing full help."}
+		return nil, &CmdHelpWantedError{"showing full help."}
 	}
 
 	cmd, err := parse(cmdin.CommandName, ce.commands)
