@@ -54,7 +54,7 @@ var (
 )
 
 type ConfigMetadata struct {
-	ConfigLocation string `json:"configlocation"` // Not configurable
+	Filepath string `json:"filepath"` // Not configurable
 }
 
 type DotfConfiguration struct {
@@ -66,11 +66,11 @@ type DotfConfiguration struct {
 	SyncIntervalSecs int    `json:"syncintervalsecs"` // Interval between syncing with remote using dotf-tray application
 }
 
-/* Creates a default sensible Configuration with default values. */
+/* Creates a basic sensible Configuration with default values. */
 func NewSensibleConfiguration() *DotfConfiguration {
 	return &DotfConfiguration{
 		ConfigMetadata: &ConfigMetadata{
-			ConfigLocation: defaultConfigDir,
+			Filepath: defaultConfigDir,
 		},
 		UserspaceDir:     homedir,
 		DotfilesDir:      defaultDotfilesDir,
@@ -83,7 +83,7 @@ func NewSensibleConfiguration() *DotfConfiguration {
 func NewEmptyConfiguration() *DotfConfiguration {
 	return &DotfConfiguration{
 		ConfigMetadata: &ConfigMetadata{
-			ConfigLocation: "",
+			Filepath: "",
 		},
 		UserspaceDir:     "",
 		DotfilesDir:      "",
@@ -93,7 +93,7 @@ func NewEmptyConfiguration() *DotfConfiguration {
 	}
 }
 
-// Convert a configuration as a map, used for easier serialization of configuration
+// Convert a configuration to a map, used for easier serialization of configuration
 func ConvertConfigToMap(conf *DotfConfiguration) (map[string]string, error) {
 	// from conf -> json
 	b, err := json.Marshal(conf)
@@ -106,6 +106,13 @@ func ConvertConfigToMap(conf *DotfConfiguration) (map[string]string, error) {
 	err = json.Unmarshal(b, &confmap)
 	if err != nil {
 		return nil, err
+	}
+
+	// use only required keys
+	for k := range confmap {
+		if _, ok := requiredConfigKeys[k]; !ok {
+			delete(confmap, k)
+		}
 	}
 
 	// validate
@@ -132,7 +139,7 @@ func ConvertConfigToMap(conf *DotfConfiguration) (map[string]string, error) {
 	return strmap, nil
 }
 
-// Creates a slice of bytes that can be serialized to a file as a valid config
+// Creates a slice of bytes that can be serialized to a file and used as a valid config
 func CreateSerializableConfig(keyvals map[string]string) []byte {
 	var builder strings.Builder
 	for k, v := range keyvals {
@@ -217,7 +224,7 @@ func parseConfig(path string) (*DotfConfiguration, error) {
 		return config, err
 	}
 
-	config.ConfigLocation = path
+	config.Filepath = path
 	return config, nil
 }
 
