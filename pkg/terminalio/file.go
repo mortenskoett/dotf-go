@@ -35,6 +35,54 @@ func GetAndValidateAbsolutePath(path string) (string, error) {
 	return path, nil
 }
 
+// Finds the common path suffix of two given paths. E.g. 'a/b/c' and 'd/b/c' gives '/b/c'. The path
+// must be using '/' as delimiter. The function splits on the delimeter not something smart like
+// char matching.
+func FindCommonSuffix(path1, path2 string) (string, error) {
+	d := "/" // delimiter
+
+	createsuffix := func(longest, shortest []string) string {
+		// Loops through varying slice lengths:
+		// 0|1|2|3|5|6
+		// 0|1|2
+		// Indexes: short: 2,1,0 and long: 2+diff, 1+diff, 0+diff
+
+		var sharedpath string
+		var diff = len(longest) - len(shortest)
+
+		for si := len(shortest) - 1; si >= 0; si-- {
+			li := si + diff
+			if longest[li] != shortest[si] {
+				break
+			}
+			// Construct path backwards (right through left)
+			sharedpath = d + longest[li] + sharedpath
+		}
+		return sharedpath
+	}
+
+	if path1 == "" || path2 == "" {
+		return "", fmt.Errorf("given path was empty string")
+	}
+
+	if !strings.Contains(path1, d) || !strings.Contains(path2, d) {
+		return "", fmt.Errorf("given input is not using %v as delimeter", d)
+	}
+
+	if path1 == path2 {
+		return path1, nil
+	}
+
+	p1 := strings.Split(path1, d)
+	p2 := strings.Split(path2, d)
+
+	if len(p1) >= len(p2) {
+		return createsuffix(p1, p2), nil
+	} else {
+		return createsuffix(p2, p1), nil
+	}
+}
+
 // Returns a struct containing information about the given 'file' and its relations to dotfiles and
 // to userspace. This is useful because often there are commands that should produce equal results
 // both when called from dotfiles and userspace.
@@ -85,7 +133,7 @@ func getFileLocationInfo(file, userspaceDir, dotfilesDir string) (info *fileLoca
 	return
 }
 
-// Writes bytes to disk overwriting file if on already exists.
+// Writes bytes to disk, overwriting file if it already exists.
 func writeFile(fpath string, contents []byte) error {
 	absPath, err := getAbsolutePath(fpath)
 	if err != nil {
