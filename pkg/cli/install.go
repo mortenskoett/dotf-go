@@ -27,9 +27,9 @@ func NewInstallCommand() *installCommand {
 
 	- If a file from inside dotfiles is given this file will be used as installation source.
 	- If a file from userspace is given this file will be used as target.
-	- If '--external' is given, it is possible to use a source from a different dotfiles directory
-	in which the pointed to file will be copied into the current dotfiles directory and installed
-	into current userspace.`
+	- If the '--distro' flag is given, it is possible to install a dotfile from a different
+	distribution. The file is copied into the dotfiles directory of the current distribution using
+	the relative path from the source dotfiles directory and installed into userspace .`
 
 	return &installCommand{
 		&commandBase{
@@ -38,7 +38,7 @@ func NewInstallCommand() *installCommand {
 			Usage:    name + " <filepath> [--help]",
 			Args:     []arg{{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
 			Flags: []*parsing.Flag{
-				parsing.NewFlag(flagExternal, "Install a dotfile from another dotfiles directory."),
+				parsing.NewValueFlag(flagDistro, "Install a dotfile from a different distribution.", "distro-name"),
 			},
 			Description: desc,
 		},
@@ -51,12 +51,12 @@ func (c *installCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfC
 	// // Handle flags
 	for _, f := range c.Flags {
 		switch f.Name {
-		case flagExternal:
+		case flagDistro:
 			if args.Flags.Exists(f) {
-				logging.Info(flagExternal, "flag given")
+				logging.Info(flagDistro, "flag given")
+				// TODO:
 				// copy the given path into the right place in dotfiles
 				// then proceed installation as usual
-				return nil
 			}
 		}
 	}
