@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 
+	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
 )
 
@@ -55,6 +56,24 @@ func (ce *CmdExecutor) Load(
 		// Check for command help flag
 		if cmdin.Flags.OneOf(helpFlags) {
 			return &CmdHelpFlagError{"help flag given", cmd}
+		}
+
+		// Check if invalid flags for current command
+		var invalidflags string
+		for _, cmdflag := range cmd.getFlags() {
+			for _, cliflag := range cmdin.Flags.GetAllKeys() {
+				if cmdflag.Name != cliflag {
+					invalidflags += cliflag
+					invalidflags += ", "
+				}
+
+			}
+		}
+
+		if invalidflags != "" {
+			// Remove last space+comma
+			invalidflags = invalidflags[:len(invalidflags)-2]
+			logging.Warn("Invalid flags given for", cmd.getName(), "command:", invalidflags)
 		}
 
 		// Check for number of required positional args

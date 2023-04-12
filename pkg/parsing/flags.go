@@ -6,12 +6,22 @@ import "fmt"
 type Flag struct {
 	Name        string
 	Description string
+	ValueName   string
 }
 
 func NewFlag(name, description string) *Flag {
 	return &Flag{
 		Name:        name,
 		Description: description,
+		ValueName:   "",
+	}
+}
+
+func NewValueFlag(name, description, valuename string) *Flag {
+	return &Flag{
+		Name:        name,
+		Description: description,
+		ValueName:   valuename,
 	}
 }
 
@@ -51,6 +61,20 @@ func (cl *FlagHolder) Exists(f *Flag) bool {
 		return ok
 	}
 	return false
+}
+
+// Get number of contained flags
+func (cl *FlagHolder) GetAllKeys() []string {
+	var fs []string
+	for k := range cl.flags {
+		fs = append(fs, k)
+	}
+	return fs
+}
+
+// Get number of contained flags
+func (cl *FlagHolder) Count() int {
+	return len(cl.flags)
 }
 
 // Get value of a value carrying flag or empty string
