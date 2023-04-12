@@ -21,8 +21,8 @@ import (
 
 // Env vars
 var (
-	homedir, _   = os.UserHomeDir()
 	configdir, _ = os.UserConfigDir()
+	homedir, _   = os.UserHomeDir()
 	hostname, _  = os.Hostname()
 )
 
@@ -30,12 +30,14 @@ var (
 var (
 	defaultConfigDir   = configdir + "/dotf/config"
 	defaultSyncDir     = homedir + "/dotfiles"
-	defaultDotfilesDir = defaultSyncDir + "/distros/" + hostname
+	defaultDistrosDir  = defaultSyncDir + "/distros"
+	defaultDotfilesDir = defaultSyncDir + "/" + hostname
 )
 
 // Configurations that will be parsed from the config file
 const (
 	userspacedir     = "userspacedir"
+	distrosdir       = "distrosdir"
 	dotfilesdir      = "dotfilesdir"
 	syncdir          = "syncdir"
 	autosync         = "autosync"
@@ -46,6 +48,7 @@ const (
 var (
 	requiredConfigKeys = map[string]bool{
 		userspacedir:     true,
+		distrosdir:       false,
 		dotfilesdir:      true,
 		syncdir:          true,
 		autosync:         false,
@@ -60,6 +63,7 @@ type ConfigMetadata struct {
 type DotfConfiguration struct {
 	*ConfigMetadata
 	UserspaceDir     string `json:"userspacedir"`     // Userspace dir is the root of the file hierachy dotf replicates
+	DistrosDir       string `json:"distrosdir"`       // Directory where the different distributions are placed
 	DotfilesDir      string `json:"dotfilesdir"`      // Directory inside SyncDir containing same structure as userspace dir
 	SyncDir          string `json:"syncdir"`          // Git initialized directory that dotf should sync with remote
 	AutoSync         bool   `json:"autosync"`         // If dotf-tray should autosync at given interval
@@ -69,10 +73,9 @@ type DotfConfiguration struct {
 /* Creates a basic sensible Configuration with default values. */
 func NewSensibleConfiguration() *DotfConfiguration {
 	return &DotfConfiguration{
-		ConfigMetadata: &ConfigMetadata{
-			Filepath: defaultConfigDir,
-		},
+		ConfigMetadata:   &ConfigMetadata{Filepath: defaultConfigDir},
 		UserspaceDir:     homedir,
+		DistrosDir:       defaultDistrosDir,
 		DotfilesDir:      defaultDotfilesDir,
 		SyncDir:          defaultSyncDir,
 		AutoSync:         false,
@@ -82,10 +85,9 @@ func NewSensibleConfiguration() *DotfConfiguration {
 
 func NewEmptyConfiguration() *DotfConfiguration {
 	return &DotfConfiguration{
-		ConfigMetadata: &ConfigMetadata{
-			Filepath: "",
-		},
+		ConfigMetadata:   &ConfigMetadata{Filepath: ""},
 		UserspaceDir:     "",
+		DistrosDir:       "",
 		DotfilesDir:      "",
 		SyncDir:          "",
 		AutoSync:         false,
@@ -297,13 +299,14 @@ func sanitize(r rune) bool {
 }
 
 func buildConfiguration(config *DotfConfiguration, keyToValue map[string]string) error {
-	// TODO: Could be made into json parsing in a smart go way
 	for k, v := range keyToValue {
 		switch k {
-		case dotfilesdir:
-			config.DotfilesDir = expandTilde(v)
 		case userspacedir:
 			config.UserspaceDir = expandTilde(v)
+		case distrosdir:
+			config.DistrosDir = expandTilde(v)
+		case dotfilesdir:
+			config.DotfilesDir = expandTilde(v)
 		case syncdir:
 			config.SyncDir = expandTilde(v)
 		case syncintervalsecs:
