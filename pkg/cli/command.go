@@ -7,8 +7,7 @@ import (
 
 // Cli command specific flags
 const (
-	flagSelect string = "select"
-	flagDistro string = "distro"
+	flagExternal string = "external"
 )
 
 // Command is the dotf type denoting a runnable and printable command

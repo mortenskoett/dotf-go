@@ -7,7 +7,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/cmd/dotf-cli",
-            "args": ["install", "yadda", "--yummy", "yeah"]
+            "args": ["install", "yeah", "--distro"]
         },
         {
             "name": "Launch dotf-tray",
