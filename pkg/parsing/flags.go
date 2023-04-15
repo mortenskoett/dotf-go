@@ -63,7 +63,7 @@ func (cl *FlagHolder) Exists(f *Flag) bool {
 	return false
 }
 
-// Get number of contained flags
+// Get keys of contained flags
 func (cl *FlagHolder) GetAllKeys() []string {
 	var fs []string
 	for k := range cl.flags {

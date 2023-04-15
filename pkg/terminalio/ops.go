@@ -1,5 +1,115 @@
 package terminalio
 
+// Copies file from userspace to the dotfiles directory and creates symlink from userspace file into
+// the newly copied file in the dotfiles dirctory. The identical relative path is used for both
+// 'homeDir' and 'dotfilesDir'.
+func AddDotfile(userspaceFile, userspaceHomedir, dotfilesDir string) error {
+	absUserspaceFile, err := GetAndValidateAbsolutePath(userspaceFile)
+	if err != nil {
+
+		return err
+	}
+
+	absHomedir, err := GetAndValidateAbsolutePath(userspaceHomedir)
+	if err != nil {
+		return err
+	}
+
+	absDotfilesDir, err := GetAndValidateAbsolutePath(dotfilesDir)
+	if err != nil {
+		return err
+	}
+
+	// Construct path inside dotfiles dir
+	absNewDotFile, err := replacePrefixPath(absUserspaceFile, absHomedir, absDotfilesDir)
+	if err != nil {
+		return err
+	}
+
+	// Assert a file is not already in dotfiles dir at location
+	exists, err := checkIfFileExists(absNewDotFile)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return &ErrFileAlreadyExists{absNewDotFile}
+	}
+
+	// Backup file before copying it
+	_, err = backupFile(absUserspaceFile)
+	if err != nil {
+		return err
+	}
+
+	// Copy file to dotfiles
+	_, err = copyFileOrDir(absUserspaceFile, absNewDotFile)
+	if err != nil {
+		return err
+	}
+
+	// Remove file in userspace
+	if err := deleteFileOrDir(absUserspaceFile); err != nil {
+		return err
+	}
+
+	// Create symlink from userspace to the newly created file in dotfiles
+	if err := createSymlink(absUserspaceFile, absNewDotFile); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Copies a file from an external location into current dotfiles directory. E.g. fromdir can be the
+// root of another dotfiles directory and todir can be the path to current dotfiles root dir.
+// Returns the path of the copied file. If confirm==true an empty string and an error containing the
+// calucated path to the new dotfile are returned.
+func CopyDotfile(fpath, fromdir, todir string, confirm bool) (string, error) {
+	absfilepath, err := GetAndValidateAbsolutePath(fpath)
+	if err != nil {
+		return "", err
+	}
+
+	absExtDotfilesDir, err := GetAndValidateAbsolutePath(fromdir)
+	if err != nil {
+		return "", err
+	}
+
+	absDotfilesDir, err := GetAndValidateAbsolutePath(todir)
+	if err != nil {
+		return "", err
+	}
+
+	// Construct path inside dotfiles dir
+	absNewDotfile, err := replacePrefixPath(absfilepath, absExtDotfilesDir, absDotfilesDir)
+	if err != nil {
+		return "", err
+	}
+
+	// If wanted by caller the process can abort here to show the calculated new path.
+	if confirm {
+		return "", &ErrConfirmProceed{Path: absNewDotfile}
+	}
+
+	// Assert a file is not already in dotfiles dir at location
+	exists, err := checkIfFileExists(absNewDotfile)
+	if err != nil {
+		return "", err
+	}
+	if exists {
+		return "", &ErrFileAlreadyExists{absNewDotfile}
+	}
+
+	// Backup file before copying it
+	_, err = backupFile(absfilepath)
+	if err != nil {
+		return "", err
+	}
+
+	// Copy file to dotfiles
+	return copyFileOrDir(absfilepath, absNewDotfile)
+}
+
 // Writes a file to disk
 func WriteFile(fpath string, contents []byte, overwrite bool) error {
 	exists, err := checkIfFileExists(fpath)
@@ -123,65 +233,6 @@ func RevertDotfile(file, userspaceDir, dotfilesDir string) error {
 
 	// Remove file in dotfiles
 	if err := deleteFileOrDir(dotfile); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// Copies file in userspace to dotfiles dir using same relative path between 'homeDir' and
-// 'dotfilesDir'. The file is backed up first.
-func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
-	absUserspaceFile, err := GetAndValidateAbsolutePath(userspaceFile)
-	if err != nil {
-
-		return err
-	}
-
-	absHomedir, err := GetAndValidateAbsolutePath(homeDir)
-	if err != nil {
-		return err
-	}
-
-	absDotfilesDir, err := GetAndValidateAbsolutePath(dotfilesDir)
-	if err != nil {
-		return err
-	}
-
-	// Construct path inside dotfiles dir
-	absNewDotFile, err := replacePrefixPath(absUserspaceFile, absHomedir, absDotfilesDir)
-	if err != nil {
-		return err
-	}
-
-	// Assert a file is not already in dotfiles dir at location
-	exists, err := checkIfFileExists(absNewDotFile)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return &ErrFileAlreadyExists{absNewDotFile}
-	}
-
-	// Backup file before copying it
-	_, err = backupFile(absUserspaceFile)
-	if err != nil {
-		return err
-	}
-
-	// Copy file to dotfiles
-	_, err = copyFileOrDir(absUserspaceFile, absNewDotFile)
-	if err != nil {
-		return err
-	}
-
-	// Remove file in userspace
-	if err := deleteFileOrDir(absUserspaceFile); err != nil {
-		return err
-	}
-
-	// Create symlink from userspace to the newly created file in dotfiles
-	if err := createSymlink(absUserspaceFile, absNewDotFile); err != nil {
 		return err
 	}
 

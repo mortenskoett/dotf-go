@@ -47,44 +47,57 @@ func NewInstallCommand() *installCommand {
 }
 
 func (c *installCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
-	filepath := args.PositionalArgs[0]
+	fpath := args.PositionalArgs[0]
 
 	// Handle flags
 	for _, f := range c.Flags {
 		switch f.Name {
 		case flagExternal:
 			if args.Flags.Exists(f) {
-				// TODO: Implement the external flag
-				// copy the given path into the right place in dotfiles
-				// then proceed installation as usual
-				extDotfilesDir, err := args.Flags.Get(f)
+				externaldir, err := args.Flags.Get(f)
 				if err != nil {
 					return err
 				}
-				logging.Info(flagExternal, "flag given with value:", extDotfilesDir)
-				dsuffix, err := terminalio.FindCommonPathPrefix(filepath, extDotfilesDir)
-				logging.Info("suffix:", dsuffix)
-				if err != nil {
-					return err
-				}
+				return c.externalInstall(fpath, externaldir, conf)
 			}
 		}
 	}
+	return c.internalInstall(fpath, conf.UserspaceDir, conf.DotfilesDir)
+}
 
-	logging.Info("Exiting early")
-	return nil
-	logging.Info("Shouldn't happen")
+// Install file outside current dotfiles directory.
+func (c *installCommand) externalInstall(file, externaldir string, conf *parsing.DotfConfiguration) error {
+	var dst string
 
-	err := terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, false)
+	_, err := terminalio.CopyDotfile(file, externaldir, conf.DotfilesDir, true)
 	if err != nil {
 		switch e := err.(type) {
-		case *terminalio.AbortOnOverwriteError:
+		case *terminalio.ErrConfirmProceed:
+			logging.Warn(fmt.Sprintf("The following path will be created: %s", e.Path))
+			if !confirmByUser("Do you want to continue?") {
+				logging.Info("Aborted by user")
+				return nil
+			}
+			dst, err = terminalio.CopyDotfile(file, externaldir, conf.DotfilesDir, false)
+		default:
+			return err
+		}
+	}
+	return c.internalInstall(dst, conf.UserspaceDir, conf.DotfilesDir)
+}
+
+// Install file already inside current dotfiles directory.
+func (c *installCommand) internalInstall(file, userspacedir, dotfilesdir string) error {
+	err := terminalio.InstallDotfile(file, userspacedir, dotfilesdir, false)
+	if err != nil {
+		switch e := err.(type) {
+		case *terminalio.ErrAbortOnOverwrite:
 			logging.Warn(fmt.Sprintf("A file already exists in userspace: %s", logging.Color(e.Path, logging.Green)))
 			logging.Warn(fmt.Sprintf("It is required to backup and delete this file to install the dotfile."))
 
 			ok := confirmByUser("Do you want to continue?")
 			if ok {
-				return terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, ok) // Overwrite file
+				return terminalio.InstallDotfile(file, userspacedir, dotfilesdir, ok) // Overwrite file
 			} else {
 				logging.Info("Aborted by user")
 				return nil
@@ -93,6 +106,5 @@ func (c *installCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfC
 			return err
 		}
 	}
-
 	return nil
 }

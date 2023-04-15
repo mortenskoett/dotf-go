@@ -36,7 +36,7 @@ func NewAddCommand() *addCommand {
 
 func (c *addCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	filepath := args.PositionalArgs[0]
-	err := terminalio.AddFileToDotfiles(filepath, conf.UserspaceDir, conf.DotfilesDir)
+	err := terminalio.AddDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir)
 	if err != nil {
 		return err
 	}

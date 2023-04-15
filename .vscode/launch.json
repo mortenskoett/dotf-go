@@ -7,7 +7,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/cmd/dotf-cli",
-            "args": ["install", "jabba/yeah", "--external", "yeah" ]
+            "args": ["install", "jabba/yeah/mofo", "--external", "jabba" ]
         },
         {
             "name": "Launch dotf-tray",

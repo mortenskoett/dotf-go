@@ -22,6 +22,10 @@ type ErrFileAlreadyExists struct {
 	path string
 }
 
+type ErrConfirmProceed struct {
+	Path string
+}
+
 type ErrSymlinkNotFound struct {
 	path string
 }
@@ -36,6 +40,10 @@ func (e *ErrAbortOnOverwrite) Error() string {
 
 func (e *ErrFileAlreadyExists) Error() string {
 	return fmt.Sprintf("file or directory was already present at location: %s", e.path)
+}
+
+func (e *ErrConfirmProceed) Error() string {
+	return "Please confirm to proceed."
 }
 
 func (e *ErrMergeFail) Error() string {
