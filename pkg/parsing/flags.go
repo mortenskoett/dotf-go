@@ -87,8 +87,8 @@ func (cl *FlagHolder) GetOrEmpty(f *Flag) string {
 
 // Get value of a value carrying flag. Fails if given flag does not carry a value.
 func (cl *FlagHolder) Get(f *Flag) (string, error) {
-	if val, ok := cl.flags[f.Name]; ok {
+	if val, ok := cl.flags[f.Name]; ok && val != "" {
 		return val, nil
 	}
-	return "", fmt.Errorf("flag %s does not carry a value", f.Name)
+	return "", fmt.Errorf("flag '--%s' does not carry a value", f.Name)
 }
