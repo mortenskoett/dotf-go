@@ -10,6 +10,77 @@ import (
 	"github.com/mortenskoett/dotf-go/pkg/test"
 )
 
+func Test_FindCommonPrefix_returns_expected_prefixes(t *testing.T) {
+	type testinput struct {
+		what, p1, p2, expected string
+		shouldfail             bool
+	}
+
+	testcases := []testinput{
+		{
+			what:       "empty input argument returns empty string and error",
+			p1:         "hello/yeah",
+			p2:         "",
+			expected:   "",
+			shouldfail: true,
+		},
+		{
+			what:       "input with windows ish delimiter returns empty string and error",
+			p1:         `whatup\yo\yeah`,
+			p2:         `whatup\yoyo\yeah`,
+			expected:   "",
+			shouldfail: true,
+		},
+		{
+			what:       "two identical paths return the same path",
+			p1:         "/place/dotfiles/.config/dotf/config",
+			p2:         "/place/dotfiles/.config/dotf/config",
+			expected:   "/place/dotfiles/.config/dotf/config",
+			shouldfail: false,
+		},
+		{
+			what:       "differently named root dirs returns empty string",
+			p1:         "/place1/dotfiles/.config/dotf/config",
+			p2:         "/place2/dotfiles/.config/dotf/config",
+			expected:   "",
+			shouldfail: false,
+		},
+		{
+			what:       "same prefix path with varying endings returns expected prefix",
+			p1:         "/place/dfiles/.config/dotfyeah/config",
+			p2:         "/place/dfiles/.config/dotfbla/config",
+			expected:   "place/dfiles/.config",
+			shouldfail: false,
+		},
+		{
+			what:       "paths with different lengths returns expected prefix",
+			p1:         "/place2/dotfiles/.config/dotf/config/bla/yadda/bladda/hadda",
+			p2:         "/place2/dotfiles/.config/dotf/config",
+			expected:   "place2/dotfiles/.config/dotf/config",
+			shouldfail: false,
+		},
+	}
+
+	for _, tc := range testcases {
+		result, err := FindCommonPathPrefix(tc.p1, tc.p2)
+		// Handle expected errors
+		if err != nil && !tc.shouldfail {
+			t.Errorf("test: '%s'\nfailed to run properly, err: %v", tc.what, err)
+			continue
+		}
+
+		if err == nil && tc.shouldfail {
+			t.Errorf("test: '%s'\nfailed to run properly, err: %v", tc.what, err)
+			continue
+		}
+
+		// Handle result
+		if result != tc.expected {
+			t.Errorf("test: '%s'\nhave: %+v\nwant: %+v", tc.what, result, tc.expected)
+		}
+	}
+}
+
 func Test_FindCommonSuffix_returns_expected_suffixes(t *testing.T) {
 	type testinput struct {
 		what, p1, p2, expected string
@@ -42,27 +113,27 @@ func Test_FindCommonSuffix_returns_expected_suffixes(t *testing.T) {
 			what:       "differently named root dirs returns expected suffix",
 			p1:         "/place1/dotfiles/.config/dotf/config",
 			p2:         "/place2/dotfiles/.config/dotf/config",
-			expected:   "/dotfiles/.config/dotf/config",
+			expected:   "dotfiles/.config/dotf/config",
 			shouldfail: false,
 		},
 		{
 			what:       "differently named root+dotfiles dirs returns expected suffix",
 			p1:         "/place1/dfiles/.config/dotf/config",
 			p2:         "/place2/dotfiles/.config/dotf/config",
-			expected:   "/.config/dotf/config",
+			expected:   ".config/dotf/config",
 			shouldfail: false,
 		},
 		{
 			what:       "paths with different lengths returns expected suffix",
 			p1:         "/hello/world/how/is/it/going/place1/dfiles/.config/dotf/config",
 			p2:         "/place2/dotfiles/.config/dotf/config",
-			expected:   "/.config/dotf/config",
+			expected:   ".config/dotf/config",
 			shouldfail: false,
 		},
 	}
 
 	for _, tc := range testcases {
-		result, err := FindCommonSuffix(tc.p1, tc.p2)
+		result, err := FindCommonPathSuffix(tc.p1, tc.p2)
 		// Handle expected errors
 		if err != nil && !tc.shouldfail {
 			t.Errorf("test: '%s'\nfailed to run properly, err: %v", tc.what, err)

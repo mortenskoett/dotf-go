@@ -35,52 +35,84 @@ func GetAndValidateAbsolutePath(path string) (string, error) {
 	return path, nil
 }
 
-// Finds the common path suffix of two given paths. E.g. 'a/b/c' and 'd/b/c' gives '/b/c'. The path
-// must be using '/' as delimiter. The function splits on the delimeter not something smart like
-// char matching.
-func FindCommonSuffix(path1, path2 string) (string, error) {
-	d := "/" // delimiter
+// Finds common prefix of two already split strings. E.g. '/a/b/c' and '/a/b/c/d' gives 'a/b/c'.
+func FindCommonPathPrefix(path1, path2 string) (string, error) {
+	return findCommonPath(path1, path2, commonPrefixFinder)
+}
 
-	createsuffix := func(longest, shortest []string) string {
-		// Loops through varying slice lengths:
-		// 0|1|2|3|5|6
-		// 0|1|2
-		// Indexes: short: 2,1,0 and long: 2+diff, 1+diff, 0+diff
+// Finds common suffix of two already split strings. E.g. '/a/b/c' and 'd/b/c' gives 'b/c'.
+func FindCommonPathSuffix(path1, path2 string) (string, error) {
+	return findCommonPath(path1, path2, commonSuffixFinder)
+}
 
-		var sharedpath string
-		var diff = len(longest) - len(shortest)
+// Defines a strategy to analyze two slices of strings and built a slice from the input.
+type sliceMerger func(long, short []string) []string
 
-		for si := len(shortest) - 1; si >= 0; si-- {
-			li := si + diff
-			if longest[li] != shortest[si] {
-				break
-			}
-			// Construct path backwards (right through left)
-			sharedpath = d + longest[li] + sharedpath
-		}
-		return sharedpath
-	}
+// Finds the common path overlap of two given paths using the given sliceMerger function. Strings
+// are split using the default system specific delimeter.
+func findCommonPath(path1, path2 string, mergerFunc sliceMerger) (string, error) {
+	delimeter := filepath.Separator
 
 	if path1 == "" || path2 == "" {
 		return "", fmt.Errorf("given path was empty string")
 	}
 
-	if !strings.Contains(path1, d) || !strings.Contains(path2, d) {
-		return "", fmt.Errorf("given input is not using %v as delimeter", d)
+	if !strings.Contains(path1, string(delimeter)) || !strings.Contains(path2, string(delimeter)) {
+		return "", fmt.Errorf("given input is not using %v as delimeter", delimeter)
 	}
 
 	if path1 == path2 {
 		return path1, nil
 	}
 
-	p1 := strings.Split(path1, d)
-	p2 := strings.Split(path2, d)
-
-	if len(p1) >= len(p2) {
-		return createsuffix(p1, p2), nil
-	} else {
-		return createsuffix(p2, p1), nil
+	// Split on specific runes to tokenize.
+	splitFunc := func(r rune) bool {
+		return r == delimeter
 	}
+	p1 := strings.FieldsFunc(path1, splitFunc)
+	p2 := strings.FieldsFunc(path2, splitFunc)
+
+	// Find longest slice in order to handle varying slice lengths.
+	var commonstr []string
+	if len(p1) >= len(p2) {
+		commonstr = mergerFunc(p1, p2)
+	} else {
+		commonstr = mergerFunc(p2, p1)
+	}
+
+	// Reutrn common path as string.
+	return filepath.Join(commonstr...), nil
+}
+
+func commonPrefixFinder(longest, shortest []string) []string {
+	var sharedpath []string
+	for i := 0; i < len(shortest); i++ {
+		if longest[i] != shortest[i] {
+			break
+		}
+		sharedpath = append(sharedpath, shortest[i])
+	}
+	return sharedpath
+}
+
+func commonSuffixFinder(longest, shortest []string) []string {
+	// Loops backwards through slices potentially varying in length.
+	// Example with indexes: short: 2,1,0 and long: 2+diff, 1+diff, 0+diff:
+	// 0|1|2|3|5|6
+	// 0|1|2
+
+	var sharedpath []string
+	var diff = len(longest) - len(shortest)
+
+	for si := len(shortest) - 1; si >= 0; si-- {
+		li := si + diff
+		if longest[li] != shortest[si] {
+			break
+		}
+		// Construct path backwards (right through left) requires preprending even if suboptimal
+		sharedpath = append([]string{longest[li]}, sharedpath...)
+	}
+	return sharedpath
 }
 
 // Returns a struct containing information about the given 'file' and its relations to dotfiles and
