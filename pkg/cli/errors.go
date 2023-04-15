@@ -6,52 +6,52 @@ const (
 	msgTryHelp string = "Try appending --help to see available commands."
 )
 
-type CmdHelpWantedError struct {
+type ErrCmdHelpWanted struct {
 	message string
 }
 
-type CmdHelpFlagError struct {
+type ErrCmdHelpFlag struct {
 	message string
 	Cmd     CommandPrintable
 }
 
-type CmdArgumentError struct {
+type ErrCmdArgument struct {
 	message string
 }
 
-type CmdUnknownCommand struct {
+type ErrCmdUnknownCommand struct {
 	message string
 }
 
-type CmdAlreadyRegisteredError struct {
+type ErrCmdAlreadyRegistered struct {
 	message string
 }
 
-type GitError struct {
+type ErrGit struct {
 	Path string
 	Err  error
 }
 
-func (e *CmdHelpWantedError) Error() string {
+func (e *ErrCmdHelpWanted) Error() string {
 	return fmt.Sprintf(e.message)
 }
 
-func (e *CmdUnknownCommand) Error() string {
+func (e *ErrCmdUnknownCommand) Error() string {
 	return fmt.Sprintf("%s %s", e.message, msgTryHelp)
 }
 
-func (e *CmdHelpFlagError) Error() string {
+func (e *ErrCmdHelpFlag) Error() string {
 	return fmt.Sprint(e.message)
 }
 
-func (e *CmdArgumentError) Error() string {
+func (e *ErrCmdArgument) Error() string {
 	return fmt.Sprintf("%s %s", e.message, msgTryHelp)
 }
 
-func (e *CmdAlreadyRegisteredError) Error() string {
+func (e *ErrCmdAlreadyRegistered) Error() string {
 	return fmt.Sprintf("%s command already registered", e.message)
 }
 
-func (e *GitError) Error() string {
+func (e *ErrGit) Error() string {
 	return fmt.Sprintf("failed to execute git command in dir: %s: %v", e.Path, e.Err)
 }

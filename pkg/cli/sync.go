@@ -34,7 +34,7 @@ func (c *syncCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConf
 	}
 
 	if err := terminalio.SyncLocalRemote(absDotfilesDir); err != nil {
-		return &GitError{Path: absDotfilesDir, Err: err}
+		return &ErrGit{Path: absDotfilesDir, Err: err}
 	}
 
 	return nil

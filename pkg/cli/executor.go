@@ -27,7 +27,7 @@ func NewCmdExecutor(cmds []Command) *CmdExecutor {
 func (ce *CmdExecutor) register(cmd Command) error {
 	_, ok := ce.commands[cmd.getName()]
 	if ok {
-		return &CmdAlreadyRegisteredError{cmd.getName()}
+		return &ErrCmdAlreadyRegistered{cmd.getName()}
 	}
 	ce.commands[cmd.getName()] = cmd
 	return nil
@@ -43,7 +43,7 @@ func (ce *CmdExecutor) Load(
 	helpFlags []*parsing.Flag) (CommandRunnable, error) {
 
 	if ok := userhelp(cmdin.CommandName, helpFlags); ok {
-		return nil, &CmdHelpWantedError{"showing full help."}
+		return nil, &ErrCmdHelpWanted{"showing full help."}
 	}
 
 	cmd, err := parse(cmdin.CommandName, ce.commands)
@@ -55,7 +55,7 @@ func (ce *CmdExecutor) Load(
 	return func() error {
 		// Check for command help flag
 		if cmdin.Flags.OneOf(helpFlags) {
-			return &CmdHelpFlagError{"help flag given", cmd}
+			return &ErrCmdHelpFlag{"help flag given", cmd}
 		}
 
 		// Check if invalid flags for current command
@@ -78,7 +78,7 @@ func (ce *CmdExecutor) Load(
 
 		// Check for number of required positional args
 		if len(cmdin.PositionalArgs) != len(cmd.getArgs()) {
-			return &CmdArgumentError{fmt.Sprintf(
+			return &ErrCmdArgument{fmt.Sprintf(
 				"%d arguments given, but %d required.", len(cmdin.PositionalArgs), len(cmd.getArgs()))}
 		}
 
@@ -109,5 +109,5 @@ func parse(cmdName string, commands map[string]Command) (Command, error) {
 	if ok {
 		return cmd, nil
 	}
-	return nil, &CmdUnknownCommand{fmt.Sprintf("%s command does not exist.", cmdName)}
+	return nil, &ErrCmdUnknownCommand{fmt.Sprintf("%s command does not exist.", cmdName)}
 }

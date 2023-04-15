@@ -58,10 +58,10 @@ func run(osargs []string, commands []cli.Command) {
 	cmd, err := executor.Load(cmdinput, config, flagHelp)
 	if err != nil {
 		switch err.(type) {
-		case *cli.CmdHelpWantedError:
+		case *cli.ErrCmdHelpWanted:
 			cli.PrintFullHelp(commands, logo, programVersion)
 			logging.Ok(err)
-		case *cli.CmdUnknownCommand:
+		case *cli.ErrCmdUnknownCommand:
 			logging.Error(err)
 		default:
 			logging.Error("undefined executor load error:", err)
@@ -73,12 +73,12 @@ func run(osargs []string, commands []cli.Command) {
 	err = cmd()
 	if err != nil {
 		switch e := err.(type) {
-		case *cli.CmdHelpFlagError:
+		case *cli.ErrCmdHelpFlag:
 			cli.PrintCommandHelp(e.Cmd)
 			logging.Ok(err)
-		case *cli.CmdArgumentError:
+		case *cli.ErrCmdArgument:
 			logging.Warn(err)
-		case *cli.GitError:
+		case *cli.ErrGit:
 			logging.Error(err)
 		default:
 			logging.Error("undefined command run error:", err)

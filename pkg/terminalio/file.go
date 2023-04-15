@@ -58,7 +58,7 @@ func findCommonPath(path1, path2 string, mergerFunc sliceMerger) (string, error)
 	}
 
 	if !strings.Contains(path1, string(delimeter)) || !strings.Contains(path2, string(delimeter)) {
-		return "", fmt.Errorf("given input is not using %v as delimeter", delimeter)
+		return "", fmt.Errorf("given input is not using '%v' as delimeter", string(delimeter))
 	}
 
 	if path1 == path2 {
