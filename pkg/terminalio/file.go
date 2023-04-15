@@ -29,7 +29,7 @@ func GetAndValidateAbsolutePath(path string) (string, error) {
 		return "", err
 	}
 	if exists, _ := checkIfFileExists(path); !exists {
-		return "", &FileNotFoundError{path}
+		return "", &ErrFileNotFound{path}
 	}
 
 	return path, nil
@@ -178,7 +178,7 @@ func writeFile(fpath string, contents []byte) error {
 	}
 
 	if exists, _ := checkIfFileExists(absPath); !exists {
-		return &FileNotFoundError{absPath}
+		return &ErrFileNotFound{absPath}
 	}
 	return nil
 }

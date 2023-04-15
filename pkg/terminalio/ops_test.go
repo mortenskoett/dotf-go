@@ -107,7 +107,7 @@ func Test_InstallDotfile_creates_existing_symlink_in_userspace_no_overwrite(t *t
 
 	err = InstallDotfile(dsomefile.Path, uspace.Path, dfiles.Path, false)
 	if err != nil {
-		var abortErr *AbortOnOverwriteError
+		var abortErr *ErrAbortOnOverwrite
 		if !errors.As(err, &abortErr) {
 			test.FailHard(err, "No error should have happened", t)
 		}
@@ -251,7 +251,7 @@ func Test_AddFileToDotfiles_unknown_path_gives_error(t *testing.T) {
 	userspacefile := "adsf"
 	dotfilesdir := "adsf"
 
-	expected := &FileNotFoundError{}
+	expected := &ErrFileNotFound{}
 	actual := AddFileToDotfiles(file, userspacefile, dotfilesdir)
 
 	if !errors.As(actual, &expected) {

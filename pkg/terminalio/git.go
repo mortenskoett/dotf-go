@@ -80,7 +80,7 @@ func SyncLocalRemote(repoPath string) error {
 	}
 
 	if !found {
-		return &UnmatchedShellReturnError{gitPush, []commandReturn{expected}}
+		return &ErrUnmatchedShellReturn{gitPush, []commandReturn{expected}}
 	}
 
 	return nil
@@ -115,7 +115,7 @@ func pullMerge(path string) error {
 	if !success {
 		_, err = execute(path, gitAbortMerge)
 		if err != nil {
-			return &MergeFailError{path}
+			return &ErrMergeFail{path}
 		}
 	}
 

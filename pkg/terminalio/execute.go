@@ -54,7 +54,7 @@ func execute(path string, command termCommand) (string, error) {
 	}
 
 	if err != nil {
-		return "", &shellExecError{command, string(output)}
+		return "", &errShellExec{command, string(output)}
 	}
 	return string(output), nil
 }

@@ -48,7 +48,7 @@ func (c *setupCommand) Run(args *parsing.CommandlineInput, _ *parsing.DotfConfig
 	err = terminalio.WriteFile(config.Filepath, bs, false)
 	if err != nil {
 		switch e := err.(type) {
-		case *terminalio.AbortOnOverwriteError:
+		case *terminalio.ErrAbortOnOverwrite:
 			logging.Warn(fmt.Sprintf("A config file already exists: %s", logging.Color(e.Path, logging.Green)))
 			logging.Warn(logging.Color("Current configuration will be OVERWRITTEN if you say so", logging.Red))
 			ok := confirmByUser("Do you want to continue?")

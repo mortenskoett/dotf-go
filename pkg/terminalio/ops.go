@@ -9,7 +9,7 @@ func WriteFile(fpath string, contents []byte, overwrite bool) error {
 
 	if exists {
 		if !overwrite {
-			return &AbortOnOverwriteError{fpath}
+			return &ErrAbortOnOverwrite{fpath}
 		}
 
 		// Backup file before deleting it
@@ -46,7 +46,7 @@ func InstallDotfile(file, userspaceDir, dotfilesDir string, overwrite bool) erro
 		return err
 	}
 	if !exists {
-		return &FileNotFoundError{info.dotfilesFile}
+		return &ErrFileNotFound{info.dotfilesFile}
 	}
 
 	// Check whtether userspace file already exists
@@ -56,7 +56,7 @@ func InstallDotfile(file, userspaceDir, dotfilesDir string, overwrite bool) erro
 	}
 	if exists {
 		if !overwrite {
-			return &AbortOnOverwriteError{info.userspaceFile}
+			return &ErrAbortOnOverwrite{info.userspaceFile}
 		}
 
 		// Backup file before copying it
@@ -95,7 +95,7 @@ func RevertDotfile(file, userspaceDir, dotfilesDir string) error {
 		return err
 	}
 	if !ok {
-		return &FileNotFoundError{dotfile}
+		return &ErrFileNotFound{dotfile}
 	}
 
 	ok, err = isFileSymlink(usersymlink)
@@ -103,7 +103,7 @@ func RevertDotfile(file, userspaceDir, dotfilesDir string) error {
 		return err
 	}
 	if !ok {
-		return &SymlinkNotFoundError{usersymlink}
+		return &ErrSymlinkNotFound{usersymlink}
 	}
 
 	// Backup file before copying it
@@ -160,7 +160,7 @@ func AddFileToDotfiles(userspaceFile, homeDir, dotfilesDir string) error {
 		return err
 	}
 	if exists {
-		return &FileAlreadyExistsError{absNewDotFile}
+		return &ErrFileAlreadyExists{absNewDotFile}
 	}
 
 	// Backup file before copying it
