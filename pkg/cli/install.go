@@ -27,9 +27,10 @@ func NewInstallCommand() *installCommand {
 
 	- If a file from inside dotfiles is given this file will be used as installation source.
 	- If a file from userspace is given this file will be used as target.
-	- If the '--distro' flag is given, it is possible to install a dotfile from a different
-	distribution. The file is copied into the dotfiles directory of the current distribution using
-	the relative path from the source dotfiles directory and installed into userspace .`
+	- If the '--external <directoy-path>' flag is given, it is possible to install a dotfile from an
+	external dotfiles directory by giving the path of that directory. The file is copied into the
+	dotfiles directory of the current distribution using the relative path from the given directory
+	path and installed into userspace .`
 
 	return &installCommand{
 		&commandBase{
@@ -38,7 +39,7 @@ func NewInstallCommand() *installCommand {
 			Usage:    name + " <filepath> [--help]",
 			Args:     []arg{{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
 			Flags: []*parsing.Flag{
-				parsing.NewValueFlag(flagDistro, "Install a dotfile from a different distribution.", "distro-name"),
+				parsing.NewValueFlag(flagExternal, "Install a dotfile from an external location.", "directory-path"),
 			},
 			Description: desc,
 		},
@@ -48,18 +49,31 @@ func NewInstallCommand() *installCommand {
 func (c *installCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
 	filepath := args.PositionalArgs[0]
 
-	// // Handle flags
+	// Handle flags
 	for _, f := range c.Flags {
 		switch f.Name {
-		case flagDistro:
+		case flagExternal:
 			if args.Flags.Exists(f) {
-				logging.Info(flagDistro, "flag given")
-				// TODO:
+				// TODO: Implement the external flag
 				// copy the given path into the right place in dotfiles
 				// then proceed installation as usual
+				extDotfilesDir, err := args.Flags.Get(f)
+				if err != nil {
+					return err
+				}
+				logging.Info(flagExternal, "flag given with value:", extDotfilesDir)
+				dsuffix, err := terminalio.FindCommonPathPrefix(filepath, extDotfilesDir)
+				logging.Info("suffix:", dsuffix)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
+
+	logging.Info("Exiting early")
+	return nil
+	logging.Info("Shouldn't happen")
 
 	err := terminalio.InstallDotfile(filepath, conf.UserspaceDir, conf.DotfilesDir, false)
 	if err != nil {
