@@ -88,9 +88,10 @@ func generateUsage(c CommandPrintable) string {
 	sb.WriteString("\n\nUsage:\n\t")
 	sb.WriteString(c.getUsage())
 
-	sb.WriteString("\n\nArguments:\n")
+	// TODO: Fix duplicated code for printing of args and flags below.
 
 	// Print arguments.
+	sb.WriteString("\n\nArguments:\n")
 	tabbuf := &bytes.Buffer{}
 	w := new(tabwriter.Writer)
 	w.Init(tabbuf, 0, 8, 8, ' ', 0)
@@ -103,9 +104,27 @@ func generateUsage(c CommandPrintable) string {
 		str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
 		fmt.Fprintln(w, str)
 	}
-
 	w.Flush()
 	sb.WriteString(tabbuf.String())
+
+	// Print flags.
+	if len(c.getFlags()) > 0 {
+		sb.WriteString("\nFlags:\n")
+		tabbuf = &bytes.Buffer{}
+		w = new(tabwriter.Writer)
+		w.Init(tabbuf, 0, 8, 8, ' ', 0)
+
+		for _, flag := range c.getFlags() {
+			buf := &bytes.Buffer{}
+			buf.WriteString("<")
+			buf.WriteString(flag.Name)
+			buf.WriteString(">")
+			str := fmt.Sprintf("\t%s\t%s", buf, flag.Description)
+			fmt.Fprintln(w, str)
+		}
+		w.Flush()
+		sb.WriteString(tabbuf.String())
+	}
 
 	return sb.String()
 }
