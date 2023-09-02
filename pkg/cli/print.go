@@ -91,27 +91,29 @@ func generateUsage(c CommandPrintable) string {
 	// TODO: Fix duplicated code for printing of args and flags below.
 
 	// Print arguments.
-	sb.WriteString("\n\nArguments:\n")
-	tabbuf := &bytes.Buffer{}
-	w := new(tabwriter.Writer)
-	w.Init(tabbuf, 0, 8, 8, ' ', 0)
+	if len(c.getArgs()) > 0 {
+		sb.WriteString("\n\nArguments:\n")
+		tabbuf := &bytes.Buffer{}
+		w := new(tabwriter.Writer)
+		w.Init(tabbuf, 0, 8, 8, ' ', 0)
 
-	for _, arg := range c.getArgs() {
-		buf := &bytes.Buffer{}
-		buf.WriteString("<")
-		buf.WriteString(arg.Name)
-		buf.WriteString(">")
-		str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
-		fmt.Fprintln(w, str)
+		for _, arg := range c.getArgs() {
+			buf := &bytes.Buffer{}
+			buf.WriteString("<")
+			buf.WriteString(arg.Name)
+			buf.WriteString(">")
+			str := fmt.Sprintf("\t%s\t%s", buf, arg.Description)
+			fmt.Fprintln(w, str)
+		}
+		w.Flush()
+		sb.WriteString(tabbuf.String())
 	}
-	w.Flush()
-	sb.WriteString(tabbuf.String())
 
 	// Print flags.
 	if len(c.getFlags()) > 0 {
 		sb.WriteString("\nFlags:\n")
-		tabbuf = &bytes.Buffer{}
-		w = new(tabwriter.Writer)
+		tabbuf := &bytes.Buffer{}
+		w := new(tabwriter.Writer)
 		w.Init(tabbuf, 0, 8, 8, ' ', 0)
 
 		for _, flag := range c.getFlags() {
