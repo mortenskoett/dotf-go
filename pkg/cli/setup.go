@@ -10,6 +10,7 @@ import (
 
 type setupCommand struct {
 	*commandBase
+	UserInteractor UserInteractor
 }
 
 func NewSetupCommand() *setupCommand {
@@ -32,6 +33,7 @@ func NewSetupCommand() *setupCommand {
 			Flags:       flags,
 			Description: description,
 		},
+		UserInteractor: StdInUserInteractor{},
 	}
 }
 
@@ -51,7 +53,7 @@ func (c *setupCommand) Run(args *parsing.CommandlineInput, _ *parsing.DotfConfig
 		case *terminalio.ErrAbortOnOverwrite:
 			logging.Warn(fmt.Sprintf("A config file already exists: %s", logging.Color(e.Path, logging.Green)))
 			logging.Warn(logging.Color("Current configuration will be OVERWRITTEN if you say so", logging.Red))
-			ok := confirmByUser("Do you want to continue?")
+			ok := c.UserInteractor.ConfirmByUser("Do you want to continue?")
 			if ok {
 				if err := terminalio.WriteFile(config.Filepath, bs, ok); err != nil {
 					return err

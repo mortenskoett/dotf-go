@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
@@ -10,6 +11,7 @@ import (
 
 type installCommand struct {
 	*commandBase
+	UserInteractor UserInteractor
 }
 
 func NewInstallCommand() *installCommand {
@@ -33,16 +35,17 @@ func NewInstallCommand() *installCommand {
 	path and installed into userspace .`
 
 	return &installCommand{
-		&commandBase{
+		commandBase: &commandBase{
 			Name:     name,
 			Overview: "Install file/dir from dotfiles into userspace.",
 			Usage:    name + " <filepath> [--help]",
 			Args:     []arg{{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
 			Flags: []*parsing.Flag{
-				parsing.NewValueFlag(flagExternal, "Install a dotfile from an external location.", "directory-path"),
+				parsing.NewValueFlag(FlagExternal, "Install a dotfile from an external location.", "directory-path"),
 			},
 			Description: desc,
 		},
+		UserInteractor: StdInUserInteractor{},
 	}
 }
 
@@ -52,7 +55,7 @@ func (c *installCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfC
 	// Handle flags
 	for _, f := range c.Flags {
 		switch f.Name {
-		case flagExternal:
+		case FlagExternal:
 			if args.Flags.Exists(f) {
 				externaldir, err := args.Flags.Get(f)
 				if err != nil {
@@ -74,11 +77,14 @@ func (c *installCommand) externalInstall(file, externaldir string, conf *parsing
 		switch e := err.(type) {
 		case *terminalio.ErrConfirmProceed:
 			logging.Warn(fmt.Sprintf("The following path will be created: %s", e.Path))
-			if !confirmByUser("Do you want to continue?") {
+			if !c.UserInteractor.ConfirmByUser("Do you want to continue?") {
 				logging.Info("Aborted by user")
 				return nil
 			}
 			dst, err = terminalio.CopyDotfile(file, externaldir, conf.DotfilesDir, false)
+			if err != nil {
+				return err
+			}
 		default:
 			return err
 		}
@@ -95,7 +101,7 @@ func (c *installCommand) internalInstall(file, userspacedir, dotfilesdir string)
 			logging.Warn(fmt.Sprintf("A file already exists in userspace: %s", logging.Color(e.Path, logging.Green)))
 			logging.Warn(fmt.Sprintf("It is required to backup and delete this file to install the dotfile."))
 
-			ok := confirmByUser("Do you want to continue?")
+			ok := ConfirmByUser("Do you want to continue?", os.Stdin)
 			if ok {
 				return terminalio.InstallDotfile(file, userspacedir, dotfilesdir, ok) // Overwrite file
 			} else {

@@ -354,7 +354,7 @@ func Test_checkIfFileExists_determines_files_exist(t *testing.T) {
 
 	file := env.UserspaceDir.AddTempFile()
 
-	if exists, _ := checkIfFileExists(file.Path); !exists {
+	if exists, _ := CheckIfFileExists(file.Path); !exists {
 		test.Fail(exists, "Should not fail as file exists.", t)
 	}
 }
@@ -365,7 +365,7 @@ func Test_checkIfFileExists_determines_dirs_exist(t *testing.T) {
 
 	dir := env.UserspaceDir.AddTempDir("mytestdir")
 
-	if exists, _ := checkIfFileExists(dir.Path); !exists {
+	if exists, _ := CheckIfFileExists(dir.Path); !exists {
 		test.Fail(exists, "Should not fail as file exists.", t)
 	}
 }
@@ -407,17 +407,17 @@ func Test_copyDir_copies_recursively_files_folders(t *testing.T) {
 	}
 
 	// Dst folder and content should exist
-	if exists, _ := checkIfFileExists(res); !exists {
+	if exists, _ := CheckIfFileExists(res); !exists {
 		test.Fail(res, "File does not exist", t)
 	}
-	if exists, _ := checkIfFileExists(dstInsideFile); !exists {
+	if exists, _ := CheckIfFileExists(dstInsideFile); !exists {
 		test.Fail(dstInsideFile, "File does not exist", t)
 	}
-	if exists, _ := checkIfFileExists(dstHereFile); !exists {
+	if exists, _ := CheckIfFileExists(dstHereFile); !exists {
 		test.Fail(dstHereFile, "File does not exist", t)
 	}
 	// Src folder should NOT have been deleted
-	if exists, _ := checkIfFileExists(src.Path); !exists {
+	if exists, _ := CheckIfFileExists(src.Path); !exists {
 		test.Fail(src.Path, "Dir should still exist", t)
 	}
 }
@@ -429,7 +429,7 @@ func Test_deleteDirectory_deletes_existing_directory(t *testing.T) {
 	d := env.UserspaceDir.AddTempDir("dirtodelete").Path
 
 	// check if dir exists
-	if exists, _ := checkIfFileExists(d); !exists {
+	if exists, _ := CheckIfFileExists(d); !exists {
 		test.Fail(exists, "dir should exist", t)
 	}
 
@@ -449,7 +449,7 @@ func Test_deleteDirectory_deletes_existing_directory(t *testing.T) {
 	}
 
 	// check if deleted properly
-	if exists, _ := checkIfFileExists(d); exists {
+	if exists, _ := CheckIfFileExists(d); exists {
 		test.Fail(exists, "dir should NOT exist now", t)
 	}
 }
@@ -460,7 +460,7 @@ func Test_deleteFile_deletes_existing_file(t *testing.T) {
 
 	f := env.UserspaceDir.AddTempFile().Path
 
-	if exists, _ := checkIfFileExists(f); !exists {
+	if exists, _ := CheckIfFileExists(f); !exists {
 		test.Fail(exists, "file should exist", t)
 	}
 
@@ -469,7 +469,7 @@ func Test_deleteFile_deletes_existing_file(t *testing.T) {
 		test.Fail(err, "shouldnt fail", t)
 	}
 
-	if exists, _ := checkIfFileExists(f); exists {
+	if exists, _ := CheckIfFileExists(f); exists {
 		test.Fail(exists, "file should NOT exist now", t)
 	}
 }

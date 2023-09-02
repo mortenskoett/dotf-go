@@ -30,7 +30,7 @@ func Test_UpdateSymlinks_recursively_changes_symlinks_in_userspace(t *testing.T)
 	}
 
 	// Assert symlink exists
-	ok, err := isFileSymlink(somesymlinkpath)
+	ok, err := IsFileSymlink(somesymlinkpath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +171,7 @@ func Test_createSymlink_creates_dir_file_symlink(t *testing.T) {
 			test.FailHard(err, "shouldn't fail here", t)
 		}
 
-		ok, err := isFileSymlink(in.symlink)
+		ok, err := IsFileSymlink(in.symlink)
 		if err != nil {
 			test.FailHard(err, "Not expected to fail", t)
 		}
@@ -217,7 +217,7 @@ func Test_isFileSymlink_determines_correctly_a_symlink(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		ok, err := isFileSymlink(tc.symlink)
+		ok, err := IsFileSymlink(tc.symlink)
 		if err != nil {
 			if !tc.shoulderr {
 				test.Fail(err, "shouldn't fail here", t)

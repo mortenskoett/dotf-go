@@ -27,7 +27,7 @@ func AddDotfile(userspaceFile, userspaceHomedir, dotfilesDir string) error {
 	}
 
 	// Assert a file is not already in dotfiles dir at location
-	exists, err := checkIfFileExists(absNewDotFile)
+	exists, err := CheckIfFileExists(absNewDotFile)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func CopyDotfile(fpath, fromdir, todir string, confirm bool) (string, error) {
 	}
 
 	// Assert a file is not already in dotfiles dir at location
-	exists, err := checkIfFileExists(absNewDotfile)
+	exists, err := CheckIfFileExists(absNewDotfile)
 	if err != nil {
 		return "", err
 	}
@@ -112,7 +112,7 @@ func CopyDotfile(fpath, fromdir, todir string, confirm bool) (string, error) {
 
 // Writes a file to disk
 func WriteFile(fpath string, contents []byte, overwrite bool) error {
-	exists, err := checkIfFileExists(fpath)
+	exists, err := CheckIfFileExists(fpath)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func InstallDotfile(file, userspaceDir, dotfilesDir string, overwrite bool) erro
 	}
 
 	// Check whether dotfile exists
-	exists, err := checkIfFileExists(info.dotfilesFile)
+	exists, err := CheckIfFileExists(info.dotfilesFile)
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func InstallDotfile(file, userspaceDir, dotfilesDir string, overwrite bool) erro
 	}
 
 	// Check whtether userspace file already exists
-	exists, err = checkIfFileExists(info.userspaceFile)
+	exists, err = CheckIfFileExists(info.userspaceFile)
 	if err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func RevertDotfile(file, userspaceDir, dotfilesDir string) error {
 	usersymlink := info.userspaceFile
 
 	// Check whtether file and symlink exists
-	ok, err := checkIfFileExists(dotfile)
+	ok, err := CheckIfFileExists(dotfile)
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func RevertDotfile(file, userspaceDir, dotfilesDir string) error {
 		return &ErrFileNotFound{dotfile}
 	}
 
-	ok, err = isFileSymlink(usersymlink)
+	ok, err = IsFileSymlink(usersymlink)
 	if err != nil {
 		return err
 	}
