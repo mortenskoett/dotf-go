@@ -316,7 +316,7 @@ func Test_CopyDotfile_successfully_copies_file_into_dotfiles(t *testing.T) {
 	userspaceFile := dir.AddTempFile()
 
 	// Function under test
-	dst, err := CopyDotfile(userspaceFile.Path, userspacedir.Path, dfilesdir.Path, false)
+	dst, err := CopyExternalDotfile(userspaceFile.Path, userspacedir.Path, dfilesdir.Path, false)
 	if err != nil {
 		test.Fail(err, "No error should have happened", t)
 	}

@@ -1,5 +1,10 @@
 package terminalio
 
+import (
+	"fmt"
+	"os"
+)
+
 // Copies file from userspace to the dotfiles directory and creates symlink from userspace file into
 // the newly copied file in the dotfiles dirctory. The identical relative path is used for both
 // 'homeDir' and 'dotfilesDir'.
@@ -62,9 +67,13 @@ func AddDotfile(userspaceFile, userspaceHomedir, dotfilesDir string) error {
 
 // Copies a file from an external location into current dotfiles directory. E.g. fromdir can be the
 // root of another dotfiles directory and todir can be the path to current dotfiles root dir.
-// Returns the path of the copied file. If confirm==true an empty string and an error containing the
-// calucated path to the new dotfile are returned.
-func CopyDotfile(fpath, fromdir, todir string, confirm bool) (string, error) {
+// Returns the path of the copied file.
+// If confirm==true an empty string and an error containing the calucated path to the new dotfile
+// are returned.
+// If the file to be copied is a symlink, a symlink will be created in todir pointing back to the
+// symlink in fromdir. This is to keep the semantics, that userspace links always point into their
+// own dotfiles dir.
+func CopyExternalDotfile(fpath, fromdir, todir string, confirm bool) (string, error) {
 	absfilepath, err := GetAndValidateAbsolutePath(fpath)
 	if err != nil {
 		return "", err
@@ -80,7 +89,7 @@ func CopyDotfile(fpath, fromdir, todir string, confirm bool) (string, error) {
 		return "", err
 	}
 
-	// Construct path inside dotfiles dir
+	// Construct path inside dotfiles dir.
 	absNewDotfile, err := replacePrefixPath(absfilepath, absExtDotfilesDir, absDotfilesDir)
 	if err != nil {
 		return "", err
@@ -91,13 +100,34 @@ func CopyDotfile(fpath, fromdir, todir string, confirm bool) (string, error) {
 		return "", &ErrConfirmProceed{Path: absNewDotfile}
 	}
 
-	// Assert a file is not already in dotfiles dir at location
+	// Assert a file is not already in dotfiles dir at location.
 	exists, err := CheckIfFileExists(absNewDotfile)
 	if err != nil {
 		return "", err
 	}
 	if exists {
 		return "", &ErrFileAlreadyExists{absNewDotfile}
+	}
+
+	// Determine whether given file is a symlink.
+	ok, err := IsFileSymlink(absfilepath)
+	if err != nil {
+		return "", fmt.Errorf("failed to determine if given file was a symlink: %v", err)
+	}
+
+	// Given file from external is a symlink.
+	if ok {
+		// Get src file pointed to by the symlink.
+		src, err := os.Readlink(absfilepath)
+		if err != nil {
+			return "", fmt.Errorf("failed to get src of symlink: %v", err)
+		}
+
+		// File is a symlink, so we can simply create a symlink pointing to the original symlink.
+		if err := createSymlink(absNewDotfile, src); err != nil {
+			return "", err
+		}
+		return absNewDotfile, nil
 	}
 
 	// Backup file before copying it

@@ -67,7 +67,7 @@ func UpdateSymlinks(userSpaceDir, dotfilesDir string) error {
 	})
 }
 
-// IsFileSymlink returns true if the given path is an existsing symlink.
+// IsFileSymlink returns true if the given path is an existing symlink.
 func IsFileSymlink(file string) (bool, error) {
 	fileInfo, err := os.Lstat(file)
 	if err != nil {
@@ -94,12 +94,12 @@ func updateSymlink(fromDest, toFile string) error {
 }
 
 // Create a symlink at location 'symlinkDest' pointing to an actual file that should exist at
-// 'fileDest'.
-func createSymlink(symlinkDest, fileDest string) error {
-	err := os.Symlink(fileDest, symlinkDest)
+// 'fileSrc'.
+func createSymlink(symlinkDest, fileSrc string) error {
+	err := os.Symlink(fileSrc, symlinkDest)
 	if err != nil {
-		return fmt.Errorf("failed to create symlink from %s -> %s: %w", symlinkDest, fileDest, err)
+		return fmt.Errorf("failed to create symlink from %s -> %s: %w", symlinkDest, fileSrc, err)
 	}
-	logging.Ok("Symlink successfully created from", symlinkDest, "->", fileDest) // from symlink -> file
+	logging.Ok("Symlink successfully created from", symlinkDest, "->", fileSrc) // from symlink -> file
 	return nil
 }
