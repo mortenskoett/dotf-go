@@ -9,6 +9,7 @@ import (
 // Implements Command interface
 type migrateCommand struct {
 	*commandBase
+	UserInteractor UserInteractor
 }
 
 func NewMigrateCommand() *migrateCommand {
@@ -28,7 +29,7 @@ func NewMigrateCommand() *migrateCommand {
 	new location directory.`
 
 	return &migrateCommand{
-		&commandBase{
+		commandBase: &commandBase{
 			Name:     name,
 			Overview: "Migrate userspace symlinks on changed dotfiles location.",
 			Usage:    name + " <dotfiles-dir> <userspace-dir> [--help]",
@@ -39,11 +40,12 @@ func NewMigrateCommand() *migrateCommand {
 			Flags:       []*parsing.Flag{},
 			Description: desc,
 		},
+		UserInteractor: StdInUserInteractor{},
 	}
 }
 
 func (c *migrateCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfConfiguration) error {
-	ok := confirmByUser("This operation can be desctructive. Do you want to continue?")
+	ok := c.UserInteractor.ConfirmByUser("This operation can be desctructive. Do you want to continue?")
 	if !ok {
 		logging.Warn("Aborted by user")
 		return nil
@@ -60,4 +62,3 @@ func (c *migrateCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfC
 	logging.Ok("\nAll symlinks have been updated successfully.")
 	return nil
 }
-

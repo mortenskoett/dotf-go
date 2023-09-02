@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"text/tabwriter"
@@ -109,9 +110,22 @@ func generateUsage(c CommandPrintable) string {
 	return sb.String()
 }
 
-// Displays a yes/no prompt to the user and returns the boolean value of the answer
-func confirmByUser(question string) bool {
-	reader := bufio.NewReader(os.Stdin)
+type UserInteractor interface {
+	ConfirmByUser(question string) bool
+}
+
+type StdInUserInteractor struct {
+}
+
+// Implements UserInteractor.
+func (s StdInUserInteractor) ConfirmByUser(question string) bool {
+	return ConfirmByUser(question, os.Stdin)
+}
+
+// Displays a yes/no prompt to the user and returns the boolean value of the answer. Stdin is
+// parameterized to make the function testable.
+func ConfirmByUser(question string, stdin io.Reader) bool {
+	reader := bufio.NewReader(stdin)
 
 	for {
 		logging.Warn(question)

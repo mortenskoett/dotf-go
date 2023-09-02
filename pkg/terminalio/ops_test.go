@@ -65,7 +65,7 @@ func Test_InstallDotfile_creates_existing_symlink_in_userspace_with_overwrite(t 
 	defer fdst.Close()
 
 	// Assert file is indeed created
-	exists, err := checkIfFileExists(uspaceSymlinkPath)
+	exists, err := CheckIfFileExists(uspaceSymlinkPath)
 	if err != nil {
 		test.FailHard(err, "No error should have happened", t)
 	}
@@ -79,7 +79,7 @@ func Test_InstallDotfile_creates_existing_symlink_in_userspace_with_overwrite(t 
 	}
 
 	// Assert symlink exists in uspace
-	ok, err := isFileSymlink(uspaceSymlinkPath)
+	ok, err := IsFileSymlink(uspaceSymlinkPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +114,7 @@ func Test_InstallDotfile_creates_existing_symlink_in_userspace_no_overwrite(t *t
 	}
 
 	// Assert symlink exists in uspace
-	ok, err := isFileSymlink(uspaceSymlinkPath)
+	ok, err := IsFileSymlink(uspaceSymlinkPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,7 +139,7 @@ func Test_InstallDotfile_creates_not_existing_symlink_in_userspace_no_overwrite(
 	}
 
 	// Assert symlink exists in uspace
-	ok, err := isFileSymlink(uspaceSymlinkPath)
+	ok, err := IsFileSymlink(uspaceSymlinkPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +164,7 @@ func Test_RevertDotfile_deletes_symlink_and_moves_file_back_userspace(t *testing
 	}
 
 	// Assert symlink exists
-	ok, err := isFileSymlink(uspaceSymlinkPath)
+	ok, err := IsFileSymlink(uspaceSymlinkPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -179,7 +179,7 @@ func Test_RevertDotfile_deletes_symlink_and_moves_file_back_userspace(t *testing
 	}
 
 	// Assert symlink has become a file and NOT still symlink
-	ok, err = isFileSymlink(uspaceSymlinkPath)
+	ok, err = IsFileSymlink(uspaceSymlinkPath)
 	if err != nil {
 		test.FailHard(err, "No error should have happened", t)
 	}
@@ -188,7 +188,7 @@ func Test_RevertDotfile_deletes_symlink_and_moves_file_back_userspace(t *testing
 	}
 
 	// Assert file is not there anymore
-	exists, err := checkIfFileExists(dsomefile.Path)
+	exists, err := CheckIfFileExists(dsomefile.Path)
 	if err != nil {
 		test.FailHard(err, "No error should have happened", t)
 	}
@@ -213,7 +213,7 @@ func Test_RevertDotfile_deletes_symlink_and_moves_file_back_dotfiles(t *testing.
 	}
 
 	// Assert symlink exists
-	ok, err := isFileSymlink(uspaceSymlinkPath)
+	ok, err := IsFileSymlink(uspaceSymlinkPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -228,7 +228,7 @@ func Test_RevertDotfile_deletes_symlink_and_moves_file_back_dotfiles(t *testing.
 	}
 
 	// Assert symlink has become a file and NOT still symlink
-	ok, err = isFileSymlink(uspaceSymlinkPath)
+	ok, err = IsFileSymlink(uspaceSymlinkPath)
 	if err != nil {
 		test.FailHard(err, "No error should have happened", t)
 	}
@@ -237,7 +237,7 @@ func Test_RevertDotfile_deletes_symlink_and_moves_file_back_dotfiles(t *testing.
 	}
 
 	// Assert file is not there anymore
-	exists, err := checkIfFileExists(dsomefile.Path)
+	exists, err := CheckIfFileExists(dsomefile.Path)
 	if err != nil {
 		test.FailHard(err, "No error should have happened", t)
 	}
@@ -281,24 +281,24 @@ func Test_AddFileToDotfiles_successfully_copies_file_creates_symlink(t *testing.
 	expectedBackupFile := filepath.Join("/tmp/dotf-go/backups", userspaceFile.Path)
 
 	// check if new file in dotfiles exist
-	if exists, _ := checkIfFileExists(expectedDotfilesFile); !exists {
+	if exists, _ := CheckIfFileExists(expectedDotfilesFile); !exists {
 		test.Fail(exists, fmt.Sprintf("File in dotfiles dir should exist at %s", expectedDotfilesFile), t)
 	}
 
 	// check if new file at userspace location exists
-	if exists, err := checkIfFileExists(userspaceFile.Path); !exists {
+	if exists, err := CheckIfFileExists(userspaceFile.Path); !exists {
 		test.Fail(exists, fmt.Sprintf(
 			"File in userspace dir should still exist at %s: %v", userspaceFile.Path, err), t)
 	}
 
 	// check if new file at userspace location is symlink
-	if ok, _ := isFileSymlink(userspaceFile.Path); !ok {
+	if ok, _ := IsFileSymlink(userspaceFile.Path); !ok {
 		test.Fail(ok, fmt.Sprintf(
 			"File in userspace dir should be a symlink at %s: %v", userspaceFile.Path, err), t)
 	}
 
 	// check if backup exists
-	if exists, err := checkIfFileExists(expectedBackupFile); !exists {
+	if exists, err := CheckIfFileExists(expectedBackupFile); !exists {
 		test.Fail(exists, fmt.Sprintf(
 			"File from userspace should be backed up to %s: %v", expectedBackupFile, err), t)
 	}
@@ -325,7 +325,7 @@ func Test_CopyDotfile_successfully_copies_file_into_dotfiles(t *testing.T) {
 	expectedBackupFile := filepath.Join("/tmp/dotf-go/backups", userspaceFile.Path)
 
 	// check if new file in dotfiles exist
-	if exists, _ := checkIfFileExists(expectedDotfilesFile); !exists {
+	if exists, _ := CheckIfFileExists(expectedDotfilesFile); !exists {
 		test.Fail(exists, fmt.Sprintf("File in dotfiles dir should exist at %s", expectedDotfilesFile), t)
 	}
 
@@ -335,13 +335,13 @@ func Test_CopyDotfile_successfully_copies_file_into_dotfiles(t *testing.T) {
 	}
 
 	// check if new file at userspace location exists
-	if exists, err := checkIfFileExists(userspaceFile.Path); !exists {
+	if exists, err := CheckIfFileExists(userspaceFile.Path); !exists {
 		test.Fail(exists, fmt.Sprintf(
 			"File in userspace dir should still exist at %s: %v", userspaceFile.Path, err), t)
 	}
 
 	// check if backup exists
-	if exists, err := checkIfFileExists(expectedBackupFile); !exists {
+	if exists, err := CheckIfFileExists(expectedBackupFile); !exists {
 		test.Fail(exists, fmt.Sprintf(
 			"File from userspace should be backed up to %s: %v", expectedBackupFile, err), t)
 	}

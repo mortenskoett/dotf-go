@@ -15,7 +15,6 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/cmd/dotf-tray"
-            //"args": ["--bla", "doesntexist", "--someboolean"]
         }
     ]
 }

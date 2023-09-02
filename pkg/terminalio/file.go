@@ -28,11 +28,24 @@ func GetAndValidateAbsolutePath(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if exists, _ := checkIfFileExists(path); !exists {
+	if exists, _ := CheckIfFileExists(path); !exists {
 		return "", &ErrFileNotFound{path}
 	}
 
 	return path, nil
+}
+
+// Checks if file exists by trying to open it. The given path should be absolute or relative to
+// dotf executable. An error is returned if the file does not exist.
+func CheckIfFileExists(absPath string) (bool, error) {
+	_, err := os.Open(absPath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 // Finds common prefix of two already split strings. E.g. '/a/b/c' and '/a/b/c/d' gives 'a/b/c'.
@@ -177,7 +190,7 @@ func writeFile(fpath string, contents []byte) error {
 		return err
 	}
 
-	if exists, _ := checkIfFileExists(absPath); !exists {
+	if exists, _ := CheckIfFileExists(absPath); !exists {
 		return &ErrFileNotFound{absPath}
 	}
 	return nil
@@ -383,19 +396,6 @@ func expandTilde(path string) string {
 		return filepath.Join(dirname, path[2:])
 	}
 	return path
-}
-
-// Checks if file exists by trying to open it. The given path should be absolute or relative to
-// dotf executable. An error is returned if the file does not exist.
-func checkIfFileExists(absPath string) (bool, error) {
-	_, err := os.Open(absPath)
-	if err != nil {
-		if errors.Is(err, os.ErrNotExist) {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
 }
 
 func isDirectory(src string) (bool, error) {
