@@ -72,7 +72,7 @@ func (c *installCommand) Run(args *parsing.CommandlineInput, conf *parsing.DotfC
 func (c *installCommand) externalInstall(file, externaldir string, conf *parsing.DotfConfiguration) error {
 	var dst string
 
-	_, err := terminalio.CopyDotfile(file, externaldir, conf.DotfilesDir, true)
+	_, err := terminalio.CopyExternalDotfile(file, externaldir, conf.DotfilesDir, true)
 	if err != nil {
 		switch e := err.(type) {
 		case *terminalio.ErrConfirmProceed:
@@ -81,7 +81,7 @@ func (c *installCommand) externalInstall(file, externaldir string, conf *parsing
 				logging.Info("Aborted by user")
 				return nil
 			}
-			dst, err = terminalio.CopyDotfile(file, externaldir, conf.DotfilesDir, false)
+			dst, err = terminalio.CopyExternalDotfile(file, externaldir, conf.DotfilesDir, false)
 			if err != nil {
 				return err
 			}

@@ -15,7 +15,7 @@ import (
 
 // Contains info about a files whereabouts in relation to dotfiles dir and userspace.
 type fileLocationInfo struct {
-	insideDotfiles bool   // Whether the org filepath was to a file inside dotfiles
+	insideDotfiles bool   // Whether the filepath was to a file inside dotfiles
 	fileOrgPath    string // Absolute path of given file
 	userspaceFile  string // Absolute path to file in userspace
 	dotfilesFile   string // Absolute path to file in dotfiles
