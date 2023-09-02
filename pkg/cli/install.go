@@ -37,7 +37,7 @@ func NewInstallCommand() *installCommand {
 		commandBase: &commandBase{
 			Name:     name,
 			Overview: "Install file/dir from dotfiles into userspace.",
-			Usage:    name + " <filepath> [--help]",
+			Usage:    name + " <filepath> [--<flags>] [--help]",
 			Args:     []arg{{Name: "file/dir", Description: "Path to file/dir inside dotfiles or path to file/dir in userspace."}},
 			Flags: []*parsing.Flag{
 				parsing.NewValueFlag(FlagExternal, "Install a dotfile from an external location.", "directory-path"),
