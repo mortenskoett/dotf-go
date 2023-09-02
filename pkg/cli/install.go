@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/mortenskoett/dotf-go/pkg/logging"
 	"github.com/mortenskoett/dotf-go/pkg/parsing"
@@ -101,7 +100,7 @@ func (c *installCommand) internalInstall(file, userspacedir, dotfilesdir string)
 			logging.Warn(fmt.Sprintf("A file already exists in userspace: %s", logging.Color(e.Path, logging.Green)))
 			logging.Warn(fmt.Sprintf("It is required to backup and delete this file to install the dotfile."))
 
-			ok := ConfirmByUser("Do you want to continue?", os.Stdin)
+			ok := c.UserInteractor.ConfirmByUser("Do you want to continue?")
 			if ok {
 				return terminalio.InstallDotfile(file, userspacedir, dotfilesdir, ok) // Overwrite file
 			} else {
