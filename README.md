@@ -18,7 +18,7 @@ is essentially what this tool conveniently assists with.
 
 The project consists of the following:
 - `dotf-cli` is a command-line tool to manage dotfiles and their relationship between the repository
-    and where the file is placed in userspace (e.g. `${HOME}`) using symlinks.
+    and where the file is placed in userspace (typically `${HOME}`) using symlinks.
 - `dotf-tray` is a systray-based application that facilitates interval-based synchronization of the
     dotfiles folder with the remote.
 
@@ -56,10 +56,10 @@ setup      -                                    Create a sensible default config
 
 ### Flags
 ```
-dotf --help              Show general help
-dotf --config <path>     Use <path> to dotf config file
-dotf <command> --help    Get help for specific <command>
-dotf add --external      Add dotfile from non-configured dotfiles folder
+dotf --help                     Show general help
+dotf --config <path>            Use <path> to dotf config file
+dotf <command> --help           Get help for specific <command>
+dotf install --external <path>  Install dotfile using a different folder as relative root
 ```
 
 ### Examples
