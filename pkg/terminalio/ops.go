@@ -136,8 +136,14 @@ func CopyExternalDotfile(fpath, fromdir, todir string, confirm bool) (string, er
 			}
 		}
 
+		// Create the relative path from the location in dotfiles
+		relSrcPathFromDotfiles, err := filepath.Rel(absDotfilesDir, absSrcPath)
+		if err != nil {
+			return "", err
+		}
+
 		// We can now create a symlink pointing to the file pointed to by the symlink.
-		if err := createSymlink(absNewDotfile, absSrcPath); err != nil {
+		if err := createSymlink(absNewDotfile, relSrcPathFromDotfiles); err != nil {
 			return "", err
 		}
 		return absNewDotfile, nil
