@@ -2,6 +2,7 @@ package terminalio
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 )
 
@@ -131,6 +132,11 @@ func CopyExternalDotfile(fpath, fromdir, todir string, confirm bool) (string, er
 			return "", err
 		}
 
+		// Create potential missing folder paths.
+		if err := os.MkdirAll(absNewDotfilePath, os.ModePerm); err != nil {
+			return "", fmt.Errorf("didn't create nested path for dotfiles file: %v", err)
+		}
+
 		// We can now create a symlink pointing to the file pointed to by the symlink.
 		if err := createSymlink(absNewDotfile, relSrcFilePath); err != nil {
 			return "", err
@@ -217,6 +223,16 @@ func InstallDotfile(file, userspaceDir, dotfilesDir string, overwrite bool) erro
 			return err
 		}
 	}
+
+	// Create potential missing folder paths.
+	if err := os.MkdirAll(filepath.Dir(info.dotfilesFile), os.ModePerm); err != nil {
+		return fmt.Errorf("didn't create nested path for dotfiles file: %v", err)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(info.userspaceFile), os.ModePerm); err != nil {
+		return fmt.Errorf("didn't create nested path for userspace file: %v", err)
+	}
+
 	// Create symlink in userspace pointing to dotfile
 	if err := createSymlink(info.userspaceFile, info.dotfilesFile); err != nil {
 		return err
