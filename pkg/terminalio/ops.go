@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Copies file from userspace to the dotfiles directory and creates symlink from userspace file into
@@ -119,21 +120,24 @@ func CopyExternalDotfile(fpath, fromdir, todir string, confirm bool) (string, er
 	// Whether given file from external flag is a symlink.
 	if ok {
 		// Get file pointed to by the symlink.
-		relativeToSymlinkPath, err := os.Readlink(absfilepath)
+		srcPath, err := os.Readlink(absfilepath)
 		if err != nil {
 			return "", fmt.Errorf("failed to get src of symlink: %v", err)
 		}
 
-		// Create absolute path to file pointed to by the symlink.
-		absSrcPath := filepath.Join(absExtDotfilesDir, relativeToSymlinkPath)
+		// If path is not aboslute create absolute path to file pointed to by the symlink.
+		absSrcPath := srcPath
+		if !strings.HasPrefix(srcPath, "/") {
+			absSrcPath = filepath.Join(absExtDotfilesDir, srcPath)
 
-		validatedAbsSrcPath, err := GetAndValidateAbsolutePath(absSrcPath)
-		if err != nil {
-			return "", fmt.Errorf("failed to validate file pointed to by symlink: %v", err)
+			absSrcPath, err = GetAndValidateAbsolutePath(absSrcPath)
+			if err != nil {
+				return "", fmt.Errorf("failed to validate file pointed to by symlink: %v", err)
+			}
 		}
 
 		// We can now create a symlink pointing to the file pointed to by the symlink.
-		if err := createSymlink(absNewDotfile, validatedAbsSrcPath); err != nil {
+		if err := createSymlink(absNewDotfile, absSrcPath); err != nil {
 			return "", err
 		}
 		return absNewDotfile, nil
