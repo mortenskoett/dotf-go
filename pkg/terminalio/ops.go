@@ -2,9 +2,7 @@ package terminalio
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
-	"strings"
 )
 
 // Copies file from userspace to the dotfiles directory and creates symlink from userspace file into
@@ -117,33 +115,24 @@ func CopyExternalDotfile(fpath, fromdir, todir string, confirm bool) (string, er
 		return "", fmt.Errorf("failed to determine if given file was a symlink: %v", err)
 	}
 
-	// Whether given file from external flag is a symlink.
+	// Handle specifically if given file from external flag is a symlink.
 	if ok {
-		// Get file pointed to by the symlink.
-		srcPath, err := os.Readlink(absfilepath)
+		// Get file path to the file pointed to by the symlink.
+		absSymlinkFilePath, err := filepath.EvalSymlinks(absfilepath)
 		if err != nil {
-			return "", fmt.Errorf("failed to get src of symlink: %v", err)
+			return "", err
 		}
 
-		// If path is not aboslute create absolute path to file pointed to by the symlink.
-		absSrcPath := srcPath
-		if !strings.HasPrefix(srcPath, "/") {
-			absSrcPath = filepath.Join(absExtDotfilesDir, srcPath)
+		absNewDotfilePath := filepath.Dir(absNewDotfile) // Without the filename.
 
-			absSrcPath, err = GetAndValidateAbsolutePath(absSrcPath)
-			if err != nil {
-				return "", fmt.Errorf("failed to validate file pointed to by symlink: %v", err)
-			}
-		}
-
-		// Create the relative path from the location in dotfiles
-		relSrcPathFromDotfiles, err := filepath.Rel(absDotfilesDir, absSrcPath)
+		// Create the relative path from the location in dotfiles to the src.
+		relSrcFilePath, err := filepath.Rel(absNewDotfilePath, absSymlinkFilePath)
 		if err != nil {
 			return "", err
 		}
 
 		// We can now create a symlink pointing to the file pointed to by the symlink.
-		if err := createSymlink(absNewDotfile, relSrcPathFromDotfiles); err != nil {
+		if err := createSymlink(absNewDotfile, relSrcFilePath); err != nil {
 			return "", err
 		}
 		return absNewDotfile, nil
