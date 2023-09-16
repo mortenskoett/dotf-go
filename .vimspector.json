@@ -1,0 +1,40 @@
+{
+  "configurations": {
+    "Run debug": {
+      "type": "go",
+      "adapter": "vscode-go",
+      "configuration": {
+        "request": "launch",
+        "program": "${fileDirname}",
+        "mode": "debug",
+        "dlvToolPath": "/usr/bin/dlv"
+      }
+    },
+    "Run smart": {
+      "type": "go",
+      "adapter": "delve",
+      "filetypes": [
+        "go"
+      ],
+      "variables": {
+        "dlvFlags": "--check-go-version=false"
+      },
+      "configuration": {
+        "request": "launch",
+        "program": "${fileDirname}",
+        "mode": "debug",
+        "dlvToolPath": "/usr/bin/dlv"
+      }
+    },
+    "Run test": {
+      "adapter": "vscode-go",
+      "type": "go",
+      "configuration": {
+        "request": "launch",
+        "program": "${fileDirname}",
+        "mode": "test",
+        "dlvToolPath": "/usr/bin/dlv"
+      }
+    }
+  }
+}
