@@ -7,7 +7,11 @@
         "request": "launch",
         "program": "${fileDirname}",
         "mode": "debug",
-        "dlvToolPath": "/usr/bin/dlv"
+        "dlvToolPath": "/usr/bin/dlv",
+        "args": [
+          "install",
+          "jabba/yeah/mofo"
+        ]
       }
     },
     "Run smart": {
