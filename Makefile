@@ -29,6 +29,10 @@ install: build install-cli install-tray ## Install all applications.
 test: ## Run tests.
 	go test ./pkg/...
 
+.PHONY: install-arch-deps
+install-arch-deps: ## Installs tray app deps for arch
+	sudo pacman -S libayatana-appindicator
+
 .PHONY: install-ubuntu-deps
 install-ubuntu-deps: ## Installs tray app deps for ubuntu
 	sudo apt-get install gcc libgtk-3-dev libayatana-appindicator3-dev
